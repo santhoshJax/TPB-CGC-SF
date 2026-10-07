@@ -1,0 +1,53 @@
+<DataSource name="DsLoMyCallProductPromotion" backendSystem="sf" businessObjectClass="LoMyCallProductPromotion" external="true" editableEntity="Order_Item__c" schemaVersion="2.0">
+  <Database platform="SQLite">
+    <Load><![CDATA[ 
+            var newParams = jsonQuery;
+			
+			var customerPKey = "";
+			var today = "";
+			var mindate = "";
+
+			if(Utils.isDefined(newParams.customerPKey)){
+				customerPKey = newParams.customerPKey;
+			}
+			if(Utils.isDefined(newParams.today)){
+				today = newParams.today;
+			}
+			if(Utils.isDefined(newParams.mindate)){
+				mindate = newParams.mindate;
+			}
+
+			var sqlParams1 = {customerPKey, today, mindate};
+
+			var sqlStmt1 = "SELECT ";
+			sqlStmt1 += " Product2.Name as productName, ";
+			sqlStmt1 += " Order_Item__c.Quantity__c as quantityOrdered, ";
+			sqlStmt1 += " Order_Item__c.TPB_Wholesaler_Name__c as wholesalerName, ";
+			sqlStmt1 += " Order__c.Delivery_Date__c as monthDate, ";
+			sqlStmt1 += " Order_Item_Template__c.Name as orderItemType, ";
+			sqlStmt1 += " Order_Item__c.Uom__c as uom ";
+			sqlStmt1 += "FROM  Order_Item__c ";
+			sqlStmt1 += "LEFT JOIN Product2 ON Order_Item__c.Product__c = Product2.Id ";
+			sqlStmt1 += "LEFT JOIN Order__c ON Order_Item__c.Order__c = Order__c.Id ";
+			sqlStmt1 += "LEFT JOIN Order_Item_Template__c ON Order_Item__c.Order_Item_Template__c = Order_Item_Template__c.Id ";
+			sqlStmt1 += "WHERE ";
+			sqlStmt1 += " Order__c.Order_Account__c = #customerPKey# ";
+			sqlStmt1 += " AND orderItemType = 'Prebook' ";
+            sqlStmt1 += " AND monthDate >= #mindate#";
+			sqlStmt1 += " AND Product2.NTC_Item_Classification__c = 'Promo' ";
+            sqlStmt1 += " AND Order_Item__c.IsDeleted = '0' ";
+            sqlStmt1 += " AND Order__c.Phase__c = 'Released' ";
+			sqlStmt1 += "ORDER BY ";
+			sqlStmt1 += " monthDate ASC";
+
+
+			var sqlStmt1Result = Utils.replaceMacrosParam(sqlStmt1, sqlParams1);
+
+
+			var finalSql = sqlStmt1Result.sql ;
+			var finalParams = sqlStmt1Result.params;
+
+			return {sql: finalSql, params: finalParams};
+		]]></Load>
+  </Database>
+</DataSource>

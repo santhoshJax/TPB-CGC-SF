@@ -1,0 +1,22 @@
+<ListItem name="LiMyOrderItemExtra">
+  <SimpleProperties>
+    <SimpleProperty name="pKey" type="DomText" />
+    <SimpleProperty name="RApKey" type="DomPKey" dataSourceProperty="RApKey" />
+    <SimpleProperty name="APpKey" type="DomPKey" dataSourceProperty="APpKey" />
+    <SimpleProperty name="wholesaler" type="DomText" dataSourceProperty="wholesaler" />
+    <SimpleProperty name="wholesalerPKey" type="DomId" dataSourceProperty="wholesalerPKey" />
+    <SimpleProperty name="isPrimary" type="DomBool" dataSourceProperty="isPrimary" />
+    <SimpleProperty name="isPromotional" type="DomBool" dataSourceProperty="isPromotional" />
+    <SimpleProperty name="supplierId" type="DomId" dataSourceProperty="supplierId" />
+    <SimpleProperty name="prdPKey" type="DomId" dataSourceProperty="prdPKey" />
+    <SimpleProperty name="costPrice" type="DomMoney" dataSourceProperty="costPrice" />
+    <SimpleProperty name="itemType" type="DomString" dataSourceProperty="itemType" />
+    <!-- TODO: itemType can be picklist -->
+    <SimpleProperty name="quantity" type="DomDecimal" dataSourceProperty="quantity" />
+    <SimpleProperty name="sellingPrice" type="DomMoney" dataSourceProperty="sellingPrice" />
+    <SimpleProperty name="sku" type="DomText" dataSourceProperty="sku" />
+    <SimpleProperty name="status" type="DomString" dataSourceProperty="status" />
+    <SimpleProperty name="wholesalerClear" type="DomString" dataSourceProperty="wholesalerClear" />
+    <!-- TODO: status can be picklist -->
+  </SimpleProperties>
+</ListItem>

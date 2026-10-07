@@ -1,0 +1,8 @@
+<ListItem name="LiMySuggested">
+  <SimpleProperties>
+    <SimpleProperty name="pKey" type="DomPKey" dataSourceProperty="pKey" />
+    <SimpleProperty name="prdMainPKey" type="DomId" dataSourceProperty="prdMainPKey" />
+    <SimpleProperty name="suggested" type="DomBool" dataSourceProperty="suggested" />
+    <SimpleProperty name="sellingPriority" type="DomBool" dataSourceProperty="sellingPriority" />
+  </SimpleProperties>
+</ListItem>

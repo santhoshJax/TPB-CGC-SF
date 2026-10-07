@@ -1,0 +1,29 @@
+<DataSource name="DsLoMyTpbPromo" backendSystem="sf" businessObjectClass="LoMyTpbPromo" external="true" readOnly="true" editableEntity="Ideal_Kit__c" schemaVersion="2.0">
+  <Database platform="SQLite">
+    <Load><![CDATA[
+var customerPKey = "";		
+    if (Utils.isDefined(jsonQuery.customerPKey)) {
+      customerPKey = Utils.convertForDBParam(jsonQuery.customerPKey, "DomPKey");
+    }
+
+    var sqlParams = {customerPKey};
+
+    var sqlStmt_IDEALPRODUCT = " SELECT Product2.Id as prdMainPKey,";   
+    sqlStmt_IDEALPRODUCT += " IK.Quantity__c AS promotionQuantity";
+    sqlStmt_IDEALPRODUCT += " FROM Product2 ";
+    sqlStmt_IDEALPRODUCT += " INNER JOIN (SELECT * FROM Ideal_Kit__c WHERE Account__c = #customerPKey# ) AS IK ON IK.Product__c = Product2.Id ";
+    sqlStmt_IDEALPRODUCT += " WHERE 1=1";
+    sqlStmt_IDEALPRODUCT += " AND Product2.NTC_Item_Classification__c = 'Promo' ";
+    sqlStmt_IDEALPRODUCT += " AND Product2.Sales_Org__c = '#SalesOrg#' ";
+
+
+    var sqlStmt = "SELECT prdMainPKey, '1' as tpbPromoted, ' ' AS promotionPKey, ' ' AS rewardPKey, ' ' AS groupName, ' ' AS groupSort, ' ' AS groupIdSort, promotionQuantity FROM ( ";
+    sqlStmt += sqlStmt_IDEALPRODUCT ;
+    sqlStmt += ") GROUP BY prdMainPKey";
+    sqlStmt += " ORDER BY prdMainPKey ASC";
+
+    return Utils.replaceMacrosParam(sqlStmt, sqlParams);
+
+	]]></Load>
+  </Database>
+</DataSource>

@@ -1,0 +1,13 @@
+<ListItem name="LiMyCallProductPromotion">
+  <SimpleProperties>
+    <SimpleProperty name="productName" type="DomString" dataSourceProperty="productName" />
+    <SimpleProperty name="quantityOrdered" type="DomInteger" dataSourceProperty="quantityOrdered" />
+    <SimpleProperty name="wholesalerName" type="DomString" dataSourceProperty="wholesalerName" />
+    <SimpleProperty name="monthDate" type="DomDate" dataSourceProperty="monthDate" />
+    <SimpleProperty name="monthString" type="DomString" />
+    <SimpleProperty name="uom" type="DomString" dataSourceProperty="uom" />
+    <SimpleProperty name="combinKey" type="DomString" />
+    <SimpleProperty name="orderUnitInformation" type="DomString" />
+    <SimpleProperty name="unitInformation" type="DomString" />
+  </SimpleProperties>
+</ListItem>

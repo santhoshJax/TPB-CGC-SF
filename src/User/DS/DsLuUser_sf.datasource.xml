@@ -1,0 +1,19 @@
+<DataSource name="DsLuUser" backendSystem="sf" businessObjectClass="LuUser" external="false" readOnly="true" editableEntity="User" schemaVersion="2.0">
+  <Attributes>
+    <Attribute name="pKey" table="User" column="Id" />
+    <DerivedAttribute name="name" value="User.FirstName || ' ' || User.LastName" />
+    <Attribute name="firstName" table="User" column="FirstName" />
+    <Attribute name="lastName" table="User" column="LastName" />
+    <Attribute name="distributorId" table="User" column="User_Distributor_ID__c" />
+  </Attributes>
+  <Entities>
+    <Entity name="User" alias="" idAttribute="Id" />
+  </Entities>
+  <QueryCondition><![CDATA[
+		User.Id = #pKey#
+		]]></QueryCondition>
+  <OrderCriteria></OrderCriteria>
+  <Parameters>
+    <Parameter name="pKey" type="TEXT" />
+  </Parameters>
+</DataSource>

@@ -1,0 +1,36 @@
+<DataSource name="DsLoMyCustomerWholesalers" backendSystem="sf" businessObjectClass="LoMyCustomerWholesalers" external="true" editableEntity="" schemaVersion="2.0">
+  <Database platform="SQLite">
+    <Load><![CDATA[
+
+// NOTICE: contract attribute external="true" is required when using external SQL queries.
+
+var RecordTypeName = "";
+
+if (Utils.isDefined(jsonQuery.recordTypeName)) {
+  RecordTypeName = Utils.convertForDBParam(jsonQuery.recordTypeName, "TEXT");
+}
+
+
+var sqlParams = { RecordTypeName };
+
+var sqlStmt = "";
+sqlStmt += " SELECT";
+sqlStmt += "   Account.Id AS pKey,";
+sqlStmt += "   Account.Name AS wholesalerName,";
+sqlStmt += "   CASE WHEN Account.Clearing_House_Participant__c = 1 THEN 'OverduePromotion' ELSE 'EmptyImage' END as wholesalerClear,";
+sqlStmt += "   RT.DeveloperName AS RecordTypeName";
+sqlStmt += " FROM";
+sqlStmt += "   Account";
+sqlStmt += "   LEFT JOIN RecordType AS RT ON RT.Id = Account.RecordTypeId";
+sqlStmt += " WHERE";
+sqlStmt += "   RecordTypeName = #RecordTypeName#";
+
+
+return Utils.replaceMacrosParam(sqlStmt, sqlParams);
+
+    ]]></Load>
+  </Database>
+  <Parameters>
+    <Parameter name="recordTypeName" type="TEXT" />
+  </Parameters>
+</DataSource>

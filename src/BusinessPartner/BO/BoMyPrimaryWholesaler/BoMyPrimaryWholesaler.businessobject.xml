@@ -1,0 +1,26 @@
+<BusinessObject name="BoMyPrimaryWholesaler" generateLoadMethod="true">
+  <DataSource name="DsBoMyPrimaryWholesaler" />
+  <SimpleProperties>
+    <SimpleProperty id="true" name="pKey" type="DomPKey" storable="true" dataSourceProperty="pKey" />
+    <SimpleProperty name="primaryWholesaler" type="DomPKey" storable="true" dataSourceProperty="primaryWholesaler" />
+    <SimpleProperty name="retailer" type="DomPKey" storable="true" dataSourceProperty="retailer" />
+    <SimpleProperty name="type" type="DomString" storable="true" dataSourceProperty="type" />
+    <SimpleProperty name="isDeleted" type="DomBool" dataSourceProperty="isDeleted"/>
+  </SimpleProperties>
+  <Methods>
+    <Method name="beforeSaveAsync" />
+    <Method name="afterSaveAsync" />
+    <Method name="beforeLoadAsync" />
+    <Method name="afterLoadAsync" />
+    <Method name="beforeInitialize" />
+    <Method name="afterInitialize" />
+    <Method name="beforeDoValidateAsync" />
+    <Method name="afterDoValidateAsync" />
+    <Method name="beforeCreateAsync" />
+    <Method name="afterCreateAsync" />
+    <Method name="loadAsync" />
+    <Method name="saveAsync" />
+    <Method name="createAsync" />
+    <Method name="mySaveAsync" />
+  </Methods>
+</BusinessObject>

@@ -1,0 +1,14 @@
+<LookupObject name="LuMyDistributorLicense" generateLoadMethod="true" schemaVersion="1.1">
+  <DataSource name="DsLuMyDistributorLicense" />
+  <SimpleProperties>
+    <SimpleProperty name="pKey" type="DomId" storable="false" dataSourceProperty="pKey" />
+    <SimpleProperty name="userPKey" type="DomId" storable="false" dataSourceProperty="userPKey" />
+    <SimpleProperty name="state" type="DomString" storable="false" dataSourceProperty="state" />
+    <SimpleProperty name="distributorLicense" type="DomText" storable="false" dataSourceProperty="distributorLicense" />
+  </SimpleProperties>
+  <Methods>
+    <Method name="afterLoadAsync" />
+    <Method name="beforeLoadAsync" />
+    <Method name="loadAsync" />
+  </Methods>
+</LookupObject>

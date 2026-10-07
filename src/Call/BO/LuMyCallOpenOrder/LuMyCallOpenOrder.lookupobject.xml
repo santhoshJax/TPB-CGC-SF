@@ -1,0 +1,11 @@
+<LookupObject name="LuMyCallOpenOrder">
+  <DataSource name="DsLuMyCallOpenOrder" />
+  <SimpleProperties>
+  	<SimpleProperty name="openOrderId" type="DomString" dataSourceProperty="openOrderId" />
+  </SimpleProperties>
+  <Methods>
+    <Method name="afterLoadAsync" />
+    <Method name="beforeLoadAsync" />
+    <Method name="loadAsync" />
+  </Methods>
+</LookupObject>

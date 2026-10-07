@@ -1,0 +1,49 @@
+<Process name="Order::MyCloneProductProcess" defaultAction="GetItemType" schemaVersion="0.0.0.5">
+  <Entry>
+    <ProcessContext>
+      <Declarations>
+        <Declaration name="buttonProcessValue" type="String" />
+      </Declarations>
+      <Parameters>
+        <Input name="MainBO" type="BoOrder" />
+      </Parameters>
+    </ProcessContext>
+    <EntryActions></EntryActions>
+  </Entry>
+  <Body>
+    <Actions>
+      <Action name="GetItemType" actionType="LOGIC" call="ProcessContext::MainBO.boItemTabManager.myBeforeUpdateItemOrderItemTemplate">
+        <Parameters>
+          <Input name="orderItem" value="ProcessContext::MainBoTabManager.boOrder" />
+        </Parameters>
+        <TransitionTo action="SetFilterItemType" />
+      </Action>
+      <Action name="SetFilterItemType" actionType="LOGIC" call="ProcessContext::MainBO.boOrderMeta.loOrderItemMetas.filterInvalidOrderItemMetas">
+        <Parameters>
+          <Input name="moreCond" value="ProcessContext::MainBO.boItemTabManager.orderItemMetaCond" />
+        </Parameters>
+        <TransitionTo action="ShowItemType" />
+      </Action>
+      <Action actionType="VIEW" name="ShowItemType">
+        <UIDescription>Order::MySelectItemTypeUI</UIDescription>
+        <Events>
+          <Event name="itemSelected" action="AssignButtonProcessValue" />
+        </Events>
+      </Action>
+      <Action name="AssignButtonProcessValue" actionType="LOGIC" call="Utils.identity">
+        <Parameters>
+          <Input name="value" value="clone" type="Literal" />
+        </Parameters>
+        <Return name="ProcessContext::buttonProcessValue" />
+        <TransitionTo action="End" />
+      </Action>
+      <Action actionType="END" name="End">
+        <ReturnValues>
+          <Return name="cloneProductItemMetaPKey" value="Event.pKey" />
+          <Return name="cloneProductItemPKey" value="ProcessContext::MainBO.LoItems.current.prdMainPKey" />
+          <Return name="cloneProductButtonProcess" value="ProcessContext::buttonProcessValue" />
+        </ReturnValues>
+      </Action>
+    </Actions>
+  </Body>
+</Process>

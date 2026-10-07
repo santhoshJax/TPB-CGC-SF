@@ -1,0 +1,22 @@
+<ListObject name="LoMyCallRelatedWholesaler" schemaVersion="1.1">
+  <DataSource name="DsLoMyCallRelatedWholesaler" />
+  <Item objectClass="LiMyCallRelatedWholesaler" />
+  <Methods>
+    <Method name="beforeSaveAsync" />
+    <Method name="afterSaveAsync" />
+    <Method name="afterLoadAsync" />
+    <Method name="beforeLoadAsync" />
+    <Method name="afterDoValidateAsync" />
+    <Method name="beforeDoValidateAsync" />
+    <Method name="loadAsync" />
+    <Method name="saveAsync" />
+    <Method name="myGetRAForCard" />
+    <Method name="myGetInfoForRelatedWholesalerCard" />
+    <Method name="myAddItem" />
+    <Method name="myGetForOverView" />
+    <Method name="mySetWholesalerType" />
+    <Method name="myDeleteItem" />
+    <Method name="myIsCallOnDemandDataAvailable" />
+    <Method name="myRequestCallOnDemandDataAsync" />
+  </Methods>
+</ListObject>

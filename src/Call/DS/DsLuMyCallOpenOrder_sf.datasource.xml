@@ -1,0 +1,28 @@
+<DataSource name="DsLuMyCallOpenOrder" backendSystem="sf" objectClass="LuMyCallOpenOrder" schemaVersion="2.0">
+  <Database platform="SQLite">
+    <Load><![CDATA[
+
+      var clbMainPKey = "";
+      var customerPKey = "";
+
+      if (Utils.isDefined(jsonQuery.clbMainPKey)){
+      	clbMainPKey =  Utils.convertForDBParam(jsonQuery.clbMainPKey, "DomPKey");
+      }
+      if (Utils.isDefined(jsonQuery.customerPKey)){
+      	customerPKey =  Utils.convertForDBParam(jsonQuery.customerPKey, "DomPKey");
+      }
+
+      var sqlParams = {clbMainPKey, customerPKey};
+      var sqlStmt = "SELECT Id AS openOrderId ";
+      sqlStmt +=    "FROM Order__c ";
+      sqlStmt +=    "WHERE ";
+      sqlStmt +=    "Phase__c = 'Initial' ";
+      sqlStmt +=    "AND IsDeleted <> '1' ";
+      sqlStmt +=    "AND (Visit__c = #clbMainPKey# ";
+      sqlStmt +=    "OR Order_Account__c = #customerPKey#) ";
+      sqlStmt +=    "LIMIT 1";
+
+      return Utils.replaceMacrosParam(sqlStmt, sqlParams);
+]]></Load>
+  </Database>
+</DataSource>

@@ -1,0 +1,33 @@
+<DataSource name="DsBoMyGTMOpportunity" backendSystem="sf" businessObjectClass="BoMyGTMOpportunity" external="false" editableEntity="TPB_GTM_Opportunity__c" schemaVersion="2.0">
+  <Attributes>
+    <Attribute name="pKey" table="TPB_GTM_Opportunity__c" column="Id" />
+    <Attribute name="name" table="TPB_GTM_Opportunity__c" column="Name" />
+    <Attribute name="tpbOpportunityRank" table="TPB_GTM_Opportunity__c" column="TPB_Opportunity_Rank__c" />
+    <Attribute name="tpbAccountID" table="Account" column="Name" />
+    <Attribute name="tpbOpportunityName" table="TPB_GTM_Opportunity__c" column="TPB_Opportunity_Name__c" />
+    <Attribute name="tpbPriorityFlag" table="TPB_GTM_Opportunity__c" column="TPB_Priority_Flag__c" />
+    <Attribute name="tpbStatus" table="TPB_GTM_Opportunity__c" column="TPB_Status__c" />
+    <Attribute name="tpbType" table="TPB_GTM_Opportunity__c" column="TPB_Type__c" />
+    <Attribute name="tpbWeight" table="TPB_GTM_Opportunity__c" column="TPB_Weight__c" />
+    <Attribute name="tpbStrategy" table="TPB_GTM_Opportunity__c" column="TPB_Strategy__c" />
+    <Attribute name="tpbActive" table="TPB_GTM_Opportunity__c" column="TPB_Active__c" />
+    <Attribute name="accountId" table="TPB_GTM_Opportunity__c" column="TPB_Account_ID__c" />
+  </Attributes>
+  <Entities>
+    <Entity name="TPB_GTM_Opportunity__c" alias="" idAttribute="Id" />
+    <Entity name="Account" alias="">
+      <Join Type="left outer">
+        <SimpleJoin>
+          <Condition leftSideValue="TPB_GTM_Opportunity__c.TPB_Account_ID__c" comparator="eq" rightSideType="Attribute" rightSideValue="Account.Id" />
+        </SimpleJoin>
+      </Join>
+    </Entity>
+  </Entities>
+  <QueryCondition><![CDATA[
+		TPB_GTM_Opportunity__c.Id = #pKey#
+  ]]></QueryCondition>
+  <OrderCriteria />
+  <Parameters>
+    <Parameter name="pKey" type="TEXT" />
+  </Parameters>
+</DataSource>

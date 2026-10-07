@@ -1,0 +1,17 @@
+<DataSource name="DsLoMyBoCustomerAddressRepeat" backendSystem="sf" businessObjectClass="LoMyBoCustomerAddressRepeat" external="true" editableEntity="Account" schemaVersion="2.0">
+  <Database platform="SQLite">
+    <Load><![CDATA[
+
+      var sqlStmt = "SELECT Id AS pKey,";
+      sqlStmt += " ShippingCity AS cityPKey,";
+      sqlStmt += " ShippingPostalCode AS postalCodePKey,";
+      sqlStmt += " ShippingState AS statePKey,";
+      sqlStmt += " ShippingStreet AS streetPKey,";
+      sqlStmt += " ShippingCountry AS countryPKey";
+      sqlStmt += " FROM Account ";
+      sqlStmt += " WHERE (1 = 1) ";
+
+      return Utils.replaceMacrosParam(sqlStmt);
+]]></Load>
+  </Database>
+</DataSource>

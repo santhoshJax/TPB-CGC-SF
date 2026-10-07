@@ -1,0 +1,40 @@
+<BusinessObject name="BoMyRelatedAccountDetail" schemaVersion="1.1">
+  <DataSource name="DsBoMyRelatedAccountDetail" />
+  <SimpleProperties>
+    <SimpleProperty name="pKey" type="DomPKey" storable="true" dataSourceProperty="pKey" />
+    <SimpleProperty name="retailerPKey" type="DomPKey" storable="true" dataSourceProperty="retailerPKey" />
+    <SimpleProperty name="wholesalerPKey" type="DomPKey" storable="true" dataSourceProperty="wholesalerPKey" />
+    <SimpleProperty name="rAType" type="DomString" storable="true" dataSourceProperty="rAType" />
+    <SimpleProperty name="isPrimary" type="DomBool" storable="true" dataSourceProperty="isPrimary" />
+    <SimpleProperty name="isPromotional" type="DomBool" storable="true" dataSourceProperty="isPromotional" />
+    <SimpleProperty name="wholesalerName" type="DomBpaName" dataSourceProperty="wholesalerName" />
+    <SimpleProperty name="retailerName" type="DomBpaName" dataSourceProperty="retailerName" />
+    <SimpleProperty name="clearing" type="DomString" dataSourceProperty="clearing" />
+    <SimpleProperty name="supplierId" type="DomString" storable="true" dataSourceProperty="supplierId" />
+    <SimpleProperty name="salesDivision" type="DomString" storable="true" dataSourceProperty="salesDivision" />
+    <SimpleProperty name="accountNumber" type="DomString" storable="false" dataSourceProperty="accountNumber" />
+  </SimpleProperties>
+  <NestedObjects />
+  <ObjectLookups />
+  <ListObjects>
+    <ListObject name="loAttachment" objectClass="LoBpaAttachment" dataSourceProperty="pKey" listProperty="customerPKey" loadMode="OnDemand" />
+  </ListObjects>
+  <Methods>
+    <Method name="beforeSaveAsync" />
+    <Method name="afterSaveAsync" />
+    <Method name="beforeLoadAsync" />
+    <Method name="afterLoadAsync" />
+    <Method name="beforeInitialize" />
+    <Method name="afterInitialize" />
+    <Method name="beforeDoValidateAsync" />
+    <Method name="afterDoValidateAsync" />
+    <Method name="beforeCreateAsync" />
+    <Method name="afterCreateAsync" />
+    <Method name="loadAsync" />
+    <Method name="saveAsync" />
+    <Method name="createAsync" />
+    <Method name="mySaveAsync" />
+    <Method name="mySetWholesalerType" />
+    <Method name="myloadLoAttachmentAsync" />
+  </Methods>
+</BusinessObject>

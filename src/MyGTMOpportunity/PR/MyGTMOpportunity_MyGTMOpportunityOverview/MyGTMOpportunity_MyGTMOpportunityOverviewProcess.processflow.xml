@@ -1,0 +1,53 @@
+<Process name="MyGTMOpportunity::MyGTMOpportunityOverviewProcess" defaultAction="Mode_Decision" schemaVersion="0.0.0.5">
+  <Entry>
+    <ProcessContext>
+      <Declarations>
+        <Declaration name="GTMOpportunityList" type="LoMyGTMOpportunityOverview" />
+        <Declaration name="GTMOpportunityDetail" type="BoMyGTMOpportunity" />
+      </Declarations>
+      <Parameters>
+        <Input name="AccountId" type="DomPKey" />
+        <Input name="GTMOpportunityId" type="DomPKey" />
+        <Input name="Mode" type="String" />
+      </Parameters>
+    </ProcessContext>
+    <EntryActions>
+      <Action name="LoadGTMOpportunityList" actionType="LOAD" type="LoMyGTMOpportunityOverview">
+        <Parameters>
+			<Input name="accountId" value="ProcessContext::AccountId" />
+		</Parameters>
+        <Return name="ProcessContext::GTMOpportunityList" />
+      </Action>
+    </EntryActions>
+  </Entry>
+  <Body>
+    <Actions>
+      <Action name="Mode_Decision" actionType="DECISION" parameter="ProcessContext::Mode">
+        <Case value="itemSelectedInCockpitList" action="SelectItemFromCockpit" />
+        <CaseElse action="ShowGTMOpportunityOverview" />
+        <CaseEmpty action="ShowGTMOpportunityOverview" />
+      </Action>
+      <Action name="SelectItemFromCockpit" actionType="LOGIC" call="ProcessContext::GTMOpportunityList.setCurrentByPKey">
+        <Parameters>
+          <Input name="pKey" value="ProcessContext::GTMOpportunityId" />
+          <Input name="selected" type="Literal" value="true" />
+        </Parameters>
+        <TransitionTo action="ShowGTMOpportunityOverview" />
+      </Action>
+      <Action name="ShowGTMOpportunityOverview" actionType="VIEW">
+        <UIDescription>MyGTMOpportunity::MyGTMOpportunityOverviewUI</UIDescription>
+        <Events>
+          <Event name="itemSelected" action="LoadGTMOpportunityDetails" />
+        </Events>
+      </Action>
+      <Action name="LoadGTMOpportunityDetails" actionType="MASTER_DETAIL_HANDLER">
+        <MasterList name="ProcessContext::GTMOpportunityList">
+          <ItemUnselected type="RELOAD" />
+        </MasterList>
+        <DetailObject name="ProcessContext::GTMOpportunityDetail" objectClass="BoMyGTMOpportunity">
+          <Save type="DIRTY" confirmation="FALSE" validate="TRUE" />
+        </DetailObject>
+      </Action>
+    </Actions>
+  </Body>
+</Process>

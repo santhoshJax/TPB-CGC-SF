@@ -1,0 +1,7 @@
+<ListItem name="LiMyOrgUnitMapping">
+  <SimpleProperties>
+  	<SimpleProperty name="pKey" type="DomPKey" dataSourceProperty="pKey" />
+    <SimpleProperty name="name" type="DomString" dataSourceProperty="name" />
+    <SimpleProperty name="zipCode" type="DomString" dataSourceProperty="zipCode" />
+  </SimpleProperties>
+</ListItem>

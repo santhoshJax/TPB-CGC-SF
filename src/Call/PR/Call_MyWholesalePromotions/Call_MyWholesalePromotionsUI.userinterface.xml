@@ -1,0 +1,20 @@
+<UIDescription name="Call::MyWholesalePromotionsUI" schemaVersion="0.0.0.5">
+  <Page pagePattern="SingleSectionPage" masterSectionFlex="4.6" detailSectionFlex="3.7" cachable="false">
+    <PageHeader>
+      <Bindings>
+        <Resource target="title" type="Label" id="WholesalePromotionTitleId" defaultLabel="All Wholesale Promotions" bindingMode="ONE_TIME" />
+      </Bindings>
+    </PageHeader>
+    <Section sectionName="masterSection" sectionPattern="SingleAreaSection">
+      <Area areaName="mainArea" areaPattern="SingleElementArea">
+        <MediaListControl name="CallPromotionAttachments" dataSource="ProcessContext::wholesalePromotionsList.Items[]">
+          <Bindings>
+            <Binding bindingMode="ONE_WAY" binding=".mediaPath" type="Text" target="MediaPath" />
+            <Binding bindingMode="ONE_WAY" binding=".fileName" type="Text" target="Description" />
+            <Binding bindingMode="ONE_WAY" binding=".type" type="Text" target="Type" />
+          </Bindings>
+        </MediaListControl>
+      </Area>
+    </Section>
+  </Page>
+</UIDescription>

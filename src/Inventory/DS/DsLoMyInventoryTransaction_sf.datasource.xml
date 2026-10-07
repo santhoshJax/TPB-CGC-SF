@@ -1,0 +1,52 @@
+<DataSource name="DsLoMyInventoryTransaction" backendSystem="sf" businessObjectClass="LoMyInventoryTransaction" external="false" editableEntity="" schemaVersion="2.0">
+  <Attributes>
+    <Attribute name="pKey" table="Inventory_Transaction__c" column="Id" />
+    <Attribute name="name" table="Inventory_Transaction__c" column="Name" />
+    <DerivedAttribute name="productName" type="String" value="'#productName#'" />
+    <Attribute name="amount" table="Inventory_Transaction__c" column="Amount__c" />
+    <Attribute name="ivcMainPKey" table="Inventory_Transaction__c" column="Inventory__c" />
+    <Attribute name="ivcTaMetaPKey" table="Inventory_Transaction__c" column="Inventory_Transaction_Template__c" />
+    <Attribute name="sdoMainPKey" table="Inventory_Transaction__c" column="Order_Document__c" />
+    <Attribute name="sdoItemPKey" table="Inventory_Transaction__c" column="Order_Item__c" />
+    <Attribute name="accounted" table="Inventory_Transaction__c" column="Accounted__c" />
+    <DerivedAttribute name="salesOrg" type="String" value="'#SalesOrg#'" />
+    <Attribute name="initiationDate" table="Inventory_Transaction__c" column="Creation_Date__c " />
+    <Attribute name="initiatorUsrMainPKey" table="Inventory_Transaction__c" column="CreatedById" />
+    <Attribute name="chargeDate" table="Inventory_Transaction__c" column="Charge_Date__c" />
+    <DerivedAttribute name="bpaCustomerPKey" value="''" />
+    <Attribute name="paymentMethod" table="Inventory_Transaction__c" column="Payment_Method__c" />
+    <Attribute name="sdoPaymentPKey" table="Inventory_Transaction__c" column="Order_Payment__c" />
+    <Attribute name="accName" table="Account" column="Name" />
+  </Attributes>
+  <Entities>
+    <Entity name="Inventory_Transaction__c" alias="" idAttribute="Id" />
+    <Entity name="Order__c" alias="">
+      <Join Type="left outer">
+        <SimpleJoin>
+          <Condition leftSideValue="Inventory_Transaction__c.Order_Document__c " comparator="eq" rightSideType="Attribute" rightSideValue="Order__c.Id" />
+        </SimpleJoin>
+      </Join>
+    </Entity>
+    <Entity name="Account" alias="">
+      <Join Type="left outer">
+        <SimpleJoin>
+          <Condition leftSideValue="Order__c.Order_Account__c" comparator="eq" rightSideType="Attribute" rightSideValue="Account.Id" />
+        </SimpleJoin>
+      </Join>
+    </Entity>
+  </Entities>
+  <QueryCondition><![CDATA[
+		Inventory_Transaction__c.Inventory__c = #inventoryId# OR
+        Inventory_Transaction__c.Order_Item__c IN ( #orderItemPkeys# ) OR
+        Inventory_Transaction__c.Order_Payment__c IN ( #orderPaymentPkeys# )
+       ]]></QueryCondition>
+  <OrderCriteria>
+    <OrderCriterion entity="Inventory_Transaction__c" attribute="Name" direction="ASC" />
+  </OrderCriteria>
+  <Parameters>
+    <Parameter name="inventoryId" type="TEXT" />
+    <Parameter name="orderItemPkeys" type="LIST" />
+    <Parameter name="orderPaymentPkeys" type="LIST" />
+    <Parameter name="productName" type="TEXT" />
+  </Parameters>
+</DataSource>

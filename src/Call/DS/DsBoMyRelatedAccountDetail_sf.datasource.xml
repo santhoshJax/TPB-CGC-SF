@@ -1,0 +1,40 @@
+<DataSource name="DsBoMyRelatedAccountDetail" backendSystem="sf" businessObjectClass="BoMyRelatedAccountDetail" external="false" readOnly="false" editableEntity="Related_Account__c" schemaVersion="2.0">
+  <Attributes>
+    <Attribute name="pKey" table="Related_Account__c" column="Id" />
+    <Attribute name="retailerPKey" table="Related_Account__c" column="Retailer__c" />
+    <Attribute name="wholesalerPKey" table="Related_Account__c" column="Wholesaler__c" />
+    <Attribute name="rAType" table="Related_Account__c" column="Type__c" />
+    <Attribute name="isPrimary" table="Related_Account__c" column="TPB_Primary_Wholesaler__c" />
+    <Attribute name="isPromotional" table="Related_Account__c" column="TPB_Promotional_Wholesaler__c" />
+    <Attribute name="wholesalerName" table="Wholesaler" column="Name" />
+    <Attribute name="retailerName" table="Retailer" column="Name" />
+    <Attribute name="clearing" table="Wholesaler" column="Clearing_House_Participant__c" />
+    <Attribute name="supplierId" table="Related_Account__c" column="Supplier_Id__c" />
+    <Attribute name="salesDivision" table="Related_Account__c" column="TPB_Sales_Division__c" />
+    <Attribute name="accountNumber" table="Wholesaler" column="Account_Number_old__c" />
+  </Attributes>
+  <Entities>
+    <Entity name="Related_Account__c" alias="" idAttribute="Id" />
+    <Entity name="Account" alias="Wholesaler">
+      <Join Type="left outer">
+        <SimpleJoin>
+          <Condition leftSideValue="Related_Account__c.Wholesaler__c" comparator="eq" rightSideType="Attribute" rightSideValue="Wholesaler.Id" />
+        </SimpleJoin>
+      </Join>
+    </Entity>
+    <Entity name="Account" alias="Retailer">
+      <Join Type="left outer">
+        <SimpleJoin>
+          <Condition leftSideValue="Related_Account__c.Retailer__c" comparator="eq" rightSideType="Attribute" rightSideValue="Retailer.Id" />
+        </SimpleJoin>
+      </Join>
+    </Entity>
+  </Entities>
+  <QueryCondition><![CDATA[
+		Related_Account__c.Id = #pKey# AND Related_Account__c.isDeleted = 0
+  ]]></QueryCondition>
+  <OrderCriteria />
+  <Parameters>
+    <Parameter name="pKey" type="TEXT" />
+  </Parameters>
+</DataSource>

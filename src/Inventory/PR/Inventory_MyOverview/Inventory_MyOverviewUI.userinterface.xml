@@ -1,0 +1,77 @@
+<UIDescription name="Inventory::MyOverviewUI" schemaVersion="0.0.0.5">
+  <Page pagePattern="SingleSectionPage">
+    <PageHeader>
+      <Bindings>
+        <Resource target="title" type="Label" id="InventoryTitleId" defaultLabel="Inventory" bindingMode="ONE_TIME" />
+      </Bindings>
+    </PageHeader>
+    <Section sectionName="masterSection" sectionPattern="SingleAreaSection">
+      <Area areaName="mainArea" areaPattern="SingleElementArea">
+        <GroupedList name="InventoryList" searchable="true" onItemDisclosure="true" dataSource="ProcessContext::InventoryList.Items[]">
+          <SearchAttributes>
+            <SearchAttribute name="productName" />
+            <SearchAttribute name="InventoryState" />
+            <SearchAttribute name="id" />
+          </SearchAttributes>
+          <Items name="Items" itemPattern="itemPattern">
+            <ItemListLayout>
+              <Tablet>
+                <Default>
+                  <!--<Col width="1.5em" height="1.4em" layoutType="Image" bindingId="Phase" />-->
+                  <Col width="11em">
+                    <Row layoutType="itemIdentifier" bindingId="ProductName" />
+                    <Row layoutType="itemSecondary" bindingId="InventoryName" />
+                  </Col>
+                  <Col width="11em">
+                    <Row layoutType="itemValue" bindingId="InventoryState" />
+                  </Col>
+                  <Col width="11em">
+                    <Row layoutType="itemValue" bindingId="OwnerName" />
+                  </Col>
+                  <Col width="7em">
+                    <Row layoutType="itemValue" bindingId="Phase" />
+                    <Row layoutType="itemImportantValue" bindingId="Balance" />
+                  </Col>
+                  <!--<Col width="1.5em" height="1em" layoutType="Image" bindingId="SyncStatusIcon" />-->
+                </Default>
+              </Tablet>
+              <Phone>
+                <Default>
+                  <Col width="6.8em">
+                    <Row layoutType="itemIdentifier" bindingId="ProductName" />
+                    <Row layoutType="itemSecondary" bindingId="InventoryName" />
+                    <Row layoutType="itemValue" bindingId="InventoryState" />
+                    <Row layoutType="itemValue" bindingId="OwnerName" />
+                  </Col>
+                  <Col width="3.5em">
+                    <Row layoutType="itemValue" bindingId="Phase" />
+                    <Row layoutType="itemImportantValue" bindingId="Balance" />
+                  </Col>
+                </Default>
+              </Phone>
+            </ItemListLayout>
+            <Bindings>
+              <Binding target="pKey" type="Text" binding=".pKey" bindingMode="ONE_WAY" />
+              <Binding target="InventoryName" type="Text" binding=".inventoryName" bindingMode="ONE_WAY" />
+              <Binding target="ProductName" type="Text" binding=".productName" bindingMode="ONE_WAY" />
+              <Binding target="InventoryState" type="Text" binding=".inventoryState" bindingMode="ONE_WAY" />
+              <Binding target="OwnerName" type="Text" binding=".ownerName" bindingMode="ONE_WAY" />
+              <Binding target="ValidFrom" type="Date" binding=".validFrom" bindingMode="ONE_WAY" />
+              <Binding target="ValidThru" type="Date" binding=".validThru" bindingMode="ONE_WAY" />
+              <Binding target="Phase" type="Text" binding=".phase" bindingMode="ONE_WAY" />
+              <Binding target="Balance" type="Text" binding=".balance" bindingMode="ONE_WAY" />
+            </Bindings>
+          </Items>
+          <Events>
+            <ItemSelectedEvent event="itemSelected">
+              <Params>
+                <Param name="inventoryId" value=".pKey" />
+                <Param name="productName" value=".productName" />
+              </Params>
+            </ItemSelectedEvent>
+          </Events>
+        </GroupedList>
+      </Area>
+    </Section>
+  </Page>
+</UIDescription>

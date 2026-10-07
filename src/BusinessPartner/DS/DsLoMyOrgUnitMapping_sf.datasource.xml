@@ -1,0 +1,18 @@
+<DataSource name="DsLoMyOrgUnitMapping" backendSystem="sf" businessObjectClass="LoMyOrgUnitMapping" external="true" editableEntity="TPB_Org_Unit_Mapping__c" schemaVersion="2.0">
+  <Database platform="SQLite">
+    <Load><![CDATA[
+
+    var sqlStmt="";
+    sqlStmt+=" SELECT Id AS pKey, ";
+    sqlStmt+="  Name AS name, ";
+    sqlStmt+="  TPB_Zip_Code__c AS zipCode ";
+    sqlStmt+=" FROM TPB_Org_Unit_Mapping__c  ";
+    sqlStmt+=" WHERE (1 = 1) ";
+    return Utils.replaceMacrosParam(sqlStmt);
+
+]]></Load>
+  </Database>
+  <Parameters>
+    <Parameter name="jsonzipcode" type="String" />
+  </Parameters>
+</DataSource>

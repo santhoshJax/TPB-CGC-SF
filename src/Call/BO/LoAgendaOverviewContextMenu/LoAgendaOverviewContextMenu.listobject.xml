@@ -1,0 +1,8 @@
+<ListObject name="LoAgendaOverviewContextMenu" generateLoadMethod="false">
+  <DataSource name="DsLoAgendaOverviewContextMenu" />
+  <Item objectClass="LiAgendaOverviewContextMenu" />
+  <Methods>
+    <Method name="loadAsync" />
+    <Method name="replaceLoadAsync" />
+  </Methods>
+</ListObject>

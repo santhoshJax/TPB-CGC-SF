@@ -1,0 +1,18 @@
+<Process name="Call::MyHeadquarterAttachmentProcess" defaultAction="ShowUI" schemaVersion="0.0.0.5">
+  <Entry>
+    <ProcessContext>
+      <Declarations></Declarations>
+      <Parameters>
+        <Input name="headquarterDetail" type="BoCustomer"/>
+      </Parameters>
+    </ProcessContext>
+  <EntryActions></EntryActions>
+  </Entry>
+  <Body>
+    <Actions>
+      <Action name="ShowUI" actionType="VIEW">
+        <UIDescription>Call::MyHeadquarterAttachmentUI</UIDescription>
+      </Action>
+    </Actions>
+  </Body>
+</Process>

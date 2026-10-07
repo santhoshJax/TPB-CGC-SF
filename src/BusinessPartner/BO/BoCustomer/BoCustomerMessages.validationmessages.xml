@@ -1,0 +1,30 @@
+<ValidationMessages name="BoCustomerMessages" businessObject="BoCustomer" schemaVersion="0.0.0.5">
+  <ValidationMessage name="CasBpaMainCustomerNameMustNotBeEmpty" defaultMessage="Please enter the name of customer." comment="Validates if the name of customer is not empty." />
+  <ValidationMessage name="CasBpaMainCustomerEmailInvalid" defaultMessage="Please provide a valid email for the customer." comment="Validates if the email of customer is valid." />
+  <ValidationMessage name="CasBpaMainContactPartnerLastNameEmpty" defaultMessage="Please specify the last name for the contact partner." comment="Validates if the lastname of contactpartner is not empty." />
+  <ValidationMessage name="CasBpaMainContactPartnerEmailInvalid" defaultMessage="Please provide a valid email for the contact partner." comment="Validates if the email of contactpartner is valid." />
+  <ValidationMessage name="CasBpaMainOpeningTimeFromGreaterTimeThru" defaultMessage="Time from of opening time must be earlier than Time Thru." comment="Validates that time from of opening time cannot be greater than time thru." />
+  <ValidationMessage name="CasBpaPosValidFromGreaterValidThru" defaultMessage="Valid From must be earlier or same as Valid Thru." comment="Validates that valid from of opening time cannot be greater than valid thru." />
+  <ValidationMessage name="CasBpaPOSNameMustNotBeEmpty" defaultMessage="Please enter the name of POS #posId#, #text#." comment="Validates that the name of pos is not empty." />
+  <ValidationMessage name="CasBpaPOSValidityPeriodMustNotOverlap" defaultMessage="The validity period of POS #posId#, #text# must not overlap." comment="Validates that the name of pos is not empty." />
+  <ValidationMessage name="CasBpaPOSNoDeletionAllowedMsg" defaultMessage="POS relation is mandatory. You cannot delete mandatory POS relations." comment="Validates that no mandatory POS relations will be deleted." />
+  <ValidationMessage name="CasBpaPOSConfirmDeletionMsg" defaultMessage="Are you sure you want to delete POS relation?" comment="Confirmation message for POS relation deletion" />
+  <ValidationMessage name="CasBpaLocationCouldNotBeUpdated" defaultMessage="Sorry, could not update the location." comment="Notification after failed manual location update" />
+  <ValidationMessage name="CasBpaSplittingRuleHasToBeFilled" defaultMessage="The splitting rule should not be blank." comment="The splitting rule cannot be blank." />
+  <ValidationMessage name="CasBpaSplittingRuleHasToBeBlank" defaultMessage="The splitting rule should be blank." comment="The splitting rule must be blank." />
+  <ValidationMessage name="CasBpaMainOpeningTimeFromOrTimeThruNotEmpty" defaultMessage="Please specify Time From and Time Thru for opening hours." comment="Time from and Time thru of opening hours cannot be blank." />
+  <ValidationMessage name="CasBpaPOSHasReferencedAsset" defaultMessage="Deleting this POS is not allowed because there are assets relying on it." comment="A POS cannot be deleted if it has referenced assets." />
+  <ValidationMessage name="CasBpaMainCustomerClosureReasonMustNotBeEmpty" defaultMessage="You must provide a closure reason before proceeding." comment="Validates if the closure reason is not empty." />
+  <ValidationMessage name="CasBpaMainCustomerClosureReasonMustBeCorrect" defaultMessage="You must provide a correct closure reason before proceeding." comment="Validates if the closure reason is not correct." />
+  <ValidationMessage name="CasBpaMainCustomerAddressMustNotBeEmpty" defaultMessage="Please enter the Address of the customer." comment="Customer Address cannot be blank." />
+  <ValidationMessage name="CasBpaMainCustomerStatusMustNotBeEmpty" defaultMessage="Please enter the Status of the customer." comment="Customer Status cannot be blank." />
+  <ValidationMessage name="CasBpaMainCustomerZipCodeMustNotBeEmpty" defaultMessage="Please enter the Zip Code of the customer correctly." comment="Customer ZipCode cannot be blank." />
+  <ValidationMessage name="CasConfirmEmptyPrimaryWholesalerMsg" defaultMessage="You left Primary Wholesaler blank. Continue?" comment="Primary Wholesaler blank." />
+  <ValidationMessage name="CasConfirmErrorZipCodeMsg" defaultMessage="Please enter a zip code within your territory." comment="TSM Zip Code" />
+  <ValidationMessage name="CasConfirmClassOfTradeMsg" defaultMessage="Please enter the Class Of Trade of the customer." comment="Class Of Trade is blank" />
+  <ValidationMessage name="CasConfirmSubClassOfTradeMsg" defaultMessage="Please enter the Subclass Of Trade of the customer." comment="SubClass Of Trade is blank" />
+  <ValidationMessage name="CasBpaMainCustomerAddressMustNotRepeat" defaultMessage="Duplicate account exists with this address. Please enter unique address." comment="Customer ZipCode cannot be repeat." />
+  <ValidationMessage name="CasBpaClassOfTradeDependencyMsg" defaultMessage="Class of trade and subclass of trade field dependency errors.#newLine# Available options for #className#:#newLine# #subClassName#" comment="Class of Trade Dependcy" />
+  <ValidationMessage name="CasBpaClosureReasonDependencyMsg" defaultMessage="Status and Closure Reason field dependency errors.#newLine# Available options for #statusName#:#newLine# #closureReasonName#" comment="Status Dependcy" />
+  <ValidationMessage name="CasBpaMainCustomerNotParentOwnerClose" defaultMessage="You are not the account owner. Only the owner can close the account." comment="A chain retailer can only be closed by the owner of its parent (Headquarter) account." />
+</ValidationMessages>

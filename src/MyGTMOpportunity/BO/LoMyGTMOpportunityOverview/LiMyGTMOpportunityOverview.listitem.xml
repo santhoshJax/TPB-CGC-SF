@@ -1,0 +1,17 @@
+<ListItem name="LiMyGTMOpportunityOverview">
+  <SimpleProperties>
+    <SimpleProperty name="pKey" type="DomPKey" dataSourceProperty="pKey" />
+    <SimpleProperty name="name" type="DomText" dataSourceProperty="name" />
+    <SimpleProperty name="tpbOpportunityRank" type="DomInteger" dataSourceProperty="tpbOpportunityRank" />
+    <SimpleProperty name="tpbAccountID" type="DomText" dataSourceProperty="tpbAccountID" />
+    <SimpleProperty name="tpbOpportunityName" type="DomText" dataSourceProperty="tpbOpportunityName" />
+    <SimpleProperty name="tpbPriorityFlag" type="DomText" dataSourceProperty="tpbPriorityFlag" />
+    <SimpleProperty name="tpbStatus" type="DomText" dataSourceProperty="tpbStatus" />
+    <SimpleProperty name="tpbType" type="DomText" dataSourceProperty="tpbType" />
+    <SimpleProperty name="tpbWeight" type="DomInteger" dataSourceProperty="tpbWeight" />
+    <SimpleProperty name="tpbStrategy" type="DomText" dataSourceProperty="tpbStrategy" />
+    <SimpleProperty name="tpbActive" type="DomText" dataSourceProperty="tpbActive" />
+    <SimpleProperty name="flagImage" type="DomText" dataSourceProperty="flagImage" />
+    <SimpleProperty name="statusImage" type="DomText" dataSourceProperty="statusImage" />
+  </SimpleProperties>
+</ListItem>

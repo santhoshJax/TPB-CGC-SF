@@ -1,0 +1,21 @@
+<DataSource name="DsLuMyInProgressVisit" backendSystem="sf" objectClass="LuMyInProgressVisit" schemaVersion="2.0">
+  <Database platform="SQLite">
+    <Load><![CDATA[
+
+      var clbMainPKey = "";
+      var userPKey = "";
+
+      if (Utils.isDefined(jsonQuery.clbMainPKey)){
+        clbMainPKey =  Utils.convertForDBParam(jsonQuery.clbMainPKey, "DomPKey");
+  	  }
+      userPKey = ApplicationContext.get('user').getPKey();
+
+      var sqlParams = {clbMainPKey, userPKey};
+      var sqlStmt = "SELECT COUNT(Id) AS visitCount ";
+      sqlStmt +=      "FROM Visit ";
+      sqlStmt +=      "WHERE TPB_VisitType__c = 'Retailer' AND TPB_InProgress__c = true AND Status = 'Planned' AND Id <> #clbMainPKey# AND Responsible__c = #userPKey#";
+
+      return Utils.replaceMacrosParam(sqlStmt, sqlParams);
+]]></Load>
+  </Database>
+</DataSource>

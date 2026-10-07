@@ -1,0 +1,483 @@
+<PrintLayout xmlns="https://www.salesforce.com/cgcloud/xsds" name="StandardCashOrderPDF" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Declarations>
+    <DataDeclaration name="order" type="BoOrder" />
+    <DataDeclaration name="salesOrg" type="LuSalesOrg" />
+    <DataDeclaration name="myImageName" type="Image" mimeType="image/png" imageId="MyNTCLogo" />
+    <DataDeclaration name="textItems" type="BoOrderPrintTextItems" />
+    <DataDeclaration name="invoiceTerm" type="LuMyInvoiceTerm" />
+    <DataDeclaration name="luDistributorLicense" type="LuMyDistributorLicense" />
+    <DataDeclaration name="signature1" type="Signature" />
+  </Declarations>
+  <ReportLayout pageMargins="[40,40,40,40]">
+    <table name="ManufacturerTable" dontBreakRows="false" tableLayout="noBorders">
+      <tbody>
+        <tr>
+          <td width="260" alignment="left">
+            <img src="{{Declarations::myImageName}}" width="100" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <!--
+
+
+    Invoice Brief Table
+    -->
+    <table name="InvoiceBriefTable" tableLayout="noBorders">
+      <tbody>
+        <tr>
+          <td width="80">Invoice#</td>
+          <td width="160">{{Declarations::order.orderId}}</td>
+          <td width="80">Invoice Date</td>
+          <td width="160">{{Declarations::order.commitDate; dateTimeFormat=date}}</td>
+        </tr>
+        <tr>
+          <td colSpan="2" />
+          <td>Delivery Date</td>
+          <td>{{Declarations::order.deliveryDate; dateTimeFormat=date}}</td>
+        </tr>
+      </tbody>
+    </table>
+    <!--
+
+
+    Invoice Info Table
+    -->
+    <table name="InvoiceInfoTable" tableLayout="noBorders">
+      <tbody>
+        <tr>
+          <td width="80">Division</td>
+          <td width="160">National Tobacco Company</td>
+          <td width="80">Other NTC License #</td>
+          <td width="160">{{Declarations::order.ntcTaxId}}</td>
+        </tr>
+        <tr>
+          <td>Company Address</td>
+          <td>5201 Interchange Way
+Louisville, KY 40229
+US</td>
+          <td>NTC State Use Tax #</td>
+          <td>{{Declarations::order.ntcStateUseTax}}</td>
+        </tr>
+        <tr>
+          <td>Owner</td>
+          <td>{{Declarations::order.luResponsible.name}}</td>
+          <td>NTC Tax ID</td>
+          <td>61-1133037</td>
+        </tr>
+        <tr>
+          <td>Service Territory</td>
+          <td>{{Declarations::order.luOrderer.accountTerritory}}</td>
+          <td colSpan="2" />
+        </tr>
+        <tr>
+          <td>Distributor License #</td>
+          <td>{{Declarations::luDistributorLicense.distributorLicense}}</td>
+          <td colSpan="2" />
+        </tr>
+      </tbody>
+    </table>
+    <p bold="true">{{Labels::StoreDetailLabelId; defaultLabel=Store Detail}}</p>
+    <!--
+
+
+    Store Detail Table
+    -->
+    <table name="StoreDetailTable" tableLayout="noBorders">
+      <tbody>
+        <tr>
+          <td width="80">Account</td>
+          <td width="160">{{Declarations::order.luOrderer.name}}</td>
+          <td width="80">State Tobacco Number</td>
+          <td width="160">{{Declarations::order.luOrderer.stateTobaccoNumber}}</td>
+        </tr>
+        <tr>
+          <td>Address</td>
+          <td>{{Declarations::order.luOrderer.shippingAddress}}</td>
+          <td>State Tax Number</td>
+          <td>{{Declarations::order.luOrderer.stateTaxNumber}}</td>
+        </tr>
+        <tr>
+          <td>Phone</td>
+          <td>{{Declarations::order.luOrderer.phone}}</td>
+          <td>FEIN</td>
+          <td>{{Declarations::order.luOrderer.fein}}</td>
+        </tr>
+      </tbody>
+    </table>
+    <!--
+
+
+ Order Items
+    -->
+    <h2 alignment="center">{{Labels::OderConfirmationId; defaultLabel=Order Confirmation}}</h2>
+    <p bold="true">{{Labels::CashSalesItemsLabelId; defaultLabel=Cash Sales}}</p>
+    <table tableLayout="lightHorizontalLinesMainItemsOnly" name="OrderItemsTable">
+      <thead>
+        <tr>
+          <th width="*">{{Labels::TextId; defaultLabel=Product}}</th>
+          <th width="25" alignment="center">{{Labels::QuantityId; defaultLabel=Qty}}</th>
+          <th width="30" alignment="center">{{Labels::UnitId; defaultLabel=Unit}}</th>
+          <th width="40" alignment="center">{{Labels::UnitPriceId; defaultLabel=Unit Price}}</th>
+          <th width="60" alignment="center">{{Labels::PromoCodeAppliedId; defaultLabel=Promo Code Applied}}</th>
+          <th width="40" alignment="center">{{Labels::DiscountId; defaultLabel=Discount}}</th>
+          <th width="40" alignment="center">{{Labels::TotalId; defaultLabel=Total}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <each name="itemsEach" value="{{Declarations::order.loPrintItems}}">
+          <filters>
+            <filter fieldName="quantity" value="0" operator="GT" compareMode="NUMBER" />
+            <filter fieldName="movementDirection" value="In" operator="NE" />
+            <filter fieldName="type" value="Prebook" operator="NE" />
+            <filter fieldName="printPromoCode" value="Paper Pick Up" operator="NE" />
+            <filter fieldName="printPromoCode" value="Competitive Product Purchase" operator="NE" />
+          </filters>
+          <orderCriteria>
+            <orderCriterion fieldName="prdId" direction="ASC" compareMode="NUMBER" />
+          </orderCriteria>
+          <tr>
+            <td>{{.text1}}</td>
+            <td alignment="right">{{.quantity}}</td>
+            <td alignment="center">{{.quantityLogisticUnit; toggleId=DomPrdLogisticUnit;
+              toggleField=shortText}}</td>
+            <td alignment="right">{{.tpbUnitPrice; numberFormat=8.2}}</td>
+            <td alignment="center">{{.printPromoCode}}</td>
+            <td alignment="right">{{.tpbDiscount; numberFormat=8.2}}</td>
+            <td alignment="right">{{.valueReceipt; numberFormat=8.2}}</td>
+          </tr>
+          <correlation name="correlation1" value="{{Declarations::order.loSdoConditions}}" key="pKey" correlationKey="sdoItemPKey">
+            <filters>
+              <filter fieldName="sdoItemPKey" value=" " operator="NE" />
+              <filter fieldName="cpIsPrintRelevant" value="1" operator="EQ" />
+            </filters>
+            <tr>
+              <td alignment="right" italics="true" colSpan="3">{{path=.text1}}</td>
+              <td alignment="right">{{.conditionValue; numberFormat=8.2}}</td>
+              <td colSpan="3" />
+            </tr>
+          </correlation>
+        </each>
+        <tr>
+          <td alignment="center">{{Labels::TotalId; defaultLabel=Total}}</td>
+          <td alignment="right">
+            <sum table="OrderItemsTable" col="1" />
+          </td>
+          <td colSpan="4" />
+          <td alignment="right">
+            <sum table="OrderItemsTable" col="6" numberFormat="8.2" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <!--
+
+
+ Returns
+    -->
+    <p bold="true">{{Labels::ReturnedItemsLabelId; defaultLabel=Returns}}</p>
+    <table tableLayout="lightHorizontalLinesMainItemsOnly" name="ReturnsTable">
+      <thead>
+        <tr>
+          <th width="*">{{Labels::TextId; defaultLabel=Product}}</th>
+          <th width="25" alignment="center">{{Labels::QuantityId; defaultLabel=Qty}}</th>
+          <th width="30" alignment="center">{{Labels::UnitId; defaultLabel=Unit}}</th>
+          <th width="50" alignment="right">{{Labels::UnitPriceId; defaultLabel=Unit Price}}</th>
+          <th width="50" alignment="right">{{Labels::TotalId; defaultLabel=Total}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <each name="ReturnEach" value="{{Declarations::order.loPrintItems}}">
+          <filters>
+            <filter fieldName="quantity" value="0" operator="GT" compareMode="NUMBER" />
+            <filter fieldName="movementDirection" value="In" operator="EQ" />
+          </filters>
+          <orderCriteria>
+            <orderCriterion fieldName="prdId" direction="ASC" compareMode="NUMBER" />
+          </orderCriteria>
+          <tr>
+            <td>{{.text1}}</td>
+            <td alignment="right">{{.quantity}}</td>
+            <td alignment="center">{{.quantityLogisticUnit; toggleId=DomPrdLogisticUnit; toggleField=shortText}}</td>
+            <td alignment="right">{{.tpbUnitPrice; numberFormat=8.2}}</td>
+            <td alignment="right">{{.valueReceipt; numberFormat=8.2}}</td>
+          </tr>
+          <correlation name="correlation2" value="{{Declarations::order.loSdoConditions}}" key="pKey" correlationKey="sdoItemPKey">
+            <filters>
+              <filter fieldName="sdoItemPKey" value=" " operator="NE" />
+              <filter fieldName="cpIsPrintRelevant" value="1" operator="EQ" />
+            </filters>
+            <tr>
+              <td alignment="right" italics="true" colSpan="3">{{path=.text1}}</td>
+              <td alignment="right">{{.conditionValue; numberFormat=8.2}}</td>
+              <td colSpan="1" />
+            </tr>
+          </correlation>
+        </each>
+        <tr>
+          <td alignment="center">{{Labels::ReturnTotalProductsId; defaultLabel=Total Returns}}</td>
+          <td alignment="right">
+            <sum table="ReturnsTable" col="1" />
+          </td>
+          <td colSpan="2" />
+          <td alignment="right">
+            <sum table="ReturnsTable" col="4" numberFormat="8.2" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <!-- 
+
+
+    My Total Table
+    -->
+    <table tableLayout="noBorders" name="MyTotalTable">
+      <thead>
+        <tr>
+          <th width="*" />
+          <th width="auto" alignment="right" />
+          <th width="auto" alignment="right" />
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td />
+          <td alignment="right">{{Labels::SalesSubtotalId; defaultLabel=Sales Subtotal}}</td>
+          <td alignment="right">{{Declarations::order.merchandiseValueReceipt; numberFormat=8.2}} {{Declarations::order.currency}}</td>
+        </tr>
+        <tr>
+          <td />
+          <td alignment="right">{{Labels::TotalReturnsId; defaultLabel=Total Returns}}</td>
+          <td alignment="right">
+            <sum table="ReturnsTable" col="4" numberFormat="8.2" /> {{Declarations::order.currency}}</td>
+        </tr>
+        <tr>
+          <td />
+          <td alignment="right">{{Labels::DiscountsAppliedId; defaultLabel=Discounts Applied}}</td>
+          <td alignment="right">
+            <sum table="OrderItemsTable" col="5" numberFormat="8.2" /> {{Declarations::order.currency}}</td>
+        </tr>
+        <tr>
+          <td />
+          <td alignment="right">{{Labels::InvoiceTotalId; defaultLabel=Invoice Total}}</td>
+          <td alignment="right">{{Declarations::order.totalValueReceipt; numberFormat=8.2}} {{Declarations::order.currency}}</td>
+        </tr>
+      </tbody>
+    </table>
+    <!--
+
+
+ 	Prebook
+    -->
+    <p bold="true">{{Labels::PrebookItemsLabelId; defaultLabel=Prebook}}</p>
+    <table tableLayout="lightHorizontalLinesMainItemsOnly" name="PrebookTable">
+      <thead>
+        <tr>
+          <th width="90">{{Labels::WholesaleNarmeId; defaultLabel=Wholesaler Name}}</th>
+          <th width="65">{{Labels::WholesalerItemCodeId; defaultLabel=Wholesaler Item Code}}</th>
+          <th width="*">{{Labels::TextId; defaultLabel=Product}}</th>
+          <th width="25" alignment="center">{{Labels::QuantityId; defaultLabel=Qty}}</th>
+          <th width="40" alignment="center">{{Labels::UnitId; defaultLabel=Unit}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <each name="PrebookEach" value="{{Declarations::order.loPrintItems}}">
+          <filters>
+            <filter fieldName="quantity" value="0" operator="GT" compareMode="NUMBER" />
+            <filter fieldName="movementDirection" value="In" operator="NE" />
+            <filter fieldName="type" value="Prebook" operator="EQ" />
+          </filters>
+          <orderCriteria>
+            <orderCriterion fieldName="pKey" direction="ASC" compareMode="STRING" />
+          </orderCriteria>
+          <tr>
+            <td>{{.wsNameDisplay}}</td>
+            <td>{{.tpbSku}}</td>
+            <td>{{.text1}}</td>
+            <td alignment="right">{{.quantity}}</td>
+            <td alignment="center">{{.quantityLogisticUnit; toggleId=DomPrdLogisticUnit; toggleField=shortText}}</td>
+          </tr>
+        </each>
+        <tr>
+          <td colSpan="3" alignment="center">{{Labels::PrebookTotalId; defaultLabel=Total Prebook}}</td>
+          <td alignment="right">
+            <sum table="PrebookTable" col="3" />
+          </td>
+          <td />
+        </tr>
+      </tbody>
+    </table>
+    <!--
+
+
+
+ 	Suggested Order
+    -->
+    <p bold="true">{{Labels::SuggestedItemsLabelId; defaultLabel=Suggested Order}}</p>
+    <table tableLayout="lightHorizontalLinesMainItemsOnly" name="SuggestedTable">
+      <thead>
+        <tr>
+          <th width="90">{{Labels::WholesaleNarmeId; defaultLabel=Wholesaler Name}}</th>
+          <th width="65">{{Labels::WholesalerItemCodeId; defaultLabel=Wholesaler Item Code}}</th>
+          <th width="*">{{Labels::TextId; defaultLabel=Product}}</th>
+          <th width="25" alignment="center">{{Labels::QuantityId; defaultLabel=Qty}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <each name="SuggestedEach" value="{{Declarations::order.loPrintItems}}">
+          <filters>
+            <filter fieldName="printSuggestedSection" value="1" operator="EQ" />
+            <filter fieldName="groupText" value="INACTIVE ITEMS" operator="NE" />
+          </filters>
+          <orderCriteria>
+            <orderCriterion fieldName="prdId" direction="ASC" compareMode="NUMBER" />
+          </orderCriteria>
+          <tr>
+            <td>{{.printWholesalerName}}</td>
+            <td>{{.printWholesalerItemCode}}</td>
+            <td>{{.text1}}</td>
+            <td alignment="right">{{.promotionQuantity}}</td>
+          </tr>
+        </each>
+        <tr>
+          <td colSpan="3" alignment="center">{{Labels::SuggestedOrderTotalId; defaultLabel=Total Suggested Order}}</td>
+          <td alignment="right">
+            <sum table="SuggestedTable" col="3" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <!--
+
+
+ Header Conditions
+    -->
+    <p bold="true">{{Labels::HeaderConditionsLabelId; defaultLabel=Header Conditions}}</p>
+    <table tableLayout="noBorders" name="HeaderConditionsTable">
+      <tbody>
+        <each name="headerEach" value="{{Declarations::order.loSdoConditions}}">
+          <filters>
+            <filter fieldName="sdoItemPKey" value=" " operator="EQ" />
+            <filter fieldName="cpIsPrintRelevant" value="1" operator="EQ" />
+            <filter fieldName="conditionValue" value="0" operator="NE" />
+            <filter fieldName="hide" value="1" operator="NE" />
+          </filters>
+          <orderCriteria>
+            <orderCriterion fieldName="cndCpCalculationPosition" direction="ASC" />
+          </orderCriteria>
+          <tr>
+            <td width="300">{{.text1}}</td>
+            <td width="auto" alignment="right">{{.conditionValue; numberFormat=8.2}}</td>
+            <td width="auto" alignment="left">{{Declarations::order.currency}}</td>
+          </tr>
+        </each>
+      </tbody>
+    </table>
+    <!-- 
+
+
+Empties Table
+    -->
+    <!--<p bold="true">{{Labels::EmtiesGridTitleId; defaultLabel=Empties}}</p>
+    <table tableLayout="lightHorizontalLines" name="EmptiesTable">
+      <thead>
+        <tr>
+          <th width="85">{{Labels::PrdNumberId; defaultLabel=No.}}</th>
+          <th width="*">{{Labels::TextEmptyId; defaultLabel=Empties}}</th>
+          <th width="40" alignment="right">{{Labels::DeliveredEmptiesId; defaultLabel=Del.}}</th>
+          <th width="40" alignment="right">{{Labels::ReturnedEmptiesId; defaultLabel=Ret.}}</th>
+          <th width="40" alignment="right">{{Labels::TotalQuantityEmptiesId; defaultLabel=Qty}}</th>
+          <th width="18" alignment="center">{{Labels::TaxClassificationId; defaultLabel=T}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <each name="emptiesEach" value="{{Declarations::order.loEmptiesForPrintout}}">
+          <orderCriteria>
+            <orderCriterion fieldName="prdId" direction="ASC" />
+          </orderCriteria>
+          <tr>
+            <td>{{.prdId}}</td>
+            <td>{{.text1}}</td>
+            <td alignment="right">{{.quantityDelivered}}</td>
+            <td alignment="right">{{.quantityReturned}}</td>
+            <td alignment="right">{{.totalQuantity}}</td>
+            <td alignment="center">{{.taxClassification}}</td>
+          </tr>
+        </each>
+        <tr>
+          <td colSpan="4" alignment="right">{{Labels::SumEmptiesLabelId; defaultLabel=Total Empties}}</td>
+          <td alignment="right">
+            <sum table="EmptiesTable" col="4" />
+          </td>
+          <td />
+        </tr>
+      </tbody>
+    </table>-->
+    <!--
+
+
+Total Table
+    -->
+    <table tableLayout="noBorders" name="TotalTable">
+      <thead>
+        <tr>
+          <th width="*" />
+          <th width="auto" alignment="right" />
+          <th width="auto" alignment="right" />
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td />
+          <td alignment="right">{{Labels::TotalPrdId; defaultLabel=Total Products and Other Items}}</td>
+          <td alignment="right">{{Declarations::order.totalValueReceipt; numberFormat=8.2}} {{Declarations::order.currency}}</td>
+        </tr>
+        <tr>
+          <td />
+          <td bold="true" alignment="right">{{Labels::TotalAmountId; defaultLabel=Total Amount}}</td>
+          <td bold="true" alignment="right">{{Declarations::order.grossTotalValueReceipt; numberFormat=8.2}} {{Declarations::order.currency}}</td>
+        </tr>
+        <tr>
+          <td />
+          <td bold="true" alignment="right">{{Labels::PaymentMethodId; defaultLabel=Payment Method}}</td>
+          <td bold="true" alignment="left">{{Declarations::order.paymentMethodText;}}</td>
+        </tr>
+        <tr>
+          <td />
+          <td bold="true" alignment="right">{{Labels::TotalPaidAmountId; defaultLabel=Total Paid Amount}}</td>
+          <td bold="true" alignment="right">{{Declarations::order.paidAmountReceipt; numberFormat=8.2}} {{Declarations::order.currency}}</td>
+        </tr>
+        <tr>
+          <td />
+          <td bold="true" alignment="right">{{Labels::BalanceId; defaultLabel=Balance}}</td>
+          <td bold="true" alignment="right">{{Declarations::order.balance; numberFormat=8.2}} {{Declarations::order.currency}}</td>
+        </tr>
+      </tbody>
+    </table>
+    <!--
+
+
+ Signature Table
+    -->
+    <table name="SignatureTable" tableLayout="noBorders">
+      <tbody>
+        <tr>
+          <td width="160" alignment="center" >
+            <img src="{{Declarations::signature1}}" width="160" alignment="left" />
+          </td>
+          <td width="100"/>
+          <td width="160"/>
+        </tr>
+        <tr>
+          <td>{{Declarations::textItems.signature1Name}}</td>
+          <td />
+          <td />
+        </tr>
+      </tbody>
+    </table>
+    <h2 alignment="center">Terms</h2>
+    <p>{{Declarations::invoiceTerm.terms}}</p>
+    <p>{{Declarations::salesOrg.legalInformation}}</p>
+    <p>{{Declarations::textItems.endOfPrint}}</p>
+  </ReportLayout>
+</PrintLayout>

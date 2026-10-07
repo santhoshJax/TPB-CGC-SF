@@ -1,0 +1,7 @@
+<ListItem name="LiMyCustomerWholesalers">
+  <SimpleProperties>
+    <SimpleProperty name="pKey" type="DomId" dataSourceProperty="pKey" />
+    <SimpleProperty name="name" type="DomBpaName" dataSourceProperty="wholesalerName" />
+    <SimpleProperty name="wholesalerClear" type="DomString" dataSourceProperty="wholesalerClear" />
+  </SimpleProperties>
+</ListItem>

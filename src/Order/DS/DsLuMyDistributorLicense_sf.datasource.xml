@@ -1,0 +1,40 @@
+<DataSource name="DsLuMyDistributorLicense" backendSystem="sf" businessObjectClass="LuMyDistributorLicense" schemaVersion="2.0">
+  <Database platform="SQLite">
+    <Load><![CDATA[
+
+var state = "";
+var userId = "";
+
+if (Utils.isDefined(jsonQuery.state)) {
+  state = Utils.convertForDBParam(jsonQuery.state, "DomText");
+}
+if (Utils.isDefined(jsonQuery.userId)) {
+  userId = Utils.convertForDBParam(jsonQuery.userId, "DomPKey");
+}
+
+var sqlParams = { state, userId };
+
+var sqlStmt = "SELECT ";
+sqlStmt += "  TPB_Distributor_License__c.Id as pKey, ";
+sqlStmt += "  TPB_Distributor_License__c.TPB_User__c as userPKey, ";
+sqlStmt += "  TPB_Distributor_License__c.TPB_State__c as state, ";
+sqlStmt += "  TPB_Distributor_License__c.TPB_Distributor_License__c as distributorLicense ";
+sqlStmt += "FROM ";
+sqlStmt += "  TPB_Distributor_License__c ";
+sqlStmt += "WHERE ";
+sqlStmt += "  1 = 1 ";
+sqlStmt += "  AND TPB_Distributor_License__c.TPB_State__c = '#state#' ";
+sqlStmt += "  AND TPB_Distributor_License__c.TPB_User__c = #userId# ";
+sqlStmt += "  AND ( ";
+sqlStmt += "    TPB_Distributor_License__c.IsDeleted <> '1' ";
+sqlStmt += "    OR TPB_Distributor_License__c.IsDeleted IS NULL ";
+sqlStmt += "  ) ";
+sqlStmt += "ORDER BY TPB_Distributor_License__c.SystemModstamp DESC ";
+sqlStmt += "LIMIT 1 ";
+
+return Utils.replaceMacrosParam(sqlStmt, sqlParams);
+
+
+    ]]></Load>
+  </Database>
+</DataSource>
