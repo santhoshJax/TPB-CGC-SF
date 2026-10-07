@@ -1,0 +1,18 @@
+<Process name="Call::MyWholesalePromotionsProcess" defaultAction="ShowUI" schemaVersion="0.0.0.5">
+  <Entry>
+    <ProcessContext>
+      <Declarations></Declarations>
+      <Parameters>
+        <Input name="wholesalePromotionsList" type="LoBpaAttachment" />
+      </Parameters>
+    </ProcessContext>
+    <EntryActions></EntryActions>
+  </Entry>
+  <Body>
+    <Actions>
+      <Action name="ShowUI" actionType="VIEW">
+        <UIDescription>Call::MyWholesalePromotionsUI</UIDescription>
+      </Action>
+    </Actions>
+  </Body>
+</Process>

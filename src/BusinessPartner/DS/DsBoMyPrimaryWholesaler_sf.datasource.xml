@@ -1,0 +1,20 @@
+<DataSource name="DsBoMyPrimaryWholesaler" backendSystem="sf" businessObjectClass="BoMyPrimaryWholesaler" external="false" editableEntity="Related_Account__c" schemaVersion="2.0">
+  <Attributes>
+    <Attribute name="pKey" table="Related_Account__c" column="Id" />
+    <Attribute name="primaryWholesaler" table="Related_Account__c" column="Wholesaler__c" />
+    <Attribute name="retailer" table="Related_Account__c" column="Retailer__c" />
+    <Attribute name="type" table="Related_Account__c" column="Type__c" />
+    <Attribute name="isDeleted" table="Related_Account__c" column="IsDeleted" />
+  </Attributes>
+  <Entities>
+    <Entity name="Related_Account__c" alias="" idAttribute="Id" />
+  </Entities>
+  <QueryCondition><![CDATA[
+   Related_Account__c.Retailer__c = #customerPKey#
+   AND Related_Account__c.Type__c = 'Primary'
+        ]]></QueryCondition>
+  <OrderCriteria />
+  <Parameters>
+    <Parameter name="customerPKey" type="TEXT" />
+  </Parameters>
+</DataSource>

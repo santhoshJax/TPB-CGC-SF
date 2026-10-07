@@ -1,0 +1,6 @@
+<ListItem name="LiMyUserNotifications">
+  <SimpleProperties>
+    <SimpleProperty id="true" name="pKey" type="DomPKey" storable="false" />
+    <SimpleProperty name="subject" type="DomString" storable="false" dataSourceProperty="subject" />
+  </SimpleProperties>
+</ListItem>

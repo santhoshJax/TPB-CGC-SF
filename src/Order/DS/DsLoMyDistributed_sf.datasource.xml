@@ -1,0 +1,37 @@
+<DataSource name="DsLoMyDistributed" backendSystem="sf" businessObjectClass="LoMyDistributed" external="true" editableEntity="Visit_Job__c" schemaVersion="2.0">
+  <Database platform="SQLite">
+    <Load><![CDATA[
+
+// NOTICE: contract attribute external="true" is required when using external SQL queries.
+
+var clbMainPKey = "";
+
+if (Utils.isDefined(jsonQuery.clbMainPKey)) {
+  clbMainPKey = Utils.convertForDBParam(jsonQuery.clbMainPKey, "DomPKey");
+}
+
+var sqlParams = { clbMainPKey };
+var sqlStmt = "";
+sqlStmt += "  SELECT";
+sqlStmt += "    Visit_Job__c.Product__c as prdMainPKey,";
+sqlStmt += "    '1' as distributed";
+sqlStmt += "  FROM";
+sqlStmt += "    Visit_Job__c";
+sqlStmt += "    inner JOIN Job_Definition_Template__c ON Visit_Job__c.Job_Definition_Template__c = Job_Definition_Template__c.Id";
+sqlStmt += "    AND ( Visit_Job__c.IsDeleted <> '1' OR Visit_Job__c.IsDeleted IS NULL )";
+sqlStmt += "    AND ( Job_Definition_Template__c.IsDeleted <> '1' OR Job_Definition_Template__c.IsDeleted IS NULL )";
+sqlStmt += "  WHERE Visit_Job__c.Done__c = '1'";
+sqlStmt += "    AND (    (Job_Definition_Template__c.Primary_Survey_Policy__c = 'Distributed' AND Visit_Job__c.Value__c = '1' )";
+sqlStmt += "      OR (Job_Definition_Template__c.Primary_Survey_Policy__c = 'Distribution' AND Visit_Job__c.Value__c = 'Distributed' )  )";
+sqlStmt += "    AND Visit_Job__c.Visit__c = #clbMainPKey#";
+sqlStmt += "  GROUP BY Visit_Job__c.Product__c";
+sqlStmt += "  ORDER BY Visit_Job__c.Product__c ASC";
+
+return Utils.replaceMacrosParam(sqlStmt, sqlParams);
+
+    ]]></Load>
+  </Database>
+  <Parameters>
+    <Parameter name="clbMainPKey" type="TEXT" />
+  </Parameters>
+</DataSource>

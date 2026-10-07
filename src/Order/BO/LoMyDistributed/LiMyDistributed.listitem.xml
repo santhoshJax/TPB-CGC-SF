@@ -1,0 +1,6 @@
+<ListItem name="LiMyDistributed">
+  <SimpleProperties>
+    <SimpleProperty name="prdMainPKey" type="DomId" dataSourceProperty="prdMainPKey" />
+    <SimpleProperty name="distributed" type="DomBool" dataSourceProperty="distributed" />
+  </SimpleProperties>
+</ListItem>

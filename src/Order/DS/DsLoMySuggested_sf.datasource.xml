@@ -1,0 +1,63 @@
+<DataSource name="DsLoMySuggested" backendSystem="sf" businessObjectClass="LoMySuggested" external="true" readonly="true" editableEntity="Ideal_Kit__c" schemaVersion="2.0">
+  <Database platform="SQLite">
+    <Load><![CDATA[
+
+// NOTICE: contract attribute external="true" is required when using external SQL queries.
+
+var customerPKey = "";
+var clbMainPKey = "";
+
+if (Utils.isDefined(jsonQuery.customerPKey)) {
+  customerPKey = Utils.convertForDBParam(jsonQuery.customerPKey, "DomPKey");
+}
+if (Utils.isDefined(jsonQuery.clbMainPKey)) {
+  clbMainPKey = Utils.convertForDBParam(jsonQuery.clbMainPKey, "DomPKey");
+}
+
+var sqlParams = { customerPKey,clbMainPKey };
+var sqlStmt = "";
+sqlStmt += "SELECT ";
+sqlStmt += "	prdMainPKey,";
+sqlStmt += "	promotionQuantity,";
+sqlStmt += "	'1' AS suggested, ";
+sqlStmt += "	sellingPriority, ";
+sqlStmt += "	maxAllocation, ";
+sqlStmt += "	itemType ";
+sqlStmt += "FROM(";
+sqlStmt += "    SELECT";
+sqlStmt += "      Ideal_Kit__c.Product__c AS prdMainPKey,";
+sqlStmt += "      productWithVJ.value__c AS valueVisitJob,";
+sqlStmt += "  	  productWithOrder.Id AS valueOrderItem, ";
+sqlStmt += "      Ideal_Kit__c.TPB_Selling_Priority__c AS sellingPriority, ";
+sqlStmt += "      Ideal_Kit__c.Quantity__c AS promotionQuantity, ";
+sqlStmt += "      Ideal_Kit__c.Item_Type__c AS itemType, ";
+sqlStmt += "      Ideal_Kit__c.TPB_Max_Allocation__c AS maxAllocation ";
+sqlStmt += "    FROM";
+sqlStmt += "      Ideal_Kit__c";
+sqlStmt += "      LEFT JOIN (";
+sqlStmt += "        SELECT";
+sqlStmt += "          Visit_Job__c.Product__c AS prdMainPKey,";
+sqlStmt += "          Visit_Job__c.Value__c AS value__c";
+sqlStmt += "        FROM";
+sqlStmt += "          Visit_Job__c";
+sqlStmt += "          INNER JOIN Job_Definition_Template__c ON Visit_Job__c.Job_Definition_Template__c = Job_Definition_Template__c.Id";
+sqlStmt += "          AND ( Visit_Job__c.IsDeleted <> '1'";
+sqlStmt += "            OR Visit_Job__c.IsDeleted IS NULL";
+sqlStmt += "          ) AND ( Job_Definition_Template__c.IsDeleted <> '1'";
+sqlStmt += "            OR Job_Definition_Template__c.IsDeleted IS NULL )";
+sqlStmt += "        WHERE Visit_Job__c.Done__c = '1' AND Visit_Job__c.Visit__c = #clbMainPKey# )";
+sqlStmt += "      AS productWithVJ ON productWithVJ.prdMainPKey = Ideal_Kit__c.Product__c";
+sqlStmt += "      LEFT JOIN (SELECT Order_Item__c.Id,Product__c FROM Order_Item__c ";
+sqlStmt += "		                  inner JOIN ( SELECT Id FROM Order__c WHERE Visit__c = #clbMainPKey# AND (Order__c.Phase__c='Ready' OR Order__c.Phase__c='SendFax' OR Order__c.Phase__c='Feedback' OR Order__c.Phase__c='Closed' OR Order__c.Phase__c ='Released')) AS orderWithVisit ON orderWithVisit.Id = Order_Item__c.Order__c) ";
+sqlStmt += "      AS productWithOrder ON productWithOrder.Product__c = Ideal_Kit__c.Product__c";
+sqlStmt += "    WHERE Ideal_Kit__c.Account__c = #customerPKey# ) ";
+sqlStmt += "WHERE (valueVisitJob <> 'Distributed' OR valueVisitJob IS NULL) AND ( itemType = 'Suggested Order' OR itemType = 'Wholesale Promotion' ) ";
+
+return Utils.replaceMacrosParam(sqlStmt, sqlParams);
+
+    ]]></Load>
+  </Database>
+  <Parameters>
+    <Parameter name="customerPKey" type="TEXT" />
+  </Parameters>
+</DataSource>

@@ -1,0 +1,48 @@
+<UIDescription name="Customer::MySelectPrimaryWholesalerUI" schemaVersion="0.0.0.5">
+  <Page pagePattern="SingleSectionDialogPage" navigation="Off" onBackDiscard="true">
+    <PageHeader>
+      <Bindings>
+        <Resource target="title" type="Label" id="OrderItemWholesalerLookup" defaultLabel="Wholesaler Lookup" bindingMode="ONE_TIME" />
+      </Bindings>
+      <MenuItems>
+        <MenuItem itemId="Clear" directlyVisible="true">
+          <Bindings>
+            <Resource target="Text" type="Label" id="clearWholesalerId" defaultLabel="Clear" />
+            <Resource target="Icon" type="Image" id="Cancelled" defaultImage="Cancelled.svg" />
+            <Binding type="Visible" target="Visible" call="ProcessContext::BoCustomer.myCanaclButtonVisibility" />
+          </Bindings>
+          <Events>
+            <ButtonPressedEvent event="clearWholesaler" />
+          </Events>
+        </MenuItem>
+      </MenuItems>
+    </PageHeader>
+    <Section sectionName="masterSection" sectionPattern="SingleAreaSection">
+      <Area areaName="mainArea" areaPattern="SingleElementArea">
+        <GroupedList name="WholesalerList" indexBar="true" sortBy="name" searchable="true" dataSource="ProcessContext::Wholesalers.Items[]">
+          <Items name="Items" itemPattern="CustomerLookupItem">
+            <Bindings>
+              <Binding target="WholesalerName" type="Text" binding=".name" bindingMode="ONE_WAY" />
+              <Binding target="Flag" type="Image" binding=".wholesalerClear" bindingMode="ONE_WAY" />
+            </Bindings>
+            <ItemListLayout>
+              <Col layoutType="itemIdentifier" bindingId="WholesalerName" />
+              <Col layoutType="Image" width="1em" bindingId="Flag" />
+            </ItemListLayout>
+          </Items>
+          <Events>
+            <ItemSelectedEvent event="itemSelected">
+              <Params>
+                <Param name="wId" value=".pKey" />
+                <Param name="wName" value=".name" />
+              </Params>
+            </ItemSelectedEvent>
+          </Events>
+          <SearchAttributes>
+            <SearchAttribute name="name" />
+          </SearchAttributes>
+        </GroupedList>
+      </Area>
+    </Section>
+  </Page>
+</UIDescription>

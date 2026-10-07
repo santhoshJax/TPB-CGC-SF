@@ -1,0 +1,110 @@
+<UIDescription name="MyGTMOpportunity::MyGTMOpportunityOverviewUI" schemaVersion="0.0.0.5">
+  <Page pagePattern="MasterDetailSectionPage" selectFirstItemInList="true" masterSectionFlex="40" detailSectionFlex="60">
+    <PageHeader>
+      <Bindings>
+        <Resource target="title" type="Label" id="GTMOpportunityOverviewTitle" defaultLabel="GTM Opportunity Overview" bindingMode="ONE_TIME" />
+      </Bindings>
+    </PageHeader>
+    <Section sectionName="masterSection" sectionPattern="SingleAreaSection">
+      <Area areaName="mainArea" areaPattern="SingleElementArea">
+        <GroupedList name="GTMOpportunityList" master="true" searchable="true" dataSource="ProcessContext::GTMOpportunityList.items[]">
+          <SearchAttributes>
+            <SearchAttribute name="tpbOpportunityName" />
+          </SearchAttributes>
+          <Items name="Items" itemPattern="GTMOpportunitiesOverviewItems">
+            <ItemListLayout>
+              <Default>
+                <Col width="12em">
+                  <Row layoutType="itemIdentifierCockpit" bindingId="tpbOpportunityName" />
+                </Col>
+                <Col width="2em">
+                  <Row layoutType="Image" bindingId="Image" />
+                </Col>
+              </Default>
+            </ItemListLayout>
+            <Bindings>
+              <Binding target="tpbOpportunityName" type="Text" binding=".tpbOpportunityName" bindingMode="ONE_WAY" />
+              <Binding target="Image" type="Image" binding=".flagImage" bindingMode="ONE_WAY" />
+            </Bindings>
+          </Items>
+          <Events>
+            <ItemSelectedEvent event="itemSelected" resetMultiAreas="true">
+              <Params>
+                <Param name="pKey" value=".pKey" />
+              </Params>
+            </ItemSelectedEvent>
+          </Events>
+        </GroupedList>
+      </Area>
+    </Section>
+    <Section sectionName="detailSection" sectionPattern="SingleAreaSection">
+      <Area areaName="detailArea" areaPattern="GroupedElementsArea">
+        <GroupElement name="Info">
+          <Bindings>
+            <Resource target="Title" type="Label" id="GTMOpportunityDetailTitle" defaultLabel="GTM Opportunity Details" />
+          </Bindings>
+          <InputArea name="Name" editable="false">
+            <Bindings>
+              <Resource target="Label" type="Label" id="GTMOpportunityName" defaultLabel="Name" />
+              <Binding target="Value" binding="ProcessContext::GTMOpportunityDetail.name" bindingMode="TWO_WAY" />
+            </Bindings>
+          </InputArea>
+          <InputArea name="TPBOpportunityRank" editable="false">
+            <Bindings>
+              <Resource target="Label" type="Label" id="TPBOpportunityName" defaultLabel="Opportunity Rank" />
+              <Binding target="Value" binding="ProcessContext::GTMOpportunityDetail.tpbOpportunityRank" bindingMode="TWO_WAY" />
+            </Bindings>
+          </InputArea>
+          <InputArea name="TPBProdTPBAccountIDucID" editable="false">
+            <Bindings>
+              <Resource target="Label" type="Label" id="TPBAccountID" defaultLabel="Account" />
+              <Binding target="Value" binding="ProcessContext::GTMOpportunityDetail.tpbAccountID" bindingMode="TWO_WAY" />
+            </Bindings>
+          </InputArea>
+          <InputArea name="TPBOpportunityName" editable="false">
+            <Bindings>
+              <Resource target="Label" type="Label" id="TPBOpportunityName" defaultLabel="Opportunity Name" />
+              <Binding target="Value" binding="ProcessContext::GTMOpportunityDetail.tpbOpportunityName" bindingMode="TWO_WAY" />
+            </Bindings>
+          </InputArea>
+          <InputArea name="TPBPriorityFlag" editable="false">
+            <Bindings>
+              <Resource target="Label" type="Label" id="TPBPriorityFlag" defaultLabel="Priority Flag" />
+              <Binding target="Value" binding="ProcessContext::GTMOpportunityDetail.tpbPriorityFlag" bindingMode="TWO_WAY" />
+            </Bindings>
+          </InputArea>
+          <InputArea name="TPBStatus" editable="false">
+            <Bindings>
+              <Resource target="Label" type="Label" id="TPBStatu" defaultLabel="Status" />
+              <Binding target="Value" binding="ProcessContext::GTMOpportunityDetail.tpbStatus" bindingMode="TWO_WAY" />
+            </Bindings>
+          </InputArea>
+          <InputArea name="TPBType" editable="false">
+            <Bindings>
+              <Resource target="Label" type="Label" id="TPBType" defaultLabel="Type" />
+              <Binding target="Value" binding="ProcessContext::GTMOpportunityDetail.tpbType" bindingMode="TWO_WAY" />
+            </Bindings>
+          </InputArea>
+          <InputArea name="TPBWeight" editable="false">
+            <Bindings>
+              <Resource target="Label" type="Label" id="TPBWeight" defaultLabel="Weight" />
+              <Binding target="Value" binding="ProcessContext::GTMOpportunityDetail.tpbWeight" bindingMode="TWO_WAY" />
+            </Bindings>
+          </InputArea>
+          <InputArea name="TPBStrategy" editable="false">
+            <Bindings>
+              <Resource target="Label" type="Label" id="TPBStrategy" defaultLabel="Strategy" />
+              <Binding target="Value" binding="ProcessContext::GTMOpportunityDetail.tpbStrategy" bindingMode="TWO_WAY" />
+            </Bindings>
+          </InputArea>
+          <InputArea name="TPBActive" editable="false">
+            <Bindings>
+              <Resource target="Label" type="Label" id="TPBActive" defaultLabel="Active" />
+              <Binding target="Value" binding="ProcessContext::GTMOpportunityDetail.tpbActive" bindingMode="TWO_WAY" />
+            </Bindings>
+          </InputArea>
+        </GroupElement>
+      </Area>
+    </Section>
+  </Page>
+</UIDescription>

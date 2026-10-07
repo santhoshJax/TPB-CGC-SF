@@ -1,0 +1,69 @@
+<UIDescription name="Order::MyAddProductsUI" schemaVersion="0.0.0.5">
+  <Page pagePattern="SingleSectionDialogPage" onBackDiscard="true">
+    <PageHeader>
+      <Bindings>
+        <Resource target="title" type="Label" id="AddProductId" defaultLabel="Add Product" />
+      </Bindings>
+      <MenuItems>
+        <MenuItem itemId="addProducts" directlyVisible="true">
+          <Bindings>
+            <Resource target="Text" type="Label" id="adProducts" defaultLabel="Add" />
+            <Resource target="Icon" type="Image" id="PlusDarkGrey24" defaultImage="PlusDarkGrey24.png" />
+            <Binding type="Visible" target="Visible" call="ProcessContext::ProductList.myGetButtonVisibility">
+              <Parameters>
+                <Input name="token" type="Literal" value="btnAddProducts" />
+              </Parameters>
+            </Binding>
+          </Bindings>
+          <Events>
+            <ButtonPressedEvent event="addProducts" />
+          </Events>
+        </MenuItem>
+      </MenuItems>
+    </PageHeader>
+    <Section sectionName="masterSection" sectionPattern="SingleAreaSection">
+      <Area areaName="mainArea" areaPattern="SingleElementArea">
+        <GroupedList name="ProductList" groupBy="groupText" sortBy="groupSortOrder" sortInsideGroupBy="sortOrder" sortDirectionInGroup="ASC" indexBar="false" searchable="true" dataSource="ProcessContext::ProductList.Items[]">
+          <Items name="Items" itemPattern="OrderAddProductList">
+            <Bindings>
+              <Binding target="Description" type="Text" binding=".text1" bindingMode="ONE_WAY" />
+              <!--<Binding target="PrdId" type="Text" binding=".prdId" bindingMode="ONE_WAY" />-->
+              <Binding target="mandatoryIcon" type="Text" binding=".isSelected" bindingMode="ONE_WAY" />
+              <!--<Binding target="GTIN" type="Text" binding=".eAN" bindingMode="ONE_WAY"/>-->
+              <!--<Resource target="PrdIdLabel" type="Label" id="prdIdLabelId" defaultLabel="Prd No." />-->
+              <!--<Resource target="GTINLabel" type="Label" id="gTINLabelId" defaultLabel="GTIN"/>-->
+              <Binding target="Icon" type="Image" binding=".focusProductImage" bindingMode="ONE_WAY" />
+            </Bindings>
+            <ItemListLayout>
+              <Col>
+                <Row>
+                  <Col layoutType="itemTitle" bindingId="Description" width="90%" />
+                  <Col layoutType="itemSubTitle" width="2em" height="1em" bindingId="mandatoryIcon" align="right" />
+                </Row>
+                <!--<Row>
+                  <Col layoutType="itemSecondary" width="5em" bindingId="PrdIdLabel" />
+                  <Col layoutType="itemSecondary" width="8em" bindingId="PrdId" />
+                  <Col layoutType="itemSubTitle" width="3em" bindingId="GTINLabel" />
+                  <Col layoutType="itemSubTitle" width="8em" bindingId="GTIN" />
+                </Row>-->
+              </Col>
+            </ItemListLayout>
+          </Items>
+          <Events>
+            <ItemSelectedEvent event="itemSelected">
+              <Params>
+                <Param name="prdMainPKey" value=".prdMainPKey" />
+              </Params>
+            </ItemSelectedEvent>
+          </Events>
+          <SearchAttributes>
+            <SearchAttribute name="prdId" />
+            <SearchAttribute name="text1" />
+            <SearchAttribute name="eAN" />
+            <SearchAttribute name="text2" />
+          </SearchAttributes>
+        </GroupedList>
+      </Area>
+    </Section>
+  </Page>
+</UIDescription>

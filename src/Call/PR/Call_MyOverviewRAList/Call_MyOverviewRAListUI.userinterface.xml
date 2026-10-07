@@ -1,0 +1,199 @@
+<UIDescription name="Call::MyOverviewRAListUI" schemaVersion="0.0.0.5">
+  <Page pagePattern="MasterDetailSectionPage" selectFirstItemInList="true" masterSectionFlex="40" detailSectionFlex="60">
+    <ViewVariables>
+      <ViewVariable name="currentTabName" value="Main" />
+    </ViewVariables>
+    <PageHeader>
+      <Bindings>
+        <Binding target="title" binding="ProcessContext::CustomerName" />
+        <!-- CW-REQUIRED: remove title binding -->
+      </Bindings>
+      <MenuItems>
+        <MenuItem directlyVisible="true" itemId="AddWholesaler">
+          <Bindings>
+            <Resource target="Text" type="Label" id="AddWholesalerId" defaultLabel="Create Wholesaler" />
+            <Resource target="Icon" type="Image" id="Plus_PB" />
+          </Bindings>
+          <Events>
+            <ButtonPressedEvent event="addWholesaler" />
+          </Events>
+        </MenuItem>
+      </MenuItems>
+    </PageHeader>
+    <!-- Master Section -->
+    <Section sectionName="masterSection" sectionPattern="SingleAreaSection">
+      <Area areaName="mainArea" areaPattern="SingleElementArea">
+        <GroupedList name="WholesalerList" searchable="true" master="true" dataSource="ProcessContext::WholesalerList.Items[]">
+          <Items name="Items" itemPattern="WholesalerCallOverviewItem">
+            <Bindings>
+              <Binding target="AccountNumber" type="Text" binding=".accountNumber" bindingMode="ONE_WAY" />
+              <Binding target="RAImage" type="Combo" binding=".wholesalerPrimary" toggleId="RelatedAccountPrimary" bindingMode="TWO_WAY" />
+              <Binding target="WholesalerName" type="Text" binding=".wholesalerName" bindingMode="ONE_WAY" />
+              <Binding target="ClearingFlag" type="Image" binding=".clearingFlag" bindingMode="ONE_WAY" />
+            </Bindings>
+            <ItemListLayout>
+              <Default>
+                <Col width="3em" layoutType="itemNameSecondary" bindingId="RAImage" />
+                <Col flex="1">
+                  <Row layoutType="itemIdentifier" width="10em" bindingId="WholesalerName" />
+                  <Row layoutType="itemSecondary" bindingId="AccountNumber" />
+                </Col>
+                <Col layoutType="Image" width="1em" bindingId="ClearingFlag" />
+              </Default>
+            </ItemListLayout>
+            <ContextMenu>
+              <Bindings>
+                <Binding target="DataSource" binding="ProcessContext::ContextMenuList.Items[]" bindingMode="ONE_WAY" />
+              </Bindings>
+              <Items name="ContextMenuItems">
+                <Bindings>
+                  <Binding target="Icon" type="Image" binding=".actionImg" />
+                  <Binding target="Text" type="Label" binding=".actionId" />
+                  <Binding type="Editable" target="Editable" binding=".actionEnabled" />
+                  <Binding type="Visible" target="Visible" binding=".actionVisible" />
+                </Bindings>
+              </Items>
+            </ContextMenu>
+          </Items>
+          <Events>
+            <ItemSelectedEvent event="itemSelected" resetMultiAreas="true">
+              <Params>
+                <Param name="pKey" value=".pKey" />
+              </Params>
+            </ItemSelectedEvent>
+            <ContextOpeningEvent event="contextMenuOpening">
+              <Params>
+                <Param name="pKey" value=".pKey" />
+              </Params>
+            </ContextOpeningEvent>
+            <ContextSelectedEvent event="contextMenuItemSelected">
+              <Params>
+                <Param name="pKey" value=".pKey" />
+              </Params>
+            </ContextSelectedEvent>
+          </Events>
+          <SearchAttributes>
+            <SearchAttribute name="WholesalerName" />
+            <SearchAttribute name="AccountNumber" />
+          </SearchAttributes>
+        </GroupedList>
+      </Area>
+    </Section>
+    <!-- Detail Section -->
+    <Section sectionName="detailSection" sectionPattern="TabbedViewAreaSection" currentTab="View::currentTabName">
+      <Area areaName="tabArea" areaPattern="TabElementArea">
+        <TabSelector name="TabSelector">
+          <Items>
+            <Tab tabName="Main">
+              <Bindings>
+                <Resource target="image" type="Image" id="MainGrey24" defaultImage="MainGrey24" bindingMode="ONE_TIME" />
+                <Resource target="text" type="Label" id="MainId" defaultLabel="Main" bindingMode="ONE_TIME" />
+              </Bindings>
+            </Tab>
+            <Tab tabName="Attachments" backendSystem="both">
+              <Bindings>
+                <Resource target="image" type="Image" id="ClipGrey24" defaultImage="ClipGrey24" bindingMode="ONE_TIME" />
+                <Resource target="text" type="Label" id="AttachmentId" defaultLabel="Attachments" bindingMode="ONE_TIME" />
+              </Bindings>
+            </Tab>
+          </Items>
+          <Events>
+            <ItemSelectedEvent event="tabSelected" storeTabNameIn="currentTabName" />
+          </Events>
+        </TabSelector>
+      </Area>
+      <Area areaPattern="MultiArea" areaName="Main">
+        <Area areaName="Main" areaPattern="GroupedElementsArea">
+          <!-- Release button for Work Flow Transition for Issue -->
+          <MenuItems>
+            <MenuItem directlyVisible="true" itemId="SetPrimary">
+              <Bindings>
+                <Binding type="Visible" target="Visible" call="ProcessContext::IssueDetail.checkButtonVisibility">
+                  <Parameters>
+                    <Input name="mode" type="Literal" value="release" />
+                  </Parameters>
+                </Binding>
+                <Resource target="Text" type="Label" id="SetPrimaryId" defaultLabel="Set Primary" />
+                <Resource target="Icon" type="Image" id="Service_IC" />
+              </Bindings>
+              <Events>
+                <ButtonPressedEvent event="setPrimary"></ButtonPressedEvent>
+              </Events>
+            </MenuItem>
+            <MenuItem directlyVisible="true" itemId="SetPromotional">
+              <Bindings>
+                <Binding type="Visible" target="Visible" call="ProcessContext::IssueDetail.checkButtonVisibility">
+                  <Parameters>
+                    <Input name="mode" type="Literal" value="complete" />
+                  </Parameters>
+                </Binding>
+                <Resource target="Text" type="Label" id="SetPromotionalId" defaultLabel="Set Promotional" />
+                <Resource target="Icon" type="Image" id="Service_IC" />
+              </Bindings>
+              <Events>
+                <ButtonPressedEvent event="setPromotional"></ButtonPressedEvent>
+              </Events>
+            </MenuItem>
+          </MenuItems>
+          <GroupElement name="WholesalerIdentificationGroup">
+            <Bindings>
+              <Resource target="Title" type="Label" id="WholesalerIdentificationTitle" defaultLabel="Identification" />
+            </Bindings>
+            <InputArea name="AccountNumer" disabled="true">
+              <Bindings>
+                <Resource target="Label" type="Label" id="AccountNumberId" defaultLabel="Account Number" />
+                <Binding target="Value" binding="ProcessContext::RelatedAccountDetail.accountNumber" bindingMode="ONE_WAY" />
+              </Bindings>
+            </InputArea>
+            <InputArea name="Retailer Name" disabled="true">
+              <Bindings>
+                <Resource target="Label" type="Label" id="RetailerNameId" defaultLabel="Retailer Name" />
+                <Binding target="Value" binding="ProcessContext::RelatedAccountDetail.retailerName" bindingMode="ONE_WAY" />
+              </Bindings>
+            </InputArea>
+            <InputArea name="Wholesaler Name" editable="false">
+              <Bindings>
+                <Resource target="Label" type="Label" id="WholesalerNameId" defaultLabel="Wholesaler Name" />
+                <Binding target="Value" binding="ProcessContext::RelatedAccountDetail.wholesalerName" bindingMode="ONE_WAY" />
+              </Bindings>
+            </InputArea>
+            <CheckBox name="isPrimary" disabled="true">
+              <Bindings>
+                <Resource target="Label" type="Label" id="isPrimaryId" defaultLabel="Primary Wholesaler" />
+                <Binding target="checkedValue" binding="ProcessContext::RelatedAccountDetail.isPrimary" bindingMode="TWO_WAY" />
+              </Bindings>
+            </CheckBox>
+            <CheckBox name="isPromotional" disabled="true">
+              <Bindings>
+                <Resource target="Label" type="Label" id="isPromotionalId" defaultLabel="Promotional Wholesaler" />
+                <Binding target="checkedValue" binding="ProcessContext::RelatedAccountDetail.isPromotional" bindingMode="TWO_WAY" />
+              </Bindings>
+            </CheckBox>
+            <InputArea name="SupplierId">
+              <Bindings>
+                <Resource target="Label" type="Label" id="SupplierIdId" defaultLabel="Supplier Id" />
+                <Binding target="Value" binding="ProcessContext::RelatedAccountDetail.supplierId" bindingMode="ONE_WAY" />
+              </Bindings>
+            </InputArea>
+            <InputArea name="SalesDivision" editable="false">
+              <Bindings>
+                <Resource target="Label" type="Label" id="SalesDivisionId" defaultLabel="Sales Division" />
+                <Binding target="Value" binding="ProcessContext::RelatedAccountDetail.salesDivision" bindingMode="TWO_WAY" />
+              </Bindings>
+            </InputArea>
+          </GroupElement>
+        </Area>
+      </Area>
+      <Area areaName="Attachments" areaPattern="SingleElementArea" lazyLoading="true">
+        <MediaListControl name="WholesalePromotionAttachments" dataSource="ProcessContext::RelatedAccountDetail.loAttachment.Items[]">
+          <Bindings>
+            <Binding target="MediaPath" type="Text" binding=".mediaPath" bindingMode="ONE_WAY" />
+            <Binding target="IsTagged" type="Text" bindingMode="ONE_WAY" />
+            <Binding target="Description" type="Text" binding=".description" bindingMode="ONE_WAY" />
+            <Binding target="Type" type="Text" binding=".type" bindingMode="ONE_WAY" />
+          </Bindings>
+        </MediaListControl>
+      </Area>
+    </Section>
+  </Page>
+</UIDescription>

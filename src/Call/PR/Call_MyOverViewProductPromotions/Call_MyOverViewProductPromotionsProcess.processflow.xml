@@ -1,0 +1,33 @@
+<Process name="Call::MyOverViewProductPromotionsProcess" defaultAction="GetProductList" schemaVersion="0.0.0.5">
+  <Entry>
+    <ProcessContext>
+      <Declarations>
+        <Declaration name="ProductPromotionList" type="LoMyCallProductPromotion" />
+      </Declarations>
+      <Parameters>
+        <Input name="numberOfListItems" type="DomInteger" />
+        <Input name="currentCustomerPKey" type="DomPKey" />
+      </Parameters>
+    </ProcessContext>
+    <EntryActions>
+      <Action name="GetList" actionType="CREATE" type="LoMyCallProductPromotion">
+        <Return name="ProcessContext::ProductPromotionList" />
+      </Action>
+    </EntryActions>
+  </Entry>
+  <Body>
+    <Actions>
+      <Action name="GetProductList" actionType="LOGIC" call="ProcessContext::ProductPromotionList.myGetAllForCard">
+        <Parameters>
+          <Input name="numberOfListItems" value="ProcessContext::numberOfListItems" />
+          <Input name="currentCustomerPKey" value="ProcessContext::currentCustomerPKey" />
+          <Input name="getAll" value="1" />
+        </Parameters>
+        <TransitionTo action="ShowProductPromotionCall" />
+      </Action>
+      <Action name="ShowProductPromotionCall" actionType="VIEW">
+        <UIDescription>Call::MyOverViewProductPromotionsUI</UIDescription>
+      </Action>
+    </Actions>
+  </Body>
+</Process>

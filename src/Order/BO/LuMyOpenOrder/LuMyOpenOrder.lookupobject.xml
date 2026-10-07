@@ -1,0 +1,12 @@
+<LookupObject name="LuMyOpenOrder" generateLoadMethod="true" schemaVersion="1.1">
+  <DataSource name="DsLuMyOpenOrder"/>
+  <SimpleProperties>
+    <SimpleProperty name="openOrderId" type="DomString" dataSourceProperty="openOrderId"/>
+  </SimpleProperties>
+  <Methods>
+    <Method name="afterLoadAsync"/>
+    <Method name="beforeLoadAsync"/>
+    <Method name="loadAsync"/>
+    <Method name="myGetOpenOrderInfo"/>
+  </Methods>
+</LookupObject>

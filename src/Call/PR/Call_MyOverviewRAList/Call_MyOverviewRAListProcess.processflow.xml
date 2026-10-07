@@ -1,0 +1,157 @@
+<Process name="Call::MyOverviewRAListProcess" defaultAction="GetWholesalerList" schemaVersion="0.0.0.5">
+  <Entry>
+    <ProcessContext>
+      <Declarations>
+        <Declaration name="WholesalerList" type="LoMyCallRelatedWholesaler" />
+        <Declaration name="RelatedAccountDetail" type="BoMyRelatedAccountDetail" />
+        <Declaration name="CreateDecision" type="String" />
+        <Declaration name="NewRA" type="LiMyCallRelatedWholesaler" />
+        <Declaration name="ContextMenuList" type="LoMyRAOverViewContextMenu" />
+        <Declaration name="ReturnType" type="String" />
+      </Declarations>
+      <Parameters>
+        <Input name="CallCustomerPKey" type="DomPKey" />
+        <Input name="RAPKey" type="DomPKey" />
+        <Input name="CustomerName" type="String" />
+        <Input name="Mode" type="String" />
+      </Parameters>
+    </ProcessContext>
+    <EntryActions>
+      <Action name="CardRelatedWholesaler_GetList" actionType="CREATE" type="LoMyCallRelatedWholesaler">
+        <Return name="ProcessContext::WholesalerList" />
+      </Action>
+    </EntryActions>
+  </Entry>
+  <Body>
+    <Actions>
+      <Action name="GetWholesalerList" actionType="LOGIC" call="ProcessContext::WholesalerList.myGetForOverView">
+        <Parameters>
+          <Input name="customerPKey" value="ProcessContext::CallCustomerPKey" />
+        </Parameters>
+        <TransitionTo action="ReloadRADetails" />
+      </Action>
+      <Action name="ReloadRADetails" actionType="LOAD" type="BoMyRelatedAccountDetail">
+        <Parameters>
+          <Input name="pKey" value="ProcessContext::WholesalerList.current.pKey" />
+        </Parameters>
+        <Return name="ProcessContext::RelatedAccountDetail" />
+        <TransitionTo action="ShowWholesalerCall" />
+      </Action>
+      <Action name="ShowWholesalerCall" actionType="VIEW">
+        <UIDescription>Call::MyOverviewRAListUI</UIDescription>
+        <Events>
+          <Event name="itemSelected" action="SaveBoAndReload" />
+          <Event name="addWholesaler" action="CreateNewRA" />
+          <Event name="contextMenuOpening" action="LoadContextMenu" />
+          <Event name="contextMenuItemSelected" action="ContextMenu_Result_Decision" />
+          <Event name="setPrimary" action="SetPrimary" />
+          <Event name="setPromotional" action="SetSecondary" />
+          <Event name="tabSelected" action="TabDecision"/>
+        </Events>
+      </Action>
+      <Action name="TabDecision" actionType="DECISION" parameter="Event.tabName">
+        <Case value="Attachments" action="LoadLoAttachment" />
+        <CaseElse action="ShowWholesalerCall" />
+      </Action>
+      <Action name="LoadLoAttachment" actionType="LOGIC" call="ProcessContext::RelatedAccountDetail.myloadLoAttachmentAsync">
+        <Parameters>
+          <Input name="bReload" type="Literal" value="0" />
+        </Parameters>
+      </Action>
+      <!-- Set Wholesaler Type -->
+      <Action name="SetPrimary" actionType="LOGIC" call="ProcessContext::WholesalerList.mySetWholesalerType">
+        <Parameters>
+          <Input name="typeInput" value="Primary" type="Literal" />
+        </Parameters>
+        <TransitionTo action="SaveWholesalerListAndReload" />
+      </Action>
+      <Action name="SetSecondary" actionType="LOGIC" call="ProcessContext::WholesalerList.mySetWholesalerType">
+        <Parameters>
+          <Input name="typeInput" value="Secondary" type="Literal" />
+        </Parameters>
+        <TransitionTo action="SaveWholesalerListAndReload" />
+      </Action>
+      <!-- Context Menu -->
+      <Action name="LoadContextMenu" actionType="LOAD" type="LoMyRAOverViewContextMenu">
+        <Return name="ProcessContext::ContextMenuList" />
+        <Parameters>
+          <Input name="pKey" value="Event.pKey" />
+        </Parameters>
+      </Action>
+      <Action name="ContextMenu_Result_Decision" actionType="DECISION" parameter="Event.selected">
+        <Case value="Delete" action="DeletedItem" />
+        <CaseElse action="ShowWholesalerCall" />
+      </Action>
+      <Action name="DeletedItem" actionType="LOGIC" call="ProcessContext::WholesalerList.myDeleteItem">
+        <Parameters>
+          <Input name="pKey" value="Event.pKey" />
+        </Parameters>
+        <TransitionTo action="ShowWholesalerCall" />
+      </Action>
+      <Action name="SaveBoAndReload" actionType="SAVE">
+        <Parameters>
+          <Input name="RelatedAccountDetail" value="ProcessContext::RelatedAccountDetail" />
+        </Parameters>
+        <TransitionTo action="LoadRADetails" />
+      </Action>
+      <Action name="LoadRADetails" actionType="LOAD" type="BoMyRelatedAccountDetail">
+        <Parameters>
+          <Input name="pKey" value="Event.pKey" />
+        </Parameters>
+        <Return name="ProcessContext::RelatedAccountDetail" />
+        <TransitionTo action="ShowWholesalerCall" />
+      </Action>
+      <!-- Create New RA -->
+      <Action name="CreateNewRA" actionType="PROCESS" process="Call::MyCreateWholesalerProcess">
+        <Parameters>
+          <Input name="CallCustomerPKey" value="ProcessContext::CallCustomerPKey" />
+          <Input name="RelatedWholesalerList" value="ProcessContext::WholesalerList" />
+        </Parameters>
+        <ReturnValues>
+          <Return name="ProcessContext::CreateDecision" value="buttonPressed" />
+          <Return name="ProcessContext::NewRA" value="newRecord" />
+        </ReturnValues>
+        <TransitionTo action="CreateProcess_Decision" />
+      </Action>
+      <Action name="CreateProcess_Decision" actionType="DECISION" parameter="ProcessContext::CreateDecision">
+        <Case value="create" action="CreateRADetailBO" />
+        <CaseEmpty action="ShowWholesalerCall" />
+        <CaseElse action="ShowWholesalerCall" />
+      </Action>
+      <Action name="CreateRADetailBO" actionType="CREATE" type="BoMyRelatedAccountDetail">
+        <Parameters>
+          <Input name="pKey" value="ProcessContext::NewRA.pKey" />
+          <Input name="retailerPKey" value="ProcessContext::NewRA.retailerPKey" />
+          <Input name="wholesalerPKey" value="ProcessContext::NewRA.wholesalerPKey" />
+          <Input name="rAType" value="ProcessContext::NewRA.rAType" />
+          <Input name="wholesalerName" value="ProcessContext::NewRA.wholesalerName" />
+          <Input name="retailerName" value="ProcessContext::NewRA.retailerName" />
+        </Parameters>
+        <Return name="ProcessContext::RelatedAccountDetail" />
+        <TransitionTo action="SaveRelatedAccountAndReload" />
+      </Action>
+      <Action name="SaveRelatedAccountAndReload" actionType="SAVE">
+        <Parameters>
+          <Input name="RelatedAccountDetail" value="ProcessContext::RelatedAccountDetail" />
+        </Parameters>
+        <TransitionTo action="AddtoList" />
+      </Action>
+      <Action name="AddtoList" actionType="LOGIC" call="ProcessContext::WholesalerList.myAddItem">
+        <Parameters>
+          <Input name="CallCustomerPKey" value="ProcessContext::CallCustomerPKey" />
+          <Input name="NewWholesalerPKey" value="ProcessContext::NewRA.wholesalerPKey" />
+          <Input name="NewWholesalerClearing" value="ProcessContext::NewRA.clearingFlag" />
+          <Input name="NewWholesalerName" value="ProcessContext::NewRA.wholesalerName" />
+          <Input name="LiRecord" value="ProcessContext::NewRA" />
+        </Parameters>
+        <TransitionTo action="GetWholesalerList" />
+      </Action>
+      <Action name="SaveWholesalerListAndReload" actionType="SAVE">
+        <Parameters>
+          <Input name="WholesalerList" value="ProcessContext::WholesalerList" />
+        </Parameters>
+        <TransitionTo action="GetWholesalerList" />
+      </Action>
+    </Actions>
+  </Body>
+</Process>

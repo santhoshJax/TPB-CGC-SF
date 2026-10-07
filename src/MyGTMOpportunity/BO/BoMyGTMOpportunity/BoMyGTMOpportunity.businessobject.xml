@@ -1,0 +1,35 @@
+<BusinessObject name="BoMyGTMOpportunity" schemaVersion="1.1">
+  <DataSource name="DsBoMyGTMOpportunity" />
+  <SimpleProperties>
+    <SimpleProperty name="pKey" type="DomPKey" dataSourceProperty="pKey" />
+    <SimpleProperty name="name" type="DomText" dataSourceProperty="name" />
+    <SimpleProperty name="tpbOpportunityRank" type="DomInteger" dataSourceProperty="tpbOpportunityRank" />
+    <SimpleProperty name="tpbAccountID" type="DomText" dataSourceProperty="tpbAccountID" />
+    <SimpleProperty name="tpbOpportunityName" type="DomText" dataSourceProperty="tpbOpportunityName" />
+    <SimpleProperty name="tpbPriorityFlag" type="DomText" dataSourceProperty="tpbPriorityFlag" />
+    <SimpleProperty name="tpbStatus" type="DomText" dataSourceProperty="tpbStatus" />
+    <SimpleProperty name="tpbType" type="DomText" dataSourceProperty="tpbType" />
+    <SimpleProperty name="tpbWeight" type="DomInteger" dataSourceProperty="tpbWeight" />
+    <SimpleProperty name="tpbStrategy" type="DomText" dataSourceProperty="tpbStrategy" />
+    <SimpleProperty name="tpbActive" type="DomText" dataSourceProperty="tpbActive" />
+    <SimpleProperty name="accountId" type="DomPKey" dataSourceProperty="accountId" />
+  </SimpleProperties>
+  <NestedObjects></NestedObjects>
+  <ObjectLookups></ObjectLookups>
+  <ListObjects></ListObjects>
+  <Methods>
+    <Method name="beforeSaveAsync" />
+    <Method name="afterSaveAsync" />
+    <Method name="beforeLoadAsync" />
+    <Method name="afterLoadAsync" />
+    <Method name="beforeInitialize" />
+    <Method name="afterInitialize" />
+    <Method name="beforeDoValidateAsync" />
+    <Method name="afterDoValidateAsync" />
+    <Method name="beforeCreateAsync" />
+    <Method name="afterCreateAsync" />
+    <Method name="loadAsync" />
+    <Method name="saveAsync" />
+    <Method name="createAsync" />
+  </Methods>
+</BusinessObject>

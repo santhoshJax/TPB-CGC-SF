@@ -1,0 +1,62 @@
+<DataSource name="DsLoMyInventory" backendSystem="sf" businessObjectClass="LoMyInventory" external="false" editableEntity="" schemaVersion="2.0">
+  <Attributes>
+    <Attribute name="pKey" table="Inventory__c" column="Id" />
+    <Attribute name="ivcMetaPKey" table="Inventory__c" column="Inventory_Template__c" />
+    <Attribute name="usrMainPKey" table="Inventory__c" column="User__c" />
+    <Attribute name="bpaMainPKey" table="Inventory__c" column="Account__c" />
+    <Attribute name="prdMainPKey" table="Inventory__c" column="Product__c" />
+    <Attribute name="phase" table="Inventory__c" column="Phase__c" />
+    <Attribute name="validFrom" table="Inventory__c" column="Valid_From__c" />
+    <Attribute name="validThru" table="Inventory__c" column="Valid_Thru__c" />
+    <Attribute name="invalid" table="Inventory__c" column="Invalid__c" />
+    <Attribute name="salesOrg" table="Inventory__c" column="Sales_Org__c" />
+    <Attribute name="inventoryName" table="Inventory__c" column="Name" />
+    <Attribute name="productName" table="Product2" column="Name" />
+    <DerivedAttribute name="balance" value="CASE WHEN SUM(Inventory_Transaction__c.Amount__c) is NULL THEN 0 ELSE SUM(Inventory_Transaction__c.Amount__c) END" />
+    <DerivedAttribute name="ownerName" value="User.Name" />
+    <DerivedAttribute name="tmgTourPKey" value="''" />
+    <DerivedAttribute name="etpVehiclePKey" value="''" />
+    <Attribute name="currency" table="Inventory__c" column="Currency__c" />
+    <Attribute name="recordTypeId" table="Inventory__c" column="RecordTypeId" />
+    <Attribute name="inventoryState" table="Inventory__c" column="TPB_Tour_State__c" />
+  </Attributes>
+  <Entities>
+    <Entity name="Inventory__c" alias="" idAttribute="Id" />
+    <Entity name="RecordType" alias="">
+      <Join Type="inner">
+        <SimpleJoin>
+          <Condition leftSideValue="Inventory__c.RecordTypeId" comparator="eq" rightSideType="Attribute" rightSideValue="RecordType.Id" />
+        </SimpleJoin>
+      </Join>
+    </Entity>
+    <Entity name="Inventory_Transaction__c" alias="">
+      <Join Type="left outer">
+        <SimpleJoin>
+          <Condition leftSideValue="Inventory__c.Id" comparator="eq" rightSideType="Attribute" rightSideValue="Inventory_Transaction__c.Inventory__c" />
+        </SimpleJoin>
+      </Join>
+    </Entity>
+    <Entity name="Product2">
+      <Join Type="left outer">
+        <SimpleJoin>
+          <Condition leftSideValue="Inventory__c.Product__c" comparator="eq" rightSideType="Attribute" rightSideValue="Product2.Id" />
+        </SimpleJoin>
+      </Join>
+    </Entity>
+    <Entity name="User">
+      <Join Type="left outer">
+        <SimpleJoin>
+          <Condition leftSideValue="Inventory__c.User__c" comparator="eq" rightSideType="Attribute" rightSideValue="User.Id" />
+        </SimpleJoin>
+      </Join>
+    </Entity>
+  </Entities>
+  <GroupBy>
+    <GroupByCriterion entity="Inventory__c" attribute="Id" />
+  </GroupBy>
+  <QueryCondition><![CDATA[
+    Inventory__c.User__c = '#UserPkey#'
+  ]]></QueryCondition>
+  <OrderCriteria />
+  <Parameters />
+</DataSource>

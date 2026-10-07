@@ -1,0 +1,52 @@
+<UIDescription name="Inventory::MyTransactionDialogUI" schemaVersion="0.0.0.5">
+  <Page pagePattern="SingleSectionDialogPage" onBackDiscard="true">
+    <PageHeader>
+      <Bindings>
+        <Binding target="title" type="Text" binding="ProcessContext::productName" />
+      </Bindings>
+    </PageHeader>
+    <Section sectionName="masterSection" sectionPattern="SingleAreaSection">
+      <Area areaName="mainArea" areaPattern="SingleElementArea">
+        <GroupedList name="transactionList" searchable="false" dataSource="ProcessContext::transList.items[]" indexBar="false">
+          <Items name="Items" itemPattern="itemPattern">
+            <ItemListLayout>
+              <Tablet>
+                <Default>
+                  <Col width="11em">
+                    <Row layoutType="itemSecondary" bindingId="accName" />
+                  </Col>
+                  <Col width="4em">
+                    <Row layoutType="itemValue" bindingId="chargeDate" />
+                  </Col>
+                  <Col width="3em">
+                    <Row layoutType="itemImportantValue" bindingId="amount" />
+                  </Col>
+                </Default>
+              </Tablet>
+              <Phone>
+                <Default>
+                  <Col width="6em">
+                    <Row layoutType="itemSecondary" bindingId="accName" />
+                  </Col>
+                  <Col width="4em">
+                    <Row layoutType="itemValue" bindingId="chargeDate" />
+                  </Col>
+                  <Col width="2em">
+                    <Row layoutType="itemImportantValue" bindingId="amount" />
+                  </Col>
+                </Default>
+              </Phone>
+            </ItemListLayout>
+            <Bindings>
+              <Binding target="pKey" type="Text" binding=".pKey" bindingMode="ONE_WAY" />
+              <Binding target="productName" type="Text" binding=".productName" bindingMode="ONE_WAY" />
+              <Binding target="amount" type="Text" binding=".amount" bindingMode="ONE_WAY" />
+              <Binding target="chargeDate" type="Date" binding=".chargeDate" bindingMode="ONE_WAY" />
+              <Binding target="accName" type="Text" binding=".accName" bindingMode="ONE_WAY" />
+            </Bindings>
+          </Items>
+        </GroupedList>
+      </Area>
+    </Section>
+  </Page>
+</UIDescription>

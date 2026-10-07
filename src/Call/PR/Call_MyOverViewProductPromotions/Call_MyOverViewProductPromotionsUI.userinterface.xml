@@ -1,0 +1,48 @@
+<UIDescription name="Call::MyOverViewProductPromotionsUI" schemaVersion="0.0.0.5">
+  <Page pagePattern="SingleSectionPage" masterSectionFlex="4.6" detailSectionFlex="3.7" cachable="false">
+    <PageHeader>
+      <Bindings>
+        <Resource target="title" type="Label" id="ProductPromotionTitleId" defaultLabel="All Product Promotions" bindingMode="ONE_TIME" />
+      </Bindings>
+    </PageHeader>
+    <Section sectionName="masterSection" sectionPattern="SingleAreaSection">
+      <Area areaName="mainArea" areaPattern="SingleElementArea">
+        <GroupedList name="MasterList" master="true" dataSource="ProcessContext::ProductPromotionList.items[]">
+          <Items name="Items" itemPattern="ProductPromotionItem">
+            <ItemListLayout>
+              <Default>
+                <Col flex="1">
+                  <Row layoutType="itemIdentifierCockpit" bindingId="ProductName" />
+                  <Row layoutType="itemSecondaryCockpit" bindingId="WholesalerName" />
+                </Col>
+                <Col>
+                  <Row>
+                    <Col width="1em" height="1em" layoutType="Image" bindingId="InfoIcon" />
+                    <Col width="7em" layoutType="itemSecondaryCockpit" bindingId="DeliveryDateLabel" />
+                  </Row>
+                  <Row flex="1" layoutType="itemSecondaryCockpit" bindingId="Month"/>
+                </Col>
+                <Col>
+                  <Row>
+                    <Col width="4em" layoutType="itemSecondaryCockpit" bindingId="Uom" />
+                    <Col width="4em" />
+                  </Row>
+                  <Row width="4em" layoutType="itemSecondaryCockpit" bindingId="QuantityOrdered" />
+                </Col>
+              </Default>
+            </ItemListLayout>
+            <Bindings>
+              <Binding target="ProductName" type="Text" binding=".productName" bindingMode="ONE_WAY" />
+              <Binding target="QuantityOrdered" type="Text" binding=".quantityOrdered" bindingMode="ONE_WAY" />
+              <Binding target="WholesalerName" type="Text" binding=".wholesalerName" bindingMode="ONE_WAY" />
+              <Binding target="Month" type="Text" binding=".monthString" bindingMode="ONE_WAY" />
+              <Binding target="Uom" type="Text" binding=".uom" bindingMode="ONE_WAY" />
+              <Resource target="DeliveryDateLabel" type="Label" defaultLabel="Delivery Date" id="DeliveryDateId" />
+              <Resource id="Truck" target="InfoIcon" type="Image" />
+            </Bindings>
+          </Items>
+        </GroupedList>
+      </Area>
+    </Section>
+  </Page>
+</UIDescription>

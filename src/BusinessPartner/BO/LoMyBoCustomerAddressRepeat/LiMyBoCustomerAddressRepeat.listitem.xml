@@ -1,0 +1,10 @@
+<ListItem name="LiMyBoCustomerAddressRepeat" >
+  <SimpleProperties>
+    <SimpleProperty name="pKey" type="DomPKey" dataSourceProperty="pKey" />
+    <SimpleProperty name="cityPKey" type="DomString" dataSourceProperty="cityPKey" />
+    <SimpleProperty name="postalCodePKey" type="DomString" dataSourceProperty="postalCodePKey" />
+    <SimpleProperty name="statePKey" type="DomString" dataSourceProperty="statePKey" />
+    <SimpleProperty name="streetPKey" type="DomString" dataSourceProperty="streetPKey" />
+    <SimpleProperty name="countryPKey" type="DomString" dataSourceProperty="countryPKey" />
+  </SimpleProperties>
+</ListItem>

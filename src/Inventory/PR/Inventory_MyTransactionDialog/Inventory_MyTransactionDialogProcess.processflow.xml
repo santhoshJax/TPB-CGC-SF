@@ -1,0 +1,29 @@
+<Process name="Inventory::MyTransactionDialogProcess" defaultAction="loadTrans" schemaVersion="0.0.0.5">
+  <Entry>
+    <ProcessContext>
+      <Declarations>
+        <Declaration name="transList" type="LoMyInventoryTransaction" />
+      </Declarations>
+      <Parameters>
+        <Input name="inventoryId" type="String" />
+        <Input name="productName" type="String" />
+      </Parameters>
+    </ProcessContext>
+    <EntryActions></EntryActions>
+  </Entry>
+  <Body>
+    <Actions>
+      <Action name="loadTrans" actionType="LOAD" type="LoMyInventoryTransaction">
+        <Parameters>
+          <Input name="inventoryId" value="ProcessContext::inventoryId" />
+          <Input name="productName" value="ProcessContext::productName" />
+        </Parameters>
+        <Return name="ProcessContext::transList" />
+        <TransitionTo action="showView" />
+      </Action>
+      <Action name="showView" actionType="VIEW">
+        <UIDescription>Inventory::MyTransactionDialogUI</UIDescription>
+      </Action>
+    </Actions>
+  </Body>
+</Process>

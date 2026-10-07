@@ -1,0 +1,31 @@
+<Process name="Inventory::MyOverviewProcess" defaultAction="ShowInventoryList" schemaVersion="0.0.0.5">
+  <Entry>
+    <ProcessContext>
+      <Declarations>
+        <Declaration name="InventoryList" type="LoMyInventory" />
+      </Declarations>
+      <Parameters></Parameters>
+    </ProcessContext>
+    <EntryActions>
+      <Action actionType="LOAD" name="GetInventoryList" type="LoMyInventory">
+        <Return name="ProcessContext::InventoryList" />
+      </Action>
+    </EntryActions>
+  </Entry>
+  <Body>
+    <Actions>
+      <Action actionType="VIEW" name="ShowInventoryList">
+        <UIDescription>Inventory::MyOverviewUI</UIDescription>
+        <Events>
+          <Event name="itemSelected" action="showTransactionDialog" />
+        </Events>
+      </Action>
+      <Action actionType="PROCESS" name="showTransactionDialog" process="Inventory::MyTransactionDialogProcess">
+        <Parameters>
+          <Input name="inventoryId" value="Event.inventoryId" />
+          <Input name="productName" value="Event.productName" />
+        </Parameters>
+      </Action>
+    </Actions>
+  </Body>
+</Process>

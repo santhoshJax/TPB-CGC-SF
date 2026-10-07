@@ -1,0 +1,118 @@
+<DataSource name="DsBoCustomer" backendSystem="sf" businessObjectClass="BoCustomer" external="false" editableEntity="Account" schemaVersion="2.0">
+  <Attributes>
+    <Attribute name="pKey" table="Account" column="Id" />
+    <Attribute name="name" table="Account" column="Name" />
+    <Attribute name="name2" table="Account" column="Name_2__c" />
+    <Attribute name="matchcode" table="Account_Extension__c" column="Match_Code__c" />
+    <Attribute name="customerId" table="Account" column="Account_Number__c" />
+    <Attribute name="phone1" table="Account" column="Phone" />
+    <Attribute name="email1" table="Account" column="Account_Email__c" />
+    <Attribute name="fax1" table="Account" column="Fax" />
+    <Attribute name="priority" table="Account_Extension__c" column="Priority__c" />
+    <Attribute name="classOfTrade" table="Account_Extension__c" column="Class_Of_Trade__c" />
+    <Attribute name="orgLevel" table="Account_Extension__c" column="Org_Level__c" />
+    <Attribute name="phase" table="Account_Extension__c" column="Phase__c" />
+    <Attribute name="salesRelevant" table="Account_Extension__c" column="Sales_Relevant__c" />
+    <Attribute name="state" table="Account_Extension__c" column="State__c" />
+    <Attribute name="bpaMetaPKey" table="Account" column="Account_Template__c" />
+    <Attribute name="dateClosure" table="Account_Extension__c" column="Date_Closure__c" />
+    <DerivedAttribute name="deleted" value="'0'" />
+    <Attribute name="accountExtensionId" table="Account_Extension__c" column="Id" />
+    <DerivedAttribute name="totalDebit" value="0" />
+    <DerivedAttribute name="totalCredit" value="0" />
+    <DerivedAttribute name="totalDebitCredit" value="0" />
+    <Attribute name="considerModules" table="Account_Extension__c" column="Consider_Modules__c" />
+    <DerivedAttribute name="priorityImage" value="CASE Account_Extension__c.Priority__c WHEN 'A - Priority' THEN 'GoldMedal' WHEN 'B - Priority' THEN 'SilverMedal' ELSE 'BronzeMedal' END" />
+    <Attribute name="accountDi" table="Account_Extension__c" column="Distribution_Issue__c" />
+    <Attribute name="accountOi" table="Account_Extension__c" column="OOS_Issue__c" />
+    <Attribute name="operatingHoursId" table="Account" column="OperatingHoursId" />
+    <DerivedAttribute name="emailEditable" value="'0'" />
+    <Attribute name="parentId" table="AccountHierarchy" column="Name" />
+    <Attribute name="headquarterId" table="Account" column="parentId" />
+    <Attribute name="primaryWholesalerName" table="Wholesaler" column="Name" />
+    <Attribute name="promotionalWholesalerName" table="SecondaryWholesaler" column="Name" />
+    <Attribute name="ownerId" table="Account" column="OwnerId" />
+    <Attribute name="accountNumberId" table="Account" column="Account_Number_old__c" />
+    <Attribute name="recordTypeId" table="Account" column="RecordTypeId" />
+    <Attribute name="status" table="Account" column="Status__c" />
+    <Attribute name="closureReason" table="Account" column="Closure_Reason__c" />
+    <Attribute name="paymentTerm" table="Account" column="Payment_Term__c" />
+    <Attribute name="tdlStoreID" table="Account" column="TDL_Store_ID__c" />
+    <Attribute name="counterfeitHistory" table="Account" column="Counterfeit_History__c" />
+    <Attribute name="accountNotes" table="Account" column="Account_Notes__c" />
+    <Attribute name="type" table="Account" column="Type" />
+    <Attribute name="tobaccoLicenseExpirationDate" table="Account" column="Tobacco_License_Expiration_Date__c" />
+    <Attribute name="accClassOfTrade" table="Account" column="Class_of_Trade__c" />
+    <Attribute name="accSubClassOfTrade" table="Account" column="Sub_Class_of_Trade__c" />
+    <Attribute name="primaryWholesaler" table="Account" column="Primary_Wholesaler__c" />
+    <Attribute name="promotionalWholesaler" table="Account" column="Secondary_Wholesaler__c" />
+    <Attribute name="salesDivision" table="Account" column="TPB_Sales_Division__c" />
+    <Attribute name="clearingHouseParticipant" table="Account" column="Clearing_House_Participant__c" />
+    <Attribute name="recordTypeName" table="Account" column="TPB_RecordTypeName__c" />
+    <Attribute name="county" table="Account" column="County__c" />
+    <Attribute name="jurisdiction" table="Account" column="TPB_Jurisdiction__c" />
+    <Attribute name="taxNumber" table="Account" column="State_Tax_Number__c" />
+    <Attribute name="tobaccoNumber" table="Account" column="State_Tobacco_Number__c" />
+    <Attribute name="fein" table="Account" column="FEIN__c" />
+    <Attribute name="ownership" table="Account" column="Ownership__c" />
+    <Attribute name="parentOwner" table="Account" column="Parent_Owner__c" />
+    <Attribute name="workloadStatus" table="Account" column="Workload_Status__c" />
+    <Attribute name="smokelessStoreRank" table="Account" column="Smokeless_Store_Rank__c" />
+    <Attribute name="smokingStoreRank" table="Account" column="Smoking_Store_Rank__c" />
+    <Attribute name="acceptsMobileCoupons" table="Account" column="Accepts_Coupons__c" />
+    <Attribute name="mobileCouponEnrollment" table="Account" column="Mobile_Coupon_Enrollment__c" />
+    <Attribute name="prohibitVisit" table="Account" column="Prohibit_Visit__c" />
+    <Attribute name="promosAllowed" table="Account" column="Promos_Allowed__c" />
+    <Attribute name="reasonNotVisited" table="Account" column="Reason_Not_Visited__c" />
+    <Attribute name="posAllowed" table="Account" column="POS_Allowed__c" />
+    <Attribute name="priceTaxAdvantage" table="Account" column="Price_Tax_Advantage__c" />
+    <Attribute name="lastCompletedVisitDateTime" table="Account" column="Last_Completed_Call_Date_Time__c" />
+    <Attribute name="ownerName" table="Owner" column="Name" />
+    <Attribute name="ownerEmail" table="Owner" column="Email" />
+  </Attributes>
+  <Entities>
+    <Entity name="Account" alias="" idAttribute="Id" />
+    <Entity name="Account_Extension__c" alias="">
+      <Join Type="inner">
+        <SimpleJoin>
+          <Condition leftSideValue="Account_Extension__c.Account__c" comparator="eq" rightSideType="Attribute" rightSideValue="Account.Id" />
+        </SimpleJoin>
+      </Join>
+    </Entity>
+    <Entity name="Account" alias="AccountHierarchy">
+      <Join Type="left">
+        <SimpleJoin>
+          <Condition leftSideValue="Account.parentId" comparator="eq" rightSideType="Attribute" rightSideValue="AccountHierarchy.Id" />
+        </SimpleJoin>
+      </Join>
+    </Entity>
+    <Entity name="Account" alias="Wholesaler">
+      <Join Type="left outer">
+        <SimpleJoin>
+          <Condition leftSideValue="Wholesaler.Id" comparator="eq" rightSideType="Attribute" rightSideValue="Account.Primary_Wholesaler__c" />
+        </SimpleJoin>
+      </Join>
+    </Entity>
+    <Entity name="Account" alias="SecondaryWholesaler">
+      <Join Type="left outer">
+        <SimpleJoin>
+          <Condition leftSideValue="SecondaryWholesaler.Id" comparator="eq" rightSideType="Attribute" rightSideValue="Account.Secondary_Wholesaler__c" />
+        </SimpleJoin>
+      </Join>
+    </Entity>
+    <Entity name="User" alias="Owner">
+      <Join Type="left outer">
+        <SimpleJoin>
+          <Condition leftSideValue="Account.OwnerId" comparator="eq" rightSideType="Attribute" rightSideValue="Owner.Id" />
+        </SimpleJoin>
+      </Join>
+    </Entity>
+  </Entities>
+  <QueryCondition><![CDATA[
+   Account.Id = #pKey#
+          ]]></QueryCondition>
+  <OrderCriteria />
+  <Parameters>
+    <Parameter name="pKey" type="TEXT" />
+  </Parameters>
+</DataSource>

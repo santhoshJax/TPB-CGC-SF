@@ -1,0 +1,51 @@
+<Process name="Customer::MySelectPrimaryWholesalerProcess" defaultAction="ShowView" schemaVersion="0.0.0.5">
+  <Entry>
+    <ProcessContext>
+      <Declarations>
+        <Declaration name="Wholesalers" type="LoMyCustomerWholesalers" />
+      </Declarations>
+      <Parameters>
+        <Input name="WholesalerType" type="DomString" />
+        <Input name="BoCustomer" type="BoCustomer" />
+      </Parameters>
+    </ProcessContext>
+    <EntryActions>
+      <Action actionType="LOAD" name="GetWholesalers" type="LoMyCustomerWholesalers">
+        <Parameters>
+          <Input name="recordTypeName" value="Wholesaler" />
+        </Parameters>
+        <Return name="ProcessContext::Wholesalers" />
+      </Action>
+      <Action actionType="LOGIC" name="SetBoWholesalerType" call="ProcessContext::BoCustomer.setWholesalerType">
+        <Parameters >
+          <Input value="ProcessContext::WholesalerType"/>
+        </Parameters>
+      </Action>
+    </EntryActions>
+  </Entry>
+  <Body>
+    <Actions>
+      <Action actionType="VIEW" name="ShowView">
+        <UIDescription>Customer::MySelectPrimaryWholesalerUI</UIDescription>
+        <Events>
+          <Event name="itemSelected" action="AddEnd" />
+          <Event name="clearWholesaler" action="ClearENd" />
+        </Events>
+      </Action>
+      <Action actionType="END" name="AddEnd">
+        <ReturnValues>
+          <Return name="wId" value="Event.wId" />
+          <Return name="wName" value="Event.wName" />
+          <Return name="clear" value="0" />
+          <Return name="type" value="ProcessContext::WholesalerType" />
+        </ReturnValues>
+      </Action>
+      <Action actionType="END" name="ClearENd">
+        <ReturnValues>
+          <Return name="clear" value="1" />
+          <Return name="type" value="ProcessContext::WholesalerType" />
+        </ReturnValues>
+      </Action>
+    </Actions>
+  </Body>
+</Process>

@@ -1,0 +1,66 @@
+<UIDescription name="Product::MyLookupUI" schemaVersion="0.0.0.5">
+  <Page pagePattern="SingleSectionDialogPage">
+    <PageHeader>
+      <Bindings>
+        <Resource target="title" type="Label" id="ProductLookupTitleId" defaultLabel="Products" />
+      </Bindings>
+      <MenuItems>
+        <MenuItem itemId="addProducts" directlyVisible="true">
+          <Bindings>
+            <Resource target="Text" type="Label" id="adProducts" defaultLabel="Add" />
+            <Resource target="Icon" type="Image" id="PlusDarkGrey24" defaultImage="PlusDarkGrey24.png" />
+            <Binding type="Visible" target="Visible" call="ProcessContext::ProductList.myGetButtonVisibility">
+              <Parameters>
+                <Input name="token" type="Literal" value="btnAddProducts" />
+              </Parameters>
+            </Binding>
+          </Bindings>
+          <Events>
+            <ButtonPressedEvent event="addProducts" />
+          </Events>
+        </MenuItem>
+      </MenuItems>
+    </PageHeader>
+    <Section sectionName="masterSection" sectionPattern="SingleAreaSection">
+      <Area areaName="mainArea" areaPattern="SingleElementArea">
+        <GroupedList name="ProductList" groupBy="groupText" sortBy="groupSortOrder" sortInsideGroupBy="sortOrder" sortDirectionInGroup="ASC" indexBar="false" searchable="true" dataSource="ProcessContext::ProductList.Items[]">
+          <Items name="Items" itemPattern="ProductOverviewItem">
+            <Bindings>
+              <Binding target="Text1" type="Text" binding=".text1" bindingMode="ONE_WAY" />
+              <!--<Binding target="PrdId" type="Text" binding=".id" bindingMode="ONE_WAY" />-->
+              <Binding target="mandatoryIcon" type="Text" binding=".isSelected" bindingMode="ONE_WAY" />
+              <!--<Resource target="PrdIdLabel" type="Label" id="prdIdLabelId" defaultLabel="Prd No." />-->
+            </Bindings>
+            <ItemListLayout>
+              <Col>
+                <Row>
+                  <Col layoutType="itemTitle" width="90%" bindingId="Text1" />
+                  <Col layoutType="itemSubTitle" width="2em" height="1em" bindingId="mandatoryIcon" align="right" />
+                </Row>
+                <!--<Row>
+                  <Col layoutType="itemSecondary" width="4em" bindingId="PrdIdLabel" />
+                  <Col layoutType="itemSecondary" width="8em" bindingId="PrdId" />
+                  <Col layoutType="itemSubTitle" width="3em" bindingId="GTINLabel" />
+                  <Col layoutType="itemSubTitle" width="8em" bindingId="GTIN" />
+                </Row>-->
+              </Col>
+            </ItemListLayout>
+          </Items>
+          <Events>
+            <ItemSelectedEvent event="itemSelected">
+              <Params>
+                <Param name="pKey" value=".pKey" />
+                <Param name="id" value=".id" />
+              </Params>
+            </ItemSelectedEvent>
+          </Events>
+          <SearchAttributes>
+            <SearchAttribute name="id" />
+            <SearchAttribute name="text1" />
+            <SearchAttribute name="ean" />
+          </SearchAttributes>
+        </GroupedList>
+      </Area>
+    </Section>
+  </Page>
+</UIDescription>

@@ -1,0 +1,69 @@
+<Process name="Call::MyStartCallProcess" defaultAction="ValidateCustomer" schemaVersion="0.0.0.5">
+  <Entry>
+    <ProcessContext>
+      <Declarations>
+        <Declaration name="HasInProgressVisit" type="DomBool" />
+        <Declaration name="CallInfo" type="LuMyInProgressVisit" />
+      </Declarations>
+      <Parameters>
+        <Input name="MainBO" type="BoCall" />
+        <Input name="CustomerDetail" type="BoCustomer" />
+      </Parameters>
+    </ProcessContext>
+    <EntryActions></EntryActions>
+  </Entry>
+  <Body>
+    <Actions>
+      <Action name="ValidateCustomer" actionType="LOGIC" call="ProcessContext::MainBO.myValidateCustomer">
+        <Parameters>
+          <Input name="customerDetail" value="ProcessContext::CustomerDetail" />
+        </Parameters>
+        <TransitionTo action="LoadCallInfo"/>
+      </Action>
+      <Action actionType="LOAD" name="LoadCallInfo" type="LuMyInProgressVisit">
+        <Parameters>
+          <Input name="clbMainPKey" value="ProcessContext::MainBO.pKey" />
+        </Parameters>
+        <Return name="ProcessContext::CallInfo" />
+        <TransitionTo action="CheckOpenCalls" />
+      </Action>
+      <Action actionType="LOGIC" name="CheckOpenCalls" call="ProcessContext::MainBO.myhasInProgressVisits">
+        <Parameters>
+          <Input name="lookup" value="ProcessContext::CallInfo" />
+        </Parameters>
+        <Return name="ProcessContext::HasInProgressVisit" />
+        <TransitionTo action="openCalls_Decision" />
+      </Action>
+      <Action actionType="DECISION" name="openCalls_Decision" parameter="ProcessContext::HasInProgressVisit">
+        <Case value="0" action="ConfirmStartCall" />
+        <CaseElse action="NotStartCall" />
+      </Action>
+      <Action actionType="CONFIRM" confirmType="Ok" name="NotStartCall">
+        <Message messageId="CasClbStartHasInProgCall" />
+        <Cases>
+          <Case value="Ok" action="EndNotComplete" />
+        </Cases>
+      </Action>
+      <Action name="ConfirmStartCall" actionType="CONFIRM" confirmType="YesNo">
+        <Message messageId="CasConfirmStartCall" />
+        <Cases>
+          <Case value="Yes" action="SetInProgressFlag" />
+          <Case value="No" action="EndNotComplete" />
+        </Cases>
+      </Action>
+      <Action actionType="LOGIC" name="SetInProgressFlag" call="ProcessContext::MainBO.myStartCall">
+        <TransitionTo action="EndComplete" />
+      </Action>
+      <Action actionType="END" name="EndComplete">
+        <ReturnValues>
+          <Return name="completed" type="Literal" value="1" />
+        </ReturnValues>
+      </Action>
+      <Action actionType="END" name="EndNotComplete">
+        <ReturnValues>
+          <Return name="completed" type="Literal" value="0" />
+        </ReturnValues>
+      </Action>
+    </Actions>
+  </Body>
+</Process>

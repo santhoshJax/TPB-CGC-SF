@@ -1,0 +1,15 @@
+<LookupObject name="LuMyInvoiceTerm" generateLoadMethod="true" schemaVersion="1.1">
+  <DataSource name="DsLuMyInvoiceTerm" />
+  <SimpleProperties>
+    <SimpleProperty name="pKey" type="DomId" storable="false" dataSourceProperty="pKey" />
+    <SimpleProperty name="state" type="DomString" storable="false" dataSourceProperty="state" />
+    <SimpleProperty name="terms" type="DomLongText" storable="false" dataSourceProperty="terms" />
+    <SimpleProperty name="ntcTax" type="DomText" storable="false" dataSourceProperty="ntcTax" />
+    <SimpleProperty name="ntcStateUseTax" type="DomText" storable="false" dataSourceProperty="ntcStateUseTax" />
+  </SimpleProperties>
+  <Methods>
+    <Method name="afterLoadAsync" />
+    <Method name="beforeLoadAsync" />
+    <Method name="loadAsync" />
+  </Methods>
+</LookupObject>

@@ -1,0 +1,46 @@
+<Process name="Order::MyItemWholesalerLookupProcess" defaultAction="ShowView" schemaVersion="0.0.0.5">
+  <Entry>
+    <ProcessContext>
+      <Declarations>
+        <Declaration name="Wholesalers" type="LoMyOrderItemExtra" />
+      </Declarations>
+      <Parameters>
+        <Input name="prdMainPKey" type="DomText" />
+        <Input name="customerPKey" type="DomId" />
+        <Input name="orderItemType" type="DomString" />
+      </Parameters>
+    </ProcessContext>
+    <EntryActions>
+      <Action actionType="LOAD" name="GetWholesalers" type="LoMyOrderItemExtra">
+        <Parameters>
+          <Input name="prdMainPKey" value="ProcessContext::prdMainPKey" />
+          <Input name="customerPKey" value="ProcessContext::customerPKey" />
+          <Input name="onlyRelated" value="1" type="Literal" />
+          <Input name="orderItemType" value="ProcessContext::orderItemType" />
+        </Parameters>
+        <Return name="ProcessContext::Wholesalers" />
+      </Action>
+    </EntryActions>
+  </Entry>
+  <Body>
+    <Actions>
+      <Action actionType="VIEW" name="ShowView">
+        <UIDescription>Order::MyItemWholesalerLookupUI</UIDescription>
+        <Events>
+          <Event name="itemSelected" action="End" />
+          <!-- <Event name="sortByDistance" action="SetSortByDistance" />
+          <Event name="sortByAlphabet" action="SetSortByAlphabet" /> -->
+        </Events>
+      </Action>
+      <Action actionType="END" name="End">
+        <ReturnValues>
+          <Return name="wpId" value="Event.wpId" />
+          <Return name="wpSKU" value="Event.wpSKU" />
+          <Return name="wId" value="Event.wId" />
+          <Return name="wName" value="Event.wName" />
+          <Return name="supplierId" value="Event.supplierId" />
+        </ReturnValues>
+      </Action>
+    </Actions>
+  </Body>
+</Process>

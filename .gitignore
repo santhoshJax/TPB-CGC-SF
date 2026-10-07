@@ -1,0 +1,6 @@
+/appl
+.modeler-workspace
+/.vscode
+/contractSnippets
+*.zip
+.DS_Store

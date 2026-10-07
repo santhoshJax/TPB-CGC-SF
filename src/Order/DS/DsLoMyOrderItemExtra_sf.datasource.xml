@@ -1,0 +1,129 @@
+<DataSource name="DsLoMyOrderItemExtra" backendSystem="sf" businessObjectClass="LoMyOrderItemExtra" external="true" editableEntity="" schemaVersion="2.0">
+  <Database platform="SQLite">
+    <Load><![CDATA[
+
+// NOTICE: contract attribute external="true" is required when using external SQL queries.
+
+var customerPKey = "";
+var prdMainPKey = "";
+var isQueryAllPrimary = false;
+var isQueryOnlyRelated = false;
+var orderItemType = "";
+
+if (Utils.isDefined(jsonQuery.prdMainPKey)) {
+  prdMainPKey = Utils.convertForDBParam(jsonQuery.prdMainPKey, "DomPKey");
+}
+
+if (Utils.isDefined(jsonQuery.customerPKey)) {
+  customerPKey = Utils.convertForDBParam(jsonQuery.customerPKey, "DomPKey");
+}
+
+if (Utils.isDefined(jsonQuery.queryType) && jsonQuery.queryType === "ALL_PRIMARY") {
+  isQueryAllPrimary = true;
+}
+
+if (Utils.isDefined(jsonQuery.onlyRelated) && jsonQuery.onlyRelated === "1") {
+  isQueryOnlyRelated = true;
+}
+
+if (Utils.isDefined(jsonQuery.orderItemType)) {
+  orderItemType = Utils.convertForDBParam(jsonQuery.orderItemType, "DomString");
+}
+
+
+var sqlParams = { prdMainPKey, customerPKey };
+
+var sqlStmt = "";
+sqlStmt += " SELECT * FROM (";
+sqlStmt += "   SELECT";
+sqlStmt += "     RA.Id as RApKey,";
+sqlStmt += "     Account_Product__c.Id as APpKey,";
+sqlStmt += "     Wholesaler.Name as wholesaler,";
+sqlStmt += "     Wholesaler.Id as wholesalerPKey,";
+sqlStmt += "     CASE WHEN Wholesaler.Clearing_House_Participant__c = 1 THEN 'OverduePromotion' ELSE 'EmptyImage' END as wholesalerClear,";
+sqlStmt += "     RA.TPB_Primary_Wholesaler__c as isPrimary,";
+sqlStmt += "     RA.TPB_Promotional_Wholesaler__c as isPromotional,";
+sqlStmt += "     RA.Supplier_Id__c as supplierId,";
+sqlStmt += "     Account_Product__c.Product__c as prdPKey,";
+sqlStmt += "     Account_Product__c.Cost_Price__c as costPrice,";
+sqlStmt += "     Account_Product__c.Item_Type__c as itemType,";
+sqlStmt += "     Account_Product__c.Quantity__c as quantity,";
+sqlStmt += "     Account_Product__c.Selling_Price__c as sellingPrice,";
+sqlStmt += "     Account_Product__c.SKU__c as sku,";
+sqlStmt += "     Account_Product__c.Status__c as status";
+sqlStmt += "   FROM";
+sqlStmt += "     Related_Account__c AS RA";
+sqlStmt += "     LEFT JOIN Account_Product__c ON RA.Wholesaler__c = Account_Product__c.Account__c";
+
+if (!Utils.isEmptyString(prdMainPKey)) {
+  // Return the specified product's all wholesalers for user selection
+  sqlStmt += " AND Account_Product__c.Product__c = #prdMainPKey# ";
+}
+
+sqlStmt += "     LEFT JOIN Account AS Wholesaler ON RA.Wholesaler__c = Wholesaler.Id";
+sqlStmt += "   WHERE RA.IsDeleted = 0 AND ";
+
+var condList = [];
+
+
+if (isQueryAllPrimary) {
+  // Return all primary type wholesalers for further filtering in logic
+  condList.push("     RA.TPB_Primary_Wholesaler__c = '1'");
+}
+
+if (isQueryOnlyRelated){
+  condList.push("     RA.Retailer__c = #customerPKey#'");
+}
+
+sqlStmt += condList.join("AND");
+sqlStmt += "   ORDER BY Wholesaler.Name ASC";
+sqlStmt += " )";
+
+
+if (orderItemType === "Prebook") {
+  // NOTICE: ONLY one Account record globaly named 'TSM Van', and ONLY one Account_Product__c record globally map with 'TSM Van' account record.
+  sqlStmt += " UNION ALL";
+  sqlStmt += " SELECT * FROM (";
+  sqlStmt += "   SELECT";
+  sqlStmt += "     ' ' as RApKey,";
+  sqlStmt += "     Account_Product__c.Id as APpKey,";
+  sqlStmt += "     Wholesaler.Name as wholesaler,";
+  sqlStmt += "     Wholesaler.Id as wholesalerPKey,";
+  sqlStmt += "     CASE WHEN Wholesaler.Clearing_House_Participant__c = 1 THEN 'OverduePromotion' ELSE 'EmptyImage' END as wholesalerClear,";
+  sqlStmt += "     0 as isPrimary,";
+  sqlStmt += "     0 as isPromotional,";
+  sqlStmt += "     ' ' as supplierId,";
+  sqlStmt += "     Account_Product__c.Product__c as prdPKey,";
+  sqlStmt += "     Account_Product__c.Cost_Price__c as costPrice,";
+  sqlStmt += "     Account_Product__c.Item_Type__c as itemType,";
+  sqlStmt += "     Account_Product__c.Quantity__c as quantity,";
+  sqlStmt += "     Account_Product__c.Selling_Price__c as sellingPrice,";
+  sqlStmt += "     Account_Product__c.SKU__c as sku,";
+  sqlStmt += "     Account_Product__c.Status__c as status";
+  sqlStmt += "   FROM Account_Product__c";
+  sqlStmt += "   LEFT JOIN Account AS Wholesaler ON Account_Product__c.Account__c = Wholesaler.Id";
+  sqlStmt += "   WHERE";
+  sqlStmt += "     Account_Product__c.Account__c IN (";
+  sqlStmt += "       SELECT";
+  sqlStmt += "         WS.Id";
+  sqlStmt += "       FROM";
+  sqlStmt += "         Account AS WS";
+  sqlStmt += "       WHERE WS.Name = 'TSM Van'";
+  sqlStmt += "       LIMIT 1";
+  sqlStmt += "     )";
+  // filter out the dirty records since product id should not be defined
+  sqlStmt += "     AND ( Account_Product__c.Product__c = ' ' OR Account_Product__c.Product__c IS NULL )"; 
+  sqlStmt += "   LIMIT 1";
+  sqlStmt += " )";
+}
+
+return Utils.replaceMacrosParam(sqlStmt, sqlParams);
+
+    ]]></Load>
+  </Database>
+  <Parameters>
+    <Parameter name="prdMainPKey" type="TEXT" />
+    <Parameter name="queryType" type="TEXT" />
+    <Parameter name="orderItemType" type="TEXT" />
+  </Parameters>
+</DataSource>

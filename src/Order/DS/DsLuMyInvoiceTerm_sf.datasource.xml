@@ -1,0 +1,19 @@
+<DataSource name="DsLuMyInvoiceTerm" backendSystem="sf" businessObjectClass="LuMyInvoiceTerm" external="false" editableEntity="" schemaVersion="2.0">
+  <Attributes>
+    <Attribute name="pKey" table="Invoice_Term__c" column="Id" />
+    <Attribute name="state" table="Invoice_Term__c" column="State_Code__c" />
+    <Attribute name="terms" table="Invoice_Term__c" column="Terms__c" />
+    <Attribute name="ntcTax" table="Invoice_Term__c" column="NTC_Tax__c" />
+    <Attribute name="ntcStateUseTax" table="Invoice_Term__c" column="TPB_State_Use_Tax__c" />
+  </Attributes>
+  <Entities>
+    <Entity name="Invoice_Term__c" alias="" />
+  </Entities>
+  <QueryCondition><![CDATA[
+    Invoice_Term__c.State_Code__c = '#state#'
+    AND Invoice_Term__c.IsDeleted = '0'
+  ]]></QueryCondition>
+  <Parameters>
+    <Parameter name="state" type="TEXT" />
+  </Parameters>
+</DataSource>

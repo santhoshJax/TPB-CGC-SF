@@ -1,0 +1,30 @@
+<DataSource name="DsLoMyGTMOpportunityOverview" backendSystem="sf" businessObjectClass="LoMyGTMOpportunityOverview" external="false" editableEntity="TPB_GTM_Opportunity__c" schemaVersion="2.0">
+  <Attributes>
+    <Attribute name="pKey" table="TPB_GTM_Opportunity__c" column="Id" />
+    <Attribute name="name" table="TPB_GTM_Opportunity__c" column="Name" />
+    <Attribute name="tpbOpportunityRank" table="TPB_GTM_Opportunity__c" column="TPB_Opportunity_Rank__c" />
+    <Attribute name="tpbAccountID" table="TPB_GTM_Opportunity__c" column="TPB_Account_ID__c" />
+    <Attribute name="tpbOpportunityName" table="TPB_GTM_Opportunity__c" column="TPB_Opportunity_Name__c" />
+    <Attribute name="tpbPriorityFlag" table="TPB_GTM_Opportunity__c" column="TPB_Priority_Flag__c" />
+    <Attribute name="tpbStatus" table="TPB_GTM_Opportunity__c" column="TPB_Status__c" />
+    <Attribute name="tpbType" table="TPB_GTM_Opportunity__c" column="TPB_Type__c" />
+    <Attribute name="tpbWeight" table="TPB_GTM_Opportunity__c" column="TPB_Weight__c" />
+    <Attribute name="tpbStrategy" table="TPB_GTM_Opportunity__c" column="TPB_Strategy__c" />
+    <Attribute name="tpbActive" table="TPB_GTM_Opportunity__c" column="TPB_Active__c" />
+    <DerivedAttribute name="flagImage" value="CASE WHEN TPB_GTM_Opportunity__c.TPB_Priority_Flag__c !='0' THEN 'Flag24' ELSE '' END" />
+    <DerivedAttribute name="statusImage" value="CASE WHEN TPB_GTM_Opportunity__c.TPB_Status__c ='Achieved' THEN 'Activity_HB' WHEN TPB_GTM_Opportunity__c.TPB_Status__c ='Open' THEN 'OverdueActivities' ELSE 'EmptyImage' END" />  
+  </Attributes>
+  <Entities>
+    <Entity name="TPB_GTM_Opportunity__c" alias="" idAttribute="Id" />
+  </Entities>
+  <QueryCondition><![CDATA[
+	TPB_GTM_Opportunity__c.TPB_Active__c != '0' AND
+	TPB_GTM_Opportunity__c.TPB_Account_ID__c = #accountId#
+  ]]></QueryCondition>
+  <OrderCriteria>
+    <OrderCriterion entity="TPB_GTM_Opportunity__c" attribute="TPB_Opportunity_Rank__c" direction="ASC" />
+  </OrderCriteria>
+  <Parameters>
+    <Parameter name="accountId" type="TEXT" />
+  </Parameters>
+</DataSource>

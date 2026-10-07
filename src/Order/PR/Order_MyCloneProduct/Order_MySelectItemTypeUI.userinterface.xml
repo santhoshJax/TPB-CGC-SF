@@ -1,0 +1,33 @@
+<UIDescription name="Order::MySelectItemTypeUI" schemaVersion="0.0.0.5">
+  <Page pagePattern="SingleSectionDialogPage" onBackDiscard="true">
+    <PageHeader>
+      <Bindings>
+        <Resource target="title" type="Label" id="SelectTypeId" defaultLabel="How would you like to order this product?" bindingMode="ONE_TIME" />
+      </Bindings>
+    </PageHeader>
+    <Section sectionName="masterSection" sectionPattern="SingleAreaSection">
+      <Area areaName="mainArea" areaPattern="SingleElementArea">
+        <GroupedList name="MasterList" master="false" dataSource="ProcessContext::MainBO.boOrderMeta.loOrderItemMetas.items[]" hasBorder="true" >
+          <Items name="Items" itemPattern="itemTypePattern">
+            <!-- ItemListLayout Node is required. Please press CTRL-Space to select an appropriate snippet<ItemListLayout></ItemListLayout>-->
+            <Bindings>
+              <Binding target="typeName" type="Text" binding=".text" bindingMode="ONE_WAY" />
+            </Bindings>
+            <ItemListLayout>
+              <Default>
+                  <Col bindingId="typeName" layoutType="itemIdentifier" />
+              </Default>
+            </ItemListLayout>
+          </Items>
+          <Events>
+            <ItemSelectedEvent event="itemSelected" resetMultiAreas="true">
+              <Params>
+                <Param name="pKey" value=".pKey" />
+              </Params>
+            </ItemSelectedEvent>
+          </Events>
+        </GroupedList>
+      </Area>
+    </Section>
+  </Page>
+</UIDescription>
