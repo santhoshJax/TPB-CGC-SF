@@ -477,8 +477,9 @@ if (Utils.isEmptyString(_trimmed(me.getName()))) {
     console.log("[BoCustomer.SaveAsync] fallback=lastTypedName", { value: typedName });
   }
 
+  // Only fall back to Name 2 when the typed-name step above did not recover a name.
   var name2Fallback = _trimmed(me.getName2());
-  if (!Utils.isEmptyString(name2Fallback)) {
+  if (Utils.isEmptyString(_trimmed(me.getName())) && !Utils.isEmptyString(name2Fallback)) {
     me.setName(name2Fallback);
     console.log("[BoCustomer.SaveAsync] fallback=name2", { value: name2Fallback });
   }
