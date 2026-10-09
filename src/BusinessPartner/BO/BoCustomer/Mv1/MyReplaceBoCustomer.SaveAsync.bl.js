@@ -481,14 +481,17 @@ if (Utils.isEmptyString(_trimmed(me.getName()))) {
     console.log("[MyReplaceBoCustomer.SaveAsync] fallback=lastTypedName", { value: typedName });
   }
 
+  // Only fall back to Name 2 when the typed-name step above did not recover a name.
   var name2Fallback = _trimmed(me.getName2());
-  if (!Utils.isEmptyString(name2Fallback)) {
+  if (Utils.isEmptyString(_trimmed(me.getName())) && !Utils.isEmptyString(name2Fallback)) {
     me.setName(name2Fallback);
     console.log("[MyReplaceBoCustomer.SaveAsync] fallback=name2", { value: name2Fallback });
   }
 
+  // Only use the last non-empty snapshot when no newer name was recovered above;
+  // without this guard an older name overwrote the user's latest entry.
   var snapshotName = _getSnapshotNameFallback(me);
-  if (!Utils.isEmptyString(snapshotName)) {
+  if (Utils.isEmptyString(_trimmed(me.getName())) && !Utils.isEmptyString(snapshotName)) {
     me.setName(snapshotName);
     console.log("[MyReplaceBoCustomer.SaveAsync] fallback=lastNonEmptyName", { value: snapshotName });
   }
