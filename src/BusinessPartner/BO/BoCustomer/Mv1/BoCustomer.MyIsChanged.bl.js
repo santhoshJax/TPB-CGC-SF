@@ -50,7 +50,26 @@ function myIsChanged(handlerParams){
 var newValue = handlerParams.newValue;
 var oldValue = handlerParams.oldValue;
 var simpleProperty = handlerParams.simpleProperty;
+// Editable Review Capture fields that SaveAsync sends on the persisted-record save.
+// Keep this list in step with REVIEW_CAPTURE_ACCOUNT_COLUMNS in
+// MyReplaceBoCustomer.SaveAsync.bl.js. Name, Status and Type are handled separately.
+var reviewCaptureTrackedFields = [
+    "accClassOfTrade", "accSubClassOfTrade", "acceptsMobileCoupons", "accountNotes",
+    "closureReason", "county", "email1", "fein", "jurisdiction", "mobileCouponEnrollment",
+    "phone1", "posAllowed", "priceTaxAdvantage", "prohibitVisit", "promosAllowed",
+    "reasonNotVisited", "smokelessStoreRank", "smokingStoreRank", "taxNumber",
+    "tobaccoNumber", "workloadStatus"
+];
 if(newValue !== oldValue){
+    // Record the edit so a change to one of these fields alone (e.g. Closure Reason)
+    // counts as a customer edit: the save is no longer skipped and the field is sent.
+    if (reviewCaptureTrackedFields.indexOf(simpleProperty) !== -1) {
+        if (!Utils.isDefined(me.__reviewCaptureEditedFields) || me.__reviewCaptureEditedFields === null) {
+            me.__reviewCaptureEditedFields = {};
+        }
+        me.__reviewCaptureEditedFields[simpleProperty] = true;
+        me.setObjectStatus(me.getObjectStatus() | STATE.DIRTY);
+    }
     if(simpleProperty === "accClassOfTrade"){
         me.isClassOfTradeChanged = 1;
     }else if(simpleProperty === "accSubClassOfTrade"){
