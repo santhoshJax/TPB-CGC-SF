@@ -59,6 +59,7 @@ var deferreds = [];
 var ensureNamePromise = when.resolve();
 var skipSaveBecauseBlankName = false;
 var isReviewCaptureNameOnlySave = false;
+var reviewCaptureDbCustomer;
 
 function _trimmed(value) {
   return (value || "").toString().trim();
@@ -348,8 +349,98 @@ function _queueCustomerAddressSave(boCustomer, saveDeferreds) {
   boCustomer.setIsAddressChange("0");
 }
 
+// Editable Review Capture fields and their Account columns. Only fields the org
+// allows to be updated are listed; formula / read-only columns (Ownership__c,
+// Last_Completed_Call_Date_Time__c, Account_Number_old__c) are left out on purpose.
+// Keep in step with reviewCaptureTrackedFields in BoCustomer.MyIsChanged.bl.js.
+var REVIEW_CAPTURE_ACCOUNT_COLUMNS = {
+  "accClassOfTrade": "Class_of_Trade__c",
+  "accSubClassOfTrade": "Sub_Class_of_Trade__c",
+  "acceptsMobileCoupons": "Accepts_Coupons__c",
+  "accountNotes": "Account_Notes__c",
+  "closureReason": "Closure_Reason__c",
+  "county": "County__c",
+  "email1": "Account_Email__c",
+  "fein": "FEIN__c",
+  "jurisdiction": "TPB_Jurisdiction__c",
+  "mobileCouponEnrollment": "Mobile_Coupon_Enrollment__c",
+  "phone1": "Phone",
+  "posAllowed": "POS_Allowed__c",
+  "priceTaxAdvantage": "Price_Tax_Advantage__c",
+  "prohibitVisit": "Prohibit_Visit__c",
+  "promosAllowed": "Promos_Allowed__c",
+  "reasonNotVisited": "Reason_Not_Visited__c",
+  "smokelessStoreRank": "Smokeless_Store_Rank__c",
+  "smokingStoreRank": "Smoking_Store_Rank__c",
+  "taxNumber": "State_Tax_Number__c",
+  "tobaccoNumber": "State_Tobacco_Number__c",
+  "workloadStatus": "Workload_Status__c"
+};
+
+function _readProperty(bo, propertyName) {
+  var getterName = "get" + propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
+  if (Utils.isDefined(bo[getterName])) {
+    return bo[getterName]();
+  }
+  return bo[propertyName];
+}
+
+function _normalizedValue(value) {
+  // Unlike _trimmed, keeps 0 / false so boolean fields compare correctly.
+  return (value === undefined || value === null) ? "" : value.toString().trim();
+}
+
+function _hasReviewCaptureFieldEdits(boCustomer) {
+  var editedFields = boCustomer.__reviewCaptureEditedFields;
+  if (!Utils.isDefined(editedFields) || editedFields === null) {
+    return false;
+  }
+  return Object.keys(editedFields).some(function (propertyName) {
+    return editedFields[propertyName] === true;
+  });
+}
+
+function _buildReviewCaptureChangedColumns(boCustomer, dbCustomer) {
+  // Fields the user edited that also differ from the stored record. Comparing with
+  // the stored record keeps untouched values (e.g. a now-inactive picklist value)
+  // out of the update so they cannot make Salesforce reject it.
+  var editedFields = boCustomer.__reviewCaptureEditedFields || {};
+  var hasDbCustomer = Utils.isDefined(dbCustomer) && dbCustomer !== null;
+  var columns = [];
+  Object.keys(REVIEW_CAPTURE_ACCOUNT_COLUMNS).forEach(function (propertyName) {
+    if (propertyName === "closureReason" || editedFields[propertyName] !== true) {
+      return;
+    }
+    var value = _readProperty(boCustomer, propertyName);
+    if (hasDbCustomer &&
+        _normalizedValue(value) === _normalizedValue(_readProperty(dbCustomer, propertyName))) {
+      return;
+    }
+    // Distinct names so the helper does not overwrite the BO's own properties.
+    columns.push({
+      name: "reviewCapture_" + propertyName,
+      dsColumn: REVIEW_CAPTURE_ACCOUNT_COLUMNS[propertyName],
+      value: value
+    });
+  });
+  // Org rule Check_Closure_Reason checks the saved record, so Closure Reason must
+  // always travel with Status__c (which this save always sends). If the reason is
+  // blank only transiently and the user did not edit it, use the stored reason.
+  var closureReason = _readProperty(boCustomer, "closureReason");
+  if (_normalizedValue(closureReason) === "" && editedFields.closureReason !== true && hasDbCustomer) {
+    closureReason = _readProperty(dbCustomer, "closureReason");
+  }
+  columns.push({
+    name: "reviewCapture_closureReason",
+    dsColumn: REVIEW_CAPTURE_ACCOUNT_COLUMNS.closureReason,
+    value: closureReason
+  });
+  return columns;
+}
+
 function _hasExplicitCustomerEdits(boCustomer) {
-  return boCustomer.isNameChanged === 1 ||
+  return _hasReviewCaptureFieldEdits(boCustomer) ||
+    boCustomer.isNameChanged === 1 ||
     boCustomer.isEmail1Changed === 1 ||
     boCustomer.isStatusChanged === 1 ||
     boCustomer.isClassOfTradeChanged === 1 ||
@@ -529,6 +620,8 @@ if (me.__hostProcess === "Customer::ReviewCaptureProcess" && _isServerPKey(me.ge
   ensureNamePromise = ensureNamePromise.then(function () {
     return BoFactory.loadObjectByParamsAsync(BO_CUSTOMER, me.getQueryBy("pKey", me.getPKey())).then(function (dbCustomer) {
       if (Utils.isDefined(dbCustomer)) {
+        // Kept so the save below sends only fields that differ from the stored record.
+        reviewCaptureDbCustomer = dbCustomer;
         _copyIfDefined(
           Utils.isDefined(dbCustomer.getAcceptsMobileCoupons) ? dbCustomer.getAcceptsMobileCoupons() : dbCustomer.acceptsMobileCoupons,
           me.setAcceptsMobileCoupons,
@@ -604,12 +697,16 @@ if (Utils.isSfBackend()) {
         if (!Utils.isEmptyString(_trimmed(me.getCustomerId()))) {
           nameOnlyMapping.customerId = "Account_Number__c";
         }
+        // Also send the edited Review Capture fields and Closure Reason. Before this,
+        // only the columns above were sent, so edits such as Closure Reason, Phone or
+        // Account Notes never reached Salesforce.
+        var reviewCaptureChangedColumns = _buildReviewCaptureChangedColumns(me, reviewCaptureDbCustomer);
         deferreds.push(helper.saveTrackedObjectWithMapping(me, {
           tableName: "Account",
           idColumn: "Id",
           idProperty: "pKey",
           columnMapping: nameOnlyMapping
-        }, []));
+        }, reviewCaptureChangedColumns));
         return when.all(deferreds);
       }
       // Store Account. Only Review Capture *create* forces Name/Name_2 extra
@@ -672,6 +769,8 @@ promise = promise.then(
     }
     me.__hasEverSavedCustomer = true;
     me.__lastPersistedName = _trimmed(me.getName());
+    // Edits are now queued for sync; clear them so later implicit saves do not resend.
+    me.__reviewCaptureEditedFields = {};
     if (isReviewCaptureNameOnlySave) {
       // Keep Account on name-only mapping so a blank UI name cannot overwrite Name.
       // Address still needs its own list save when the user edited it.
