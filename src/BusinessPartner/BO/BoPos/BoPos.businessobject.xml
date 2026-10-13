@@ -24,7 +24,7 @@
     <Method name="saveAsync" />
     <Method name="createAsync" />
     <Method name="loadAsync" />
-    <Method name="resetObjectStatus" />
+    <Method name="myResetObjectStatus" />
   </Methods>
   <Validations>
     <Validation name="validatePos" />

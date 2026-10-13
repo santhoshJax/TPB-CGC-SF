@@ -70,7 +70,7 @@
       <!-- The POS placeholder is also created NEW|DIRTY with no customer, template or
            description. Reset it like the customer placeholder so a later save does not
            send it as a POS insert with a blank Account (REQUIRED_FIELD_MISSING). -->
-      <Action name="ResetInitializedPOSDetail" actionType="LOGIC" call="ProcessContext::POSDetail.resetObjectStatus">
+      <Action name="ResetInitializedPOSDetail" actionType="LOGIC" call="ProcessContext::POSDetail.myResetObjectStatus">
       </Action>
       <Action name="InitializeCustomerDetail" actionType="CREATE" type="BoCustomer">
         <Return name="ProcessContext::CustomerDetail" />

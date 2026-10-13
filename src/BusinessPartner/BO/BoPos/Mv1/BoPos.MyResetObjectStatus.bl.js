@@ -33,12 +33,12 @@
  * -> module: Use CORE or CUSTOM. If you are a Salesforce client or an implementation partner, always use CUSTOM to enable a seamless release upgrade.
  * -> maxRuntime: Maximum time this function is allowed to run, takes integer value in ms. If the max time is exceeded, error is logged.
  * -> returns: Type and variable name in which the return value is stored.
- * @function resetObjectStatus
+ * @function myResetObjectStatus
  * @this BoPos
  * @kind businessobject
- * @namespace CORE
+ * @namespace CUSTOM
  */
-function resetObjectStatus(){
+function myResetObjectStatus(){
     var me = this;
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                           //
