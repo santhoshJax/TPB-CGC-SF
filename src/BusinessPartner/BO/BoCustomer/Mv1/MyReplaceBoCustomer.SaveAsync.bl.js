@@ -438,6 +438,27 @@ function _buildReviewCaptureChangedColumns(boCustomer, dbCustomer) {
   return columns;
 }
 
+var CLOSED_STATUSES = ["Closed Permanently", "Closed Temporarily"];
+
+// Backstop for org rule Check_Closure_Reason: never send a Closed status with a blank
+// Closure Reason. Returns true when the status must be held back for this save.
+function _isClosedWithoutReason(status, closureReason) {
+  return CLOSED_STATUSES.includes(status) && _normalizedValue(closureReason) === "";
+}
+
+// Puts the status back to the value before the user's edit (or Open when there is no
+// earlier non-Closed value), matching how ValidateCustomer rolls back a blocked close.
+function _revertClosedStatusWithoutReason(boCustomer) {
+  var previousStatus = boCustomer.__statusBeforeEdit;
+  if (Utils.isEmptyString(previousStatus) || CLOSED_STATUSES.includes(previousStatus)) {
+    previousStatus = "Open";
+  }
+  console.log("[MyReplaceBoCustomer.SaveAsync] closed status held back: closure reason is blank",
+    { status: boCustomer.getStatus(), sentStatus: previousStatus });
+  boCustomer.setStatus(previousStatus);
+  boCustomer.isStatusChanged = 0;
+}
+
 function _hasExplicitCustomerEdits(boCustomer) {
   return _hasReviewCaptureFieldEdits(boCustomer) ||
     boCustomer.isNameChanged === 1 ||
@@ -701,6 +722,23 @@ if (Utils.isSfBackend()) {
         // only the columns above were sent, so edits such as Closure Reason, Phone or
         // Account Notes never reached Salesforce.
         var reviewCaptureChangedColumns = _buildReviewCaptureChangedColumns(me, reviewCaptureDbCustomer);
+        // Backstop: if the Closure Reason that would be sent is blank while the status is
+        // Closed, send neither, so the stored status and reason stay as they are on the
+        // server and the update cannot fail Check_Closure_Reason.
+        var outgoingClosureReason = "";
+        reviewCaptureChangedColumns.forEach(function (column) {
+          if (column.name === "reviewCapture_closureReason") {
+            outgoingClosureReason = column.value;
+          }
+        });
+        if (_isClosedWithoutReason(_trimmed(me.getStatus()), outgoingClosureReason)) {
+          console.log("[MyReplaceBoCustomer.SaveAsync] closed status held back: closure reason is blank",
+            { status: me.getStatus() });
+          delete nameOnlyMapping.status;
+          reviewCaptureChangedColumns = reviewCaptureChangedColumns.filter(function (column) {
+            return column.name !== "reviewCapture_closureReason";
+          });
+        }
         deferreds.push(helper.saveTrackedObjectWithMapping(me, {
           tableName: "Account",
           idColumn: "Id",
@@ -708,6 +746,11 @@ if (Utils.isSfBackend()) {
           columnMapping: nameOnlyMapping
         }, reviewCaptureChangedColumns));
         return when.all(deferreds);
+      }
+      // Backstop: the full save sends Status__c from the BO, so do not let a Closed
+      // status go out with a blank Closure Reason (Check_Closure_Reason).
+      if (_isClosedWithoutReason(_trimmed(me.getStatus()), me.getClosureReason())) {
+        _revertClosedStatusWithoutReason(me);
       }
       // Store Account. Only Review Capture *create* forces Name/Name_2 extra
       // columns so a typed name cannot be dropped on the first insert.

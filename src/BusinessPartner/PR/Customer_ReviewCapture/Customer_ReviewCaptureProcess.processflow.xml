@@ -67,6 +67,11 @@
       <Action name="InitializePOSDetail" actionType="CREATE" type="BoPos">
         <Return name="ProcessContext::POSDetail" />
       </Action>
+      <!-- The POS placeholder is also created NEW|DIRTY with no customer, template or
+           description. Reset it like the customer placeholder so a later save does not
+           send it as a POS insert with a blank Account (REQUIRED_FIELD_MISSING). -->
+      <Action name="ResetInitializedPOSDetail" actionType="LOGIC" call="ProcessContext::POSDetail.resetObjectStatus">
+      </Action>
       <Action name="InitializeCustomerDetail" actionType="CREATE" type="BoCustomer">
         <Return name="ProcessContext::CustomerDetail" />
       </Action>
@@ -534,9 +539,23 @@
         <TransitionTo action="SaveOrResetBeforeSelection_Decision" />
       </Action>
       <Action name="SaveOrResetBeforeSelection_Decision" actionType="DECISION" parameter="ProcessContext::ShouldSaveCustomerBeforeSelection">
-        <Case value="true" action="SaveCurrentCustomerBeforeSelection" />
-        <Case value="1" action="SaveCurrentCustomerBeforeSelection" />
+        <Case value="true" action="ValidateCurrentCustomerBeforeSelection" />
+        <Case value="1" action="ValidateCurrentCustomerBeforeSelection" />
         <CaseElse action="ResetCurrentCustomerBeforeSelection" />
+      </Action>
+      <!-- Run the customer check before saving on a store switch. Without it a Closed
+           status with no Closure Reason was saved and rejected by Check_Closure_Reason.
+           If the check fails, stay on the current customer instead of switching. -->
+      <Action name="ValidateCurrentCustomerBeforeSelection" actionType="VALIDATION">
+        <Validations>
+          <Validation name="ProcessContext::CustomerDetail.validateCustomer" />
+        </Validations>
+        <TransitionTo action="ValidateCurrentCustomerBeforeSelection_Decision" />
+      </Action>
+      <Action name="ValidateCurrentCustomerBeforeSelection_Decision" actionType="DECISION" parameter="ProcessContext::validationResult">
+        <Case value="validateOk" action="SaveCurrentCustomerBeforeSelection" />
+        <Case value="validateDiscard" action="ResetCurrentCustomerBeforeSelection" />
+        <CaseElse action="ShowCustomerList" />
       </Action>
       <Action name="SaveCurrentCustomerBeforeSelection" actionType="SAVE">
         <Parameters>
@@ -1072,6 +1091,8 @@
         <Validations>
           <Validation name="ProcessContext::POSDetail.validatePos" />
           <Validation name="ProcessContext::CustomerDetail.validatePos" />
+          <!-- SAVE persists the whole CustomerDetail, so check the customer too -->
+          <Validation name="ProcessContext::CustomerDetail.validateCustomer" />
         </Validations>
         <TransitionTo action="ValidateCustomerPOSRelation_Decision" />
       </Action>
@@ -1084,6 +1105,8 @@
         <Validations>
           <Validation name="ProcessContext::POSDetail.validatePos" />
           <!--<Validation name="ProcessContext::CustomerDetail.validatePos" />-->
+          <!-- SAVE persists the whole CustomerDetail, so check the customer too -->
+          <Validation name="ProcessContext::CustomerDetail.validateCustomer" />
         </Validations>
         <TransitionTo action="ValidatePosRelationBeforeSave_Decision" />
       </Action>

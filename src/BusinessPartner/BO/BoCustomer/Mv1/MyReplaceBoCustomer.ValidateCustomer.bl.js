@@ -153,7 +153,7 @@ if(!Utils.isEmptyString(me.pKey)){
 
   var closureReason = me.getClosureReason();
   var closureReasonDependency = {
-                                 "Closed Permanently":["Closed Permanently - Out of Business","Closed Permanently - Does Not Sell Tobacco","Closed Permanently - Duplicate of Another Store","Closed Permanently - Not a Retail Location","Closed Permanently - Other"],
+                                 "Closed Permanently":["Closed Permanently - Out of Business","Closed Permanently - Does Not Sell Tobacco","Closed Permanently - Duplicate of Another Store","Closed Permanently - Not a Retail Location","Closed Permanently - Other","Closed Permanently - Closed via Automation"],
                                  "Closed Temporarily":["Closed Temporarily - Building Damage (Fire, Hurricane, etc)","Closed Temporarily - Remodel Underway","Closed Temporarily - Seasonal","Closed Temporarily - Other"]
                                 };
   if (["Closed Permanently", "Closed Temporarily"].includes(status) && Utils.isEmptyString(closureReason)) {

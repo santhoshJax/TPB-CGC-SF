@@ -58,6 +58,15 @@ var deferreds = [];
 var promise;
 
 var allItems = me.getLoPOSCustomerRelation().getAllItems();
+
+// Backstop: a NEW POS with no customer cannot be inserted (Account__c is required on
+// POS__c, REQUIRED_FIELD_MISSING). This is the empty placeholder Review Capture creates
+// at start-up; skip saving it instead of queueing an insert that always fails to sync.
+var posAccountPKey = allItems.length > 0 ? allItems[0].customerPKey : me.getCustomerPKey();
+if ((me.getObjectStatus() & STATE.NEW) === STATE.NEW && Utils.isEmptyString(posAccountPKey)) {
+  console.log("[BoPos.SaveAsync] skipped new POS without Account", { pKey: me.getPKey() });
+  return when.resolve(me);
+}
 var additionalMappings = [{name: "name", dsColumn: "Description_" + ApplicationContext.get('user').sfLanguagePostfix + "__c", value: me.getName()}];
 // In CGCloud the LoPOSCustomerRelation can only have one item because the Account key is directly stores in POS__c. There is no Rel Table available
 // Because Facade.saveTrackedObject is already used it is possible to directly store the LoPOSCustomerRelation-Item with this Request
