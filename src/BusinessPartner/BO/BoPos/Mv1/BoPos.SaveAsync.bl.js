@@ -59,12 +59,20 @@ var promise;
 
 var allItems = me.getLoPOSCustomerRelation().getAllItems();
 
-// Backstop: a NEW POS with no customer cannot be inserted (Account__c is required on
+// Backstop: a POS with no customer cannot be inserted (Account__c is required on
 // POS__c, REQUIRED_FIELD_MISSING). This is the empty placeholder Review Capture creates
-// at start-up; skip saving it instead of queueing an insert that always fails to sync.
+// at start-up. The check covers both of these cases:
+// - The placeholder may no longer be flagged NEW. The start-up reset marks it PERSISTED,
+//   and a later edit then marks it DIRTY. saveTrackedObject still sends an INSERT,
+//   because the record was never written to the local database.
+// - Blank keys can arrive as " " (whitespace), which isEmptyString does not treat as empty.
+// Records that were already synced (with a Salesforce Id key, not "Local_") are never skipped.
 var posAccountPKey = allItems.length > 0 ? allItems[0].customerPKey : me.getCustomerPKey();
-if ((me.getObjectStatus() & STATE.NEW) === STATE.NEW && Utils.isEmptyString(posAccountPKey)) {
-  console.log("[BoPos.SaveAsync] skipped new POS without Account", { pKey: me.getPKey() });
+var posAccountIsBlank = !Utils.isDefined(posAccountPKey) || String(posAccountPKey).trim() === "";
+var posIsUnsynced = (me.getObjectStatus() & STATE.NEW) === STATE.NEW ||
+  Utils.startsWith(String(me.getPKey() || ""), "Local_");
+if (posAccountIsBlank && posIsUnsynced) {
+  console.log("[BoPos.SaveAsync] skipped unsynced POS without Account", { pKey: me.getPKey() });
   return when.resolve(me);
 }
 var additionalMappings = [{name: "name", dsColumn: "Description_" + ApplicationContext.get('user').sfLanguagePostfix + "__c", value: me.getName()}];

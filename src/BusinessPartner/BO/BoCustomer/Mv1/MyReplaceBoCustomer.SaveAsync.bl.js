@@ -326,9 +326,25 @@ function _queueCustomerAddressSave(boCustomer, saveDeferreds) {
   _prepareSfAddressForSave(boCustomer);
   var loAddress = boCustomer.getLoCustomerAddress();
   var mainAddress = loAddress.getMainAddress();
+  // An Account that has not synced yet (Local_ key) is still an INSERT on the server,
+  // even when the BO is no longer flagged NEW. A shipping-only write would then insert
+  // an Account with a blank Name (REQUIRED_FIELD_MISSING Name), so send Name / Name 2
+  // with it. If no name can be resolved, skip the write: that insert can never succeed.
+  var addressNameColumns = [];
+  if (!_isServerPKey(boCustomer.getPKey())) {
+    var addressSaveName = _resolveCanonicalCustomerName(boCustomer);
+    if (Utils.isEmptyString(addressSaveName)) {
+      console.log("[MyReplaceBoCustomer.SaveAsync] skipped address write for unsynced Account without Name",
+        { pKey: boCustomer.getPKey() });
+      return;
+    }
+    addressNameColumns.push({name: "name", dsColumn: "Name", value: addressSaveName});
+    addressNameColumns.push({name: "name2", dsColumn: "Name_2__c", value: addressSaveName});
+  }
   if (Utils.isSfBackend() && Utils.isDefined(mainAddress)) {
     mainAddress.setPKey(boCustomer.getPKey());
-    // Shipping fields only. Never write Name here; BoCustomer owns Account.Name.
+    // Shipping fields only for synced Accounts; BoCustomer owns Account.Name. For an
+    // unsynced Account the resolved Name / Name 2 are added (see above).
     saveDeferreds.push(BoFactory.createObjectAsync("BoSfHelper", {}).then(function (helper) {
       return helper.saveTrackedObjectWithMapping(mainAddress, {
         tableName: "Account",
@@ -341,7 +357,7 @@ function _queueCustomerAddressSave(boCustomer, saveDeferreds) {
           "countryState": "ShippingState",
           "country": "ShippingCountry"
         }
-      }, []);
+      }, addressNameColumns);
     }));
   } else {
     saveDeferreds.push(loAddress.saveAsync());
