@@ -69,7 +69,11 @@
         <Event name="onChanged" eventHandler="myIsChanged" />
       </Events>
     </SimpleProperty>
-    <SimpleProperty name="closureReason" type="DomBpaClosureReason" storable="true" dataSourceProperty="closureReason" />
+    <SimpleProperty name="closureReason" type="DomBpaClosureReason" storable="true" dataSourceProperty="closureReason">
+      <Events>
+        <Event name="onChanged" eventHandler="myIsChanged" />
+      </Events>
+    </SimpleProperty>
     <SimpleProperty name="paymentTerm" type="DomBpaPaymentTerm" storable="true" dataSourceProperty="paymentTerm" />
     <SimpleProperty name="tdlStoreID" type="DomString" storable="true" dataSourceProperty="tdlStoreID" />
     <SimpleProperty name="counterfeitHistory" type="DomBool" storable="true" dataSourceProperty="counterfeitHistory" />
@@ -99,7 +103,11 @@
     <SimpleProperty name="fein" type="DomString" dataSourceProperty="fein" />
     <SimpleProperty name="ownership" type="DomString" dataSourceProperty="ownership" />
     <SimpleProperty name="parentOwner" type="DomBool" dataSourceProperty="parentOwner" />
-    <SimpleProperty name="workloadStatus" type="DomWorkloadStatus" dataSourceProperty="workloadStatus" />
+    <SimpleProperty name="workloadStatus" type="DomWorkloadStatus" dataSourceProperty="workloadStatus">
+      <Events>
+        <Event name="onChanged" eventHandler="myIsChanged" />
+      </Events>
+    </SimpleProperty>
     <SimpleProperty name="smokelessStoreRank" type="DomString" dataSourceProperty="smokelessStoreRank" />
     <SimpleProperty name="smokingStoreRank" type="DomString" dataSourceProperty="smokingStoreRank" />
     <SimpleProperty name="acceptsMobileCoupons" type="DomString" dataSourceProperty="acceptsMobileCoupons" />
@@ -193,6 +201,7 @@
     <Method name="mySetBillingAddress" />
     <Method name="mySetPrimaryWholesaler" />
     <Method name="replaceLoadAsync" />
+    <Method name="replaceSaveAsync" />
     <Method name="postSetEARights" />
     <Method name="myClearWholesaler" />
     <Method name="myCanaclButtonVisibility" />

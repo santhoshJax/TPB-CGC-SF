@@ -233,7 +233,6 @@ function _prepareSfAddressForSave(boCustomer) {
     if (!Utils.isEmptyString(canonicalName)) {
       if (Utils.isEmptyString(_trimmed(boCustomer.getName()))) {
         boCustomer.setName(canonicalName);
-        boCustomer.setName2(canonicalName);
       }
       if (Utils.isDefined(mainAddress.setName)) {
         mainAddress.setName(canonicalName);
@@ -545,9 +544,6 @@ if (me.__hostProcess === "Customer::ReviewCaptureProcess") {
     if (reviewCapturePreferredName !== currentReviewCaptureName) {
       me.setName(reviewCapturePreferredName);
     }
-    if (reviewCapturePreferredName !== name2Preferred) {
-      me.setName2(reviewCapturePreferredName);
-    }
     me.__lastTypedName = reviewCapturePreferredName;
     me.__lastNonEmptyName = reviewCapturePreferredName;
     if (!Utils.isEmptyString(previousPersistedName) &&
@@ -717,15 +713,18 @@ if (Utils.isSfBackend()) {
         }
         if (!Utils.isEmptyString(finalOutgoingName)) {
           me.setName(finalOutgoingName);
-          me.setName2(finalOutgoingName);
           me.__lastTypedName = finalOutgoingName;
           me.__lastNonEmptyName = finalOutgoingName;
           me.isNameChanged = 1;
           me.setObjectStatus(me.getObjectStatus() | STATE.DIRTY);
         }
+        // Name 2 is not sent on existing-store updates. It only copies Name, and many
+        // stored records have it blank, so sending it turned every save into a change,
+        // even for a store the user only opened. On a store the user cannot edit
+        // (e.g. a chain store owned by someone else) that update failed with
+        // INSUFFICIENT_ACCESS_OR_READONLY.
         var nameOnlyMapping = {
           "name": "Name",
-          "name2": "Name_2__c",
           "recordTypeId": "RecordTypeId",
           "ownerId": "OwnerId",
           "type": "Type",
@@ -784,7 +783,22 @@ if (Utils.isSfBackend()) {
         }
         _appendCreateTimeAddressColumns(me, accountExtraColumns);
       }
-      deferreds.push(helper.saveTrackedObject(me, accountExtraColumns));
+      // parentId, primaryWholesalerName and promotionalWholesalerName are display-only
+      // names read from the parent and wholesaler Accounts (aliases of Account in
+      // DsBoCustomer), so the datasource maps them to "Name" as well. Written after the
+      // store's own name, they overwrote Account.Name, usually with a blank value: a new
+      // store was then inserted with Name ' ' (REQUIRED_FIELD_MISSING Name). Leave them out.
+      var accountDataSource = AppManager.getDataSource(me.$type);
+      var accountColumnMapping = Utils.clone(accountDataSource.attributeToColumnMapping);
+      delete accountColumnMapping.parentId;
+      delete accountColumnMapping.primaryWholesalerName;
+      delete accountColumnMapping.promotionalWholesalerName;
+      deferreds.push(helper.saveTrackedObjectWithMapping(me, {
+        tableName: accountDataSource.objectName,
+        idColumn: accountDataSource.idAttribute,
+        idProperty: accountDataSource.idProperty,
+        columnMapping: accountColumnMapping
+      }, accountExtraColumns));
       var mapping = {
         "matchcode": "Match_Code__c",
         "priority": "Priority__c",

@@ -60,10 +60,14 @@ var reviewCaptureTrackedFields = [
     "reasonNotVisited", "smokelessStoreRank", "smokingStoreRank", "taxNumber",
     "tobaccoNumber", "workloadStatus"
 ];
+// The screen resets blank picklists between ' ', '' and null when a store is opened.
+// That is not a user edit, so it must not mark the field edited or the store dirty.
+var isBlankToBlank = ((oldValue === undefined || oldValue === null) ? "" : oldValue.toString().trim()) === "" &&
+    ((newValue === undefined || newValue === null) ? "" : newValue.toString().trim()) === "";
 if(newValue !== oldValue){
     // Record the edit so a change to one of these fields alone (e.g. Closure Reason)
     // counts as a customer edit: the save is no longer skipped and the field is sent.
-    if (reviewCaptureTrackedFields.indexOf(simpleProperty) !== -1) {
+    if (reviewCaptureTrackedFields.indexOf(simpleProperty) !== -1 && !isBlankToBlank) {
         if (!Utils.isDefined(me.__reviewCaptureEditedFields) || me.__reviewCaptureEditedFields === null) {
             me.__reviewCaptureEditedFields = {};
         }
@@ -81,9 +85,6 @@ if(newValue !== oldValue){
         if (!Utils.isEmptyString((newValue || "").toString().trim())) {
             me.__lastNonEmptyName = newValue;
             me.__lastTypedName = newValue;
-            // Keep secondary name in sync during edit so close-save paths
-            // that transiently blank "name" can still persist the typed value.
-            me.setName2(newValue);
         }
         me.setObjectStatus(me.getObjectStatus() | STATE.DIRTY);
     }else if(simpleProperty === "email1"){
