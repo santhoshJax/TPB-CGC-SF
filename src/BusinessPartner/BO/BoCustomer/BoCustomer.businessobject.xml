@@ -10,7 +10,11 @@
     <SimpleProperty name="name2" type="DomBpaName" storable="true" dataSourceProperty="name2" />
     <SimpleProperty name="matchcode" type="DomBpaName" storable="true" dataSourceProperty="matchcode" />
     <SimpleProperty name="customerId" type="DomId" storable="true" dataSourceProperty="customerId" />
-    <SimpleProperty name="phone1" type="DomDial" storable="true" dataSourceProperty="phone1" />
+    <SimpleProperty name="phone1" type="DomDial" storable="true" dataSourceProperty="phone1">
+      <Events>
+        <Event name="onChanged" eventHandler="myIsChanged" />
+      </Events>
+    </SimpleProperty>
     <SimpleProperty name="email1" type="DomEmail" storable="true" dataSourceProperty="email1">
       <Events>
         <Event name="onChanged" eventHandler="myIsChanged" />
@@ -77,7 +81,11 @@
     <SimpleProperty name="paymentTerm" type="DomBpaPaymentTerm" storable="true" dataSourceProperty="paymentTerm" />
     <SimpleProperty name="tdlStoreID" type="DomString" storable="true" dataSourceProperty="tdlStoreID" />
     <SimpleProperty name="counterfeitHistory" type="DomBool" storable="true" dataSourceProperty="counterfeitHistory" />
-    <SimpleProperty name="accountNotes" type="DomBpaAccountNotes" storable="true" dataSourceProperty="accountNotes" />
+    <SimpleProperty name="accountNotes" type="DomBpaAccountNotes" storable="true" dataSourceProperty="accountNotes">
+      <Events>
+        <Event name="onChanged" eventHandler="myIsChanged" />
+      </Events>
+    </SimpleProperty>
     <SimpleProperty name="tobaccoLicenseExpirationDate" type="DomCustomDate" storable="true" dataSourceProperty="tobaccoLicenseExpirationDate" />
     <SimpleProperty name="clearingHouseParticipant" type="DomBool" storable="false" dataSourceProperty="clearingHouseParticipant" />
     <SimpleProperty name="sameAsShippingAddress" type="DomBool">
@@ -98,9 +106,21 @@
     <SimpleProperty name="isStatusChanged" type="DomBool" />
     <SimpleProperty name="county" type="DomString" dataSourceProperty="county" />
     <SimpleProperty name="jurisdiction" type="DomBpaJurisdiction" dataSourceProperty="jurisdiction" />
-    <SimpleProperty name="taxNumber" type="DomString" dataSourceProperty="taxNumber" />
-    <SimpleProperty name="tobaccoNumber" type="DomString" dataSourceProperty="tobaccoNumber" />
-    <SimpleProperty name="fein" type="DomString" dataSourceProperty="fein" />
+    <SimpleProperty name="taxNumber" type="DomString" dataSourceProperty="taxNumber">
+      <Events>
+        <Event name="onChanged" eventHandler="myIsChanged" />
+      </Events>
+    </SimpleProperty>
+    <SimpleProperty name="tobaccoNumber" type="DomString" dataSourceProperty="tobaccoNumber">
+      <Events>
+        <Event name="onChanged" eventHandler="myIsChanged" />
+      </Events>
+    </SimpleProperty>
+    <SimpleProperty name="fein" type="DomString" dataSourceProperty="fein">
+      <Events>
+        <Event name="onChanged" eventHandler="myIsChanged" />
+      </Events>
+    </SimpleProperty>
     <SimpleProperty name="ownership" type="DomString" dataSourceProperty="ownership" />
     <SimpleProperty name="parentOwner" type="DomBool" dataSourceProperty="parentOwner" />
     <SimpleProperty name="workloadStatus" type="DomWorkloadStatus" dataSourceProperty="workloadStatus">
@@ -110,13 +130,41 @@
     </SimpleProperty>
     <SimpleProperty name="smokelessStoreRank" type="DomString" dataSourceProperty="smokelessStoreRank" />
     <SimpleProperty name="smokingStoreRank" type="DomString" dataSourceProperty="smokingStoreRank" />
-    <SimpleProperty name="acceptsMobileCoupons" type="DomString" dataSourceProperty="acceptsMobileCoupons" />
-    <SimpleProperty name="mobileCouponEnrollment" type="DomBool" dataSourceProperty="mobileCouponEnrollment" />
-    <SimpleProperty name="prohibitVisit" type="DomString" dataSourceProperty="prohibitVisit" />
-    <SimpleProperty name="promosAllowed" type="DomBool" dataSourceProperty="promosAllowed" />
-    <SimpleProperty name="reasonNotVisited" type="DomString" dataSourceProperty="reasonNotVisited" />
-    <SimpleProperty name="posAllowed" type="DomBool" dataSourceProperty="posAllowed" />
-    <SimpleProperty name="priceTaxAdvantage" type="DomBool" dataSourceProperty="priceTaxAdvantage" />
+    <SimpleProperty name="acceptsMobileCoupons" type="DomString" dataSourceProperty="acceptsMobileCoupons">
+      <Events>
+        <Event name="onChanged" eventHandler="myIsChanged" />
+      </Events>
+    </SimpleProperty>
+    <SimpleProperty name="mobileCouponEnrollment" type="DomBool" dataSourceProperty="mobileCouponEnrollment">
+      <Events>
+        <Event name="onChanged" eventHandler="myIsChanged" />
+      </Events>
+    </SimpleProperty>
+    <SimpleProperty name="prohibitVisit" type="DomString" dataSourceProperty="prohibitVisit">
+      <Events>
+        <Event name="onChanged" eventHandler="myIsChanged" />
+      </Events>
+    </SimpleProperty>
+    <SimpleProperty name="promosAllowed" type="DomBool" dataSourceProperty="promosAllowed">
+      <Events>
+        <Event name="onChanged" eventHandler="myIsChanged" />
+      </Events>
+    </SimpleProperty>
+    <SimpleProperty name="reasonNotVisited" type="DomString" dataSourceProperty="reasonNotVisited">
+      <Events>
+        <Event name="onChanged" eventHandler="myIsChanged" />
+      </Events>
+    </SimpleProperty>
+    <SimpleProperty name="posAllowed" type="DomBool" dataSourceProperty="posAllowed">
+      <Events>
+        <Event name="onChanged" eventHandler="myIsChanged" />
+      </Events>
+    </SimpleProperty>
+    <SimpleProperty name="priceTaxAdvantage" type="DomBool" dataSourceProperty="priceTaxAdvantage">
+      <Events>
+        <Event name="onChanged" eventHandler="myIsChanged" />
+      </Events>
+    </SimpleProperty>
     <SimpleProperty name="lastCompletedVisitDateTime" type="DomDate" dataSourceProperty="lastCompletedVisitDateTime" />
     <SimpleProperty name="ownerName" type="DomText" dataSourceProperty="ownerName" />
     <SimpleProperty name="ownerEmail" type="DomEmail" dataSourceProperty="ownerEmail" />

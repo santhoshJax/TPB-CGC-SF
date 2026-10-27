@@ -655,24 +655,34 @@ if (me.__hostProcess === "Customer::ReviewCaptureProcess" && _isServerPKey(me.ge
       if (Utils.isDefined(dbCustomer)) {
         // Kept so the save below sends only fields that differ from the stored record.
         reviewCaptureDbCustomer = dbCustomer;
-        _copyIfDefined(
-          Utils.isDefined(dbCustomer.getAcceptsMobileCoupons) ? dbCustomer.getAcceptsMobileCoupons() : dbCustomer.acceptsMobileCoupons,
-          me.setAcceptsMobileCoupons,
-          me,
-          "acceptsMobileCoupons"
-        );
-        _copyIfDefined(
-          Utils.isDefined(dbCustomer.getProhibitVisit) ? dbCustomer.getProhibitVisit() : dbCustomer.prohibitVisit,
-          me.setProhibitVisit,
-          me,
-          "prohibitVisit"
-        );
-        _copyIfDefined(
-          Utils.isDefined(dbCustomer.getReasonNotVisited) ? dbCustomer.getReasonNotVisited() : dbCustomer.reasonNotVisited,
-          me.setReasonNotVisited,
-          me,
-          "reasonNotVisited"
-        );
+        // Restore only fields the user did not edit. Restoring an edited field threw
+        // the user's change away, so Accepts Mobile Coupons, Prohibit Visit and
+        // Reason Not Visited never reached Salesforce.
+        var restoreEditedFields = me.__reviewCaptureEditedFields || {};
+        if (restoreEditedFields.acceptsMobileCoupons !== true) {
+          _copyIfDefined(
+            Utils.isDefined(dbCustomer.getAcceptsMobileCoupons) ? dbCustomer.getAcceptsMobileCoupons() : dbCustomer.acceptsMobileCoupons,
+            me.setAcceptsMobileCoupons,
+            me,
+            "acceptsMobileCoupons"
+          );
+        }
+        if (restoreEditedFields.prohibitVisit !== true) {
+          _copyIfDefined(
+            Utils.isDefined(dbCustomer.getProhibitVisit) ? dbCustomer.getProhibitVisit() : dbCustomer.prohibitVisit,
+            me.setProhibitVisit,
+            me,
+            "prohibitVisit"
+          );
+        }
+        if (restoreEditedFields.reasonNotVisited !== true) {
+          _copyIfDefined(
+            Utils.isDefined(dbCustomer.getReasonNotVisited) ? dbCustomer.getReasonNotVisited() : dbCustomer.reasonNotVisited,
+            me.setReasonNotVisited,
+            me,
+            "reasonNotVisited"
+          );
+        }
       }
       return me;
     }).catch(function () {
