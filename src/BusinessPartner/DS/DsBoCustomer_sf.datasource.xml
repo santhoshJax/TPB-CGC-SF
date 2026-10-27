@@ -56,6 +56,8 @@
     <Attribute name="fein" table="Account" column="FEIN__c" />
     <Attribute name="ownership" table="Account" column="Ownership__c" />
     <Attribute name="parentOwner" table="Account" column="Parent_Owner__c" />
+    <Attribute name="feinStatus" table="Account" column="FEIN_Status__c" />
+    <Attribute name="feinCompliant" table="Account" column="FEIN_Compliant__c" />
     <Attribute name="workloadStatus" table="Account" column="Workload_Status__c" />
     <Attribute name="smokelessStoreRank" table="Account" column="Smokeless_Store_Rank__c" />
     <Attribute name="smokingStoreRank" table="Account" column="Smoking_Store_Rank__c" />

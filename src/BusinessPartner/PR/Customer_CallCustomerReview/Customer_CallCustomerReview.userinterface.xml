@@ -199,6 +199,18 @@
                 <Binding target="Value" binding="ProcessContext::CustomerDetail.fein" bindingMode="TWO_WAY" />
               </Bindings>
             </InputArea>
+            <InputArea name="FEINStatus" editable="false">
+              <Bindings>
+                <Resource target="Label" type="Label" id="FEINStatusId" defaultLabel="FEIN Status" />
+                <Binding target="Value" binding="ProcessContext::CustomerDetail.feinStatus" bindingMode="ONE_WAY" />
+              </Bindings>
+            </InputArea>
+            <CheckBox name="FEINCompliant" disabled="true">
+              <Bindings>
+                <Resource target="Label" type="Label" id="FEINCompliantId" defaultLabel="FEIN Compliant" />
+                <Binding target="checkedValue" binding="ProcessContext::CustomerDetail.feinCompliant" bindingMode="ONE_WAY" />
+              </Bindings>
+            </CheckBox>
             <InputArea name="ParentAccount" editable="false">
               <Bindings>
                 <Resource target="Label" type="Label" id="parentAccount" defaultLabel="Parent Account" />

@@ -127,6 +127,8 @@
     </SimpleProperty>
     <SimpleProperty name="ownership" type="DomString" dataSourceProperty="ownership" />
     <SimpleProperty name="parentOwner" type="DomBool" dataSourceProperty="parentOwner" />
+    <SimpleProperty name="feinStatus" type="DomString" dataSourceProperty="feinStatus" />
+    <SimpleProperty name="feinCompliant" type="DomBool" dataSourceProperty="feinCompliant" />
     <SimpleProperty name="workloadStatus" type="DomWorkloadStatus" dataSourceProperty="workloadStatus">
       <Events>
         <Event name="onChanged" eventHandler="myIsChanged" />

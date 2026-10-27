@@ -1074,6 +1074,8 @@
         <Label id="stateTaxNumber" text="State Sales/Retail Retailer License #" translationStatus="1"/>
         <Label id="StateTobaccoNumber" text="State Tobacco Retailer License #" translationStatus="1"/>
         <Label id="FEINId" text="FEIN" translationStatus="1"/>
+        <Label id="FEINStatusId" text="FEIN Status" translationStatus="1"/>
+        <Label id="FEINCompliantId" text="FEIN Compliant" translationStatus="1"/>
         <Label id="parentAccount" text="Parent Account" translationStatus="1"/>
         <Label id="SubClassOfTradeId" text="Subclass Of Trade" translationStatus="1"/>
         <Label id="Type" text="Type" translationStatus="1"/>
@@ -1297,6 +1299,8 @@
         <Label id="stateTaxNumber" text="State Sales/Retail Retailer License #" translationStatus="1"/>
         <Label id="StateTobaccoNumber" text="State Tobacco Retailer License #" translationStatus="1"/>
         <Label id="FEINId" text="FEIN" translationStatus="1"/>
+        <Label id="FEINStatusId" text="FEIN Status" translationStatus="1"/>
+        <Label id="FEINCompliantId" text="FEIN Compliant" translationStatus="1"/>
         <Label id="parentAccount" text="Parent Account" translationStatus="1"/>
         <Label id="Type" text="Type" translationStatus="1"/>
         <Label id="ownership" text="Ownership" translationStatus="1"/>
