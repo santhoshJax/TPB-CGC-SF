@@ -712,6 +712,9 @@
       <Action name="ValidateCustomerPOSRelation" actionType="VALIDATION">
         <Validations>
           <Validation name="ProcessContext::CustomerDetail.validatePos" />
+          <!-- SAVE persists the whole CustomerDetail, so check the customer too. Without it a
+               Closed status with no Closure Reason was held back by the save with no message. -->
+          <Validation name="ProcessContext::CustomerDetail.validateCustomer" />
         </Validations>
         <TransitionTo action="ValidateCustomerPOSRelation_Decision" />
       </Action>
