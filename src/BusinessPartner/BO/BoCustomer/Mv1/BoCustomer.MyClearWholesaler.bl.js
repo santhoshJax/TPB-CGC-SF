@@ -50,7 +50,14 @@ function myClearWholesaler(type){
 if(type == "Promotional"){
   me.promotionalWholesaler = '';
   me.promotionalWholesalerName = '';
-  me.setObjectStatus(STATE.DIRTY);
+  // Review Capture sends Secondary_Wholesaler__c on an existing-store save only when
+  // this user action flags it (see mySetPrimaryWholesaler).
+  if (!Utils.isDefined(me.__reviewCaptureEditedFields) || me.__reviewCaptureEditedFields === null) {
+    me.__reviewCaptureEditedFields = {};
+  }
+  me.__reviewCaptureEditedFields.promotionalWholesaler = true;
+  // Keep NEW / PERSISTED: a plain DIRTY sent an existing store down the full save.
+  me.setObjectStatus(me.getObjectStatus() | STATE.DIRTY);
   var promotionalWholesalerStatus = me.boSecondaryWholesaler.getObjectStatus();
   if(Utils.isDefined(me.boSecondaryWholesaler.pKey)){
     me.boSecondaryWholesaler.setObjectStatus(STATE.DIRTY);

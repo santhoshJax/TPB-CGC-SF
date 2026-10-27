@@ -51,12 +51,24 @@ function mySetPrimaryWholesaler(wholesalerId, wholesalerName, type){
     
 var id = wholesalerId;
 var name = wholesalerName;
+// Review Capture sends a wholesaler column on an existing-store save only when it is
+// flagged here. The flag is set by this user action only, not by the onChanged handler:
+// LoMyCallRelatedWholesaler.MyGetRAForCard also sets these properties when a call card
+// loads, and that must not queue an Account update.
+function _markWholesalerEdited(propertyName) {
+  if (!Utils.isDefined(me.__reviewCaptureEditedFields) || me.__reviewCaptureEditedFields === null) {
+    me.__reviewCaptureEditedFields = {};
+  }
+  me.__reviewCaptureEditedFields[propertyName] = true;
+}
 if(!Utils.isEmptyString(id) && !Utils.isEmptyString(name)){
   if( type === "Primary" ){
     // to invoke isChanged method
     me.setPrimaryWholesaler(id);
     me.primaryWholesalerName = name;
-    me.setObjectStatus(STATE.DIRTY);
+    _markWholesalerEdited("primaryWholesaler");
+    // Keep NEW / PERSISTED: a plain DIRTY sent an existing store down the full save.
+    me.setObjectStatus(me.getObjectStatus() | STATE.DIRTY);
 	me.getBoPrimaryWholesaler().primaryWholesaler = id;
 	me.getBoPrimaryWholesaler().retailer = me.pKey;
 	me.getBoPrimaryWholesaler().type = "Primary";
@@ -69,7 +81,9 @@ if(!Utils.isEmptyString(id) && !Utils.isEmptyString(name)){
   }else if( type === "Promotional" ){
     me.promotionalWholesaler = id;
     me.promotionalWholesalerName = name;
-    me.setObjectStatus(STATE.DIRTY);
+    _markWholesalerEdited("promotionalWholesaler");
+    // Keep NEW / PERSISTED: a plain DIRTY sent an existing store down the full save.
+    me.setObjectStatus(me.getObjectStatus() | STATE.DIRTY);
     me.getBoSecondaryWholesaler().secondaryWholesaler = id;
 	me.getBoSecondaryWholesaler().retailer = me.pKey;
 	me.getBoSecondaryWholesaler().type = "Secondary";

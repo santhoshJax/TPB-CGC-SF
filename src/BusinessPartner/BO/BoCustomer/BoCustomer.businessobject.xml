@@ -105,7 +105,11 @@
     <SimpleProperty name="isStateChanged" type="DomBool" />
     <SimpleProperty name="isStatusChanged" type="DomBool" />
     <SimpleProperty name="county" type="DomString" dataSourceProperty="county" />
-    <SimpleProperty name="jurisdiction" type="DomBpaJurisdiction" dataSourceProperty="jurisdiction" />
+    <SimpleProperty name="jurisdiction" type="DomBpaJurisdiction" dataSourceProperty="jurisdiction">
+      <Events>
+        <Event name="onChanged" eventHandler="myIsChanged" />
+      </Events>
+    </SimpleProperty>
     <SimpleProperty name="taxNumber" type="DomString" dataSourceProperty="taxNumber">
       <Events>
         <Event name="onChanged" eventHandler="myIsChanged" />

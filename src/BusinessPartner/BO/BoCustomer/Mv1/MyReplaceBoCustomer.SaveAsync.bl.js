@@ -367,7 +367,10 @@ function _queueCustomerAddressSave(boCustomer, saveDeferreds) {
 // Editable Review Capture fields and their Account columns. Only fields the org
 // allows to be updated are listed; formula / read-only columns (Ownership__c,
 // Last_Completed_Call_Date_Time__c, Account_Number_old__c) are left out on purpose.
-// Keep in step with reviewCaptureTrackedFields in BoCustomer.MyIsChanged.bl.js.
+// Keep in step with reviewCaptureTrackedFields in BoCustomer.MyIsChanged.bl.js, except
+// primaryWholesaler / promotionalWholesaler: those are flagged only by the user actions
+// mySetPrimaryWholesaler / myClearWholesaler, because call-card code also sets them.
+// The wholesaler *name* properties are never sent: they map to Account.Name.
 var REVIEW_CAPTURE_ACCOUNT_COLUMNS = {
   "accClassOfTrade": "Class_of_Trade__c",
   "accSubClassOfTrade": "Sub_Class_of_Trade__c",
@@ -381,9 +384,11 @@ var REVIEW_CAPTURE_ACCOUNT_COLUMNS = {
   "mobileCouponEnrollment": "Mobile_Coupon_Enrollment__c",
   "phone1": "Phone",
   "posAllowed": "POS_Allowed__c",
+  "primaryWholesaler": "Primary_Wholesaler__c",
   "priceTaxAdvantage": "Price_Tax_Advantage__c",
   "prohibitVisit": "Prohibit_Visit__c",
   "promosAllowed": "Promos_Allowed__c",
+  "promotionalWholesaler": "Secondary_Wholesaler__c",
   "reasonNotVisited": "Reason_Not_Visited__c",
   "smokelessStoreRank": "Smokeless_Store_Rank__c",
   "smokingStoreRank": "Smoking_Store_Rank__c",
@@ -483,7 +488,81 @@ function _hasExplicitCustomerEdits(boCustomer) {
     boCustomer.isSubclassOfTradeChanged === 1 ||
     boCustomer.isStateChanged === 1 ||
     boCustomer.getIsAddressChange() === "1" ||
-    _hasAddressObjectEdits(boCustomer);
+    _hasAddressObjectEdits(boCustomer) ||
+    _hasOpenHoursEdits(boCustomer);
+}
+
+// ---- Open hours (OperatingHours + LoTimeSlot) -------------------------------------
+// The core save created the OperatingHours record and saved the time slots. This
+// replacement did neither, so open-hours edits were lost. The core save also skipped
+// open hours on Review Capture edits of existing stores; both paths save them here.
+function _isDeletedSlot(slot) {
+  return (slot.getObjectStatus() & STATE.DELETED) === STATE.DELETED;
+}
+
+function _getLiveOpenHourSlots(boCustomer) {
+  try {
+    if (!Utils.isDefined(boCustomer.getLoOpenHours())) {
+      return [];
+    }
+    return boCustomer.getLoOpenHours().getAllItems().filter(function (slot) {
+      return !_isDeletedSlot(slot);
+    });
+  } catch (ignore) {
+    return [];
+  }
+}
+
+// True when a time slot was added, changed or deleted, so an hours-only edit is not
+// skipped as "no edits" by the Review Capture guard.
+function _hasOpenHoursEdits(boCustomer) {
+  try {
+    if (!Utils.isDefined(boCustomer) || !Utils.isDefined(boCustomer.getLoOpenHours())) {
+      return false;
+    }
+    var slots = boCustomer.getLoOpenHours().getAllItems();
+    for (var i = 0; i < slots.length; i++) {
+      var slotStatus = slots[i].getObjectStatus();
+      if ((slotStatus & STATE.NEW) === STATE.NEW ||
+          (slotStatus & STATE.DIRTY) === STATE.DIRTY ||
+          (slotStatus & STATE.DELETED) === STATE.DELETED) {
+        return true;
+      }
+    }
+  } catch (ignore) {
+    // Best-effort check only.
+  }
+  return false;
+}
+
+// Saves the time slots when they were edited. Slots without an OperatingHoursId get
+// the store's one; if the store still has none, the save is skipped, because a time
+// slot insert without OperatingHoursId always fails on the server.
+function _queueOpenHoursSave(boCustomer, saveDeferreds) {
+  if (!_hasOpenHoursEdits(boCustomer)) {
+    return;
+  }
+  var operatingHoursId = _trimmed(boCustomer.getOperatingHoursId());
+  if (Utils.isEmptyString(operatingHoursId)) {
+    console.log("[MyReplaceBoCustomer.SaveAsync] open hours not saved: store has no OperatingHoursId",
+      { pKey: boCustomer.getPKey() });
+    return;
+  }
+  var loOpenHours = boCustomer.getLoOpenHours();
+  loOpenHours.getAllItems().forEach(function (slot) {
+    if (Utils.isEmptyString(_trimmed(slot.getOperatingHoursId()))) {
+      slot.setOperatingHoursId(operatingHoursId);
+    }
+  });
+  // Mark the saved slots as saved: the existing-store path returns before the status
+  // reset at the end of the full save, so they would otherwise be resent on every save.
+  saveDeferreds.push(loOpenHours.saveAsync().then(function () {
+    loOpenHours.getAllItems().forEach(function (slot) {
+      if (!_isDeletedSlot(slot)) {
+        slot.setObjectStatus(STATE.PERSISTED);
+      }
+    });
+  }));
 }
 
 function _copyIfDefined(value, setterFn, targetObj, propertyName) {
@@ -694,6 +773,26 @@ if (me.__hostProcess === "Customer::ReviewCaptureProcess" && _isServerPKey(me.ge
 if (!Utils.isDefined(me.getDateClosure())) {
   me.setDateClosure(Utils.getMinDateTime());
 }
+// Create the OperatingHours record when the store has time slots but none yet (as the
+// core save did). It is saved before the Account so the Account can link to it.
+var createdOperatingHoursId = "";
+ensureNamePromise = ensureNamePromise.then(function () {
+  if (skipSaveBecauseBlankName ||
+      !Utils.isEmptyString(_trimmed(me.getOperatingHoursId())) ||
+      _getLiveOpenHourSlots(me).length === 0) {
+    return me;
+  }
+  return BoFactory.createObjectAsync("BoOperatingHour", {}).then(function (boOperatingHour) {
+    var operatingHourName = _resolveCanonicalCustomerName(me);
+    boOperatingHour.setName(Utils.isEmptyString(operatingHourName) ? me.getName() : operatingHourName);
+    createdOperatingHoursId = boOperatingHour.getPKey();
+    me.setOperatingHoursId(createdOperatingHoursId);
+    return boOperatingHour.saveAsync();
+  }).then(function () {
+    return me;
+  });
+});
+
 // If the backend is SalesForce, then we need to store two objects for the BoCustomer
 promise = ensureNamePromise.then(function () {
 if (skipSaveBecauseBlankName) {
@@ -740,6 +839,10 @@ if (Utils.isSfBackend()) {
           "type": "Type",
           "status": "Status__c"
         };
+        // Link the OperatingHours record created above to the existing store.
+        if (!Utils.isEmptyString(createdOperatingHoursId)) {
+          nameOnlyMapping.operatingHoursId = "OperatingHoursId";
+        }
         if (!Utils.isEmptyString(_trimmed(me.getCustomerId()))) {
           nameOnlyMapping.customerId = "Account_Number__c";
         }
@@ -855,6 +958,8 @@ promise = promise.then(
     // Edits are now queued for sync; clear them so later implicit saves do not resend.
     me.__reviewCaptureEditedFields = {};
     if (isReviewCaptureNameOnlySave) {
+      // Open-hours edits on an existing store are saved here too (the core save skipped them).
+      _queueOpenHoursSave(me, deferreds);
       // Keep Account on name-only mapping so a blank UI name cannot overwrite Name.
       // Address still needs its own list save when the user edited it.
       _queueCustomerAddressSave(me, deferreds);
@@ -887,6 +992,8 @@ Account Harmonization: obsolete */
     // This prevents implicit customer-switch/back saves from writing
     // partially loaded address payloads.
     _queueCustomerAddressSave(me, deferreds);
+    // Save open-hours time slots (dropped when this replacement took over from the core save).
+    _queueOpenHoursSave(me, deferreds);
     //Save LoCustomerPOSRelation
     if(Utils.isDefined(me.getLoCustomerPOSRelation())) {
       deferreds.push(me.getLoCustomerPOSRelation().saveAsync());
