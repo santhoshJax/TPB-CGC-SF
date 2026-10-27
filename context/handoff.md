@@ -42,36 +42,36 @@
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-10-27
-**Status:** at risk — Add Product crash in Distribution isolated to missing device data or query design flaw; not caused by recent build
+**Status:** at risk — Add Product crash root cause confirmed: custom code path skips date lookup, returns empty product details. Needs Build session for fix.
 
 **Done this session**
-- Matched video crash to device logs: customized method addProduct fails on lookup.text1 undefined
-- Located root cause in MyReplaceBoJobManager.AddProduct.bl.js lines 92–115
-- Identified mismatch: product picker query vs product-details query join requirements
-- Verified server data complete: products, price UoM, price conditions, system settings all present in QA
-- Confirmed earlier Modeller Contracts Build session did not touch this code path
+- Retest on second device (iPad13,18) and second user (Santhosh CGC) reproduced same error
+- Identified root cause: MyReplaceBoJobManager.AddProduct.bl.js line 97 uses Facade.getObjectAsync instead of BoFactory.loadObjectByParamsAsync, skipping beforeLoadAsync date step
+- Confirmed product-details query requires commitDate to match price records; without it, query returns empty result
+- Verified this code path unchanged since first commit; Modeller Contracts Build did not cause it
+- Ruled out device-specific or user-specific data issue; affects all products on all devices
 
 **Open items**
-- Verify missing data on Alice's iPad: price condition, unit of measure, or system-setting record
-- Test quick fix: full app data re-download/reset on iPad and retry Add Product
-- Code fix: add null check before using lookup.text1 in addProduct method
-- Code fix: make price-condition join optional in DsLuProduct_sf.datasource.xml (survey/distribution don't need price)
-- Post findings to SAL-493 (Jira ticket) and/or write review document
+- Main fix: replace Facade.getObjectAsync with BoFactory.loadObjectByParamsAsync in line 97, or pass commitDate in query
+- Safety check: add null check before reading lookup.text1; show clear error naming the product
+- Optional: make price lookups in DsLuProduct_sf.datasource.xml optional for products with no current price
+- Retest on iPad with STOKERS 31029 and FRE POUCHES products after fix deployed
+- Post findings to SAL-493 (Jira ticket) as comment or review document
 
 **Decisions**
-- Root cause is device-side missing data OR query design flaw, not the recent build
-- Quick test (data reset) should be tried before code changes
+- Root cause is code design flaw (wrong API call), not missing data or recent build
+- Data reset will not fix this; code fix required
+- Quick test confirmed bug is reproducible and affects multiple devices/users
 
 **Blockers**
-- Cannot read iPad device database from review session to confirm which record is missing
+- None
 
 **Next**
-- Execute quick test: full app data re-download on Alice's iPad, retry Add Product
-- If quick test fixes it: document as device sync issue, close SAL-493
-- If quick test fails: schedule Build session to implement both code fixes (null check + optional join)
-- Post this review to SAL-493 as comment or document per your instruction
+- Schedule Build session to implement main fix (line 97 API call) and safety check (null check before lookup.text1)
+- Post this session's findings to SAL-493
+- After Build session deploys fix, retest on iPad with STOKERS 31029 and FRE POUCHES products
 
-**Checked live on 2026-10-27:** Jira, the repository, the Salesforce org
+**Checked live on 2026-10-27:** the Salesforce org, the repository
 ### Last session — 2026-10-27
 | | |
 |---|---|
@@ -81,24 +81,18 @@
 | Name | CGC-Offline-App-SAL-493-Issue |
 | Session | `5a090c4a-9ec9-4eab-8171-ce23094f9673` |
 **In its own words (excerpt):**
-I watched the video and found the matching error in the app's device logs in QA. The crash is in the Add Product step on the Distribution screen. The earlier Modeller Contracts Build session's commits didn't touch any part of that code.
+Your retest helped, and it shows my earlier guess was wrong. The problem isn't missing data on Alice's iPad. It's a bug in the add-product code, so a data reset won't fix it.
 
-## What the video shows (Alice Mctest, iPad, 23 Oct, 10:21–10:22 AM EDT)
-1. She starts the visit at Retail Test Store Millie, opens **Product Distribution** and taps **Add Product**.
-2. She ticks STOKERS 1.2 OZ CAN – LONG CUT WINTERGREEN (31029) and taps **Add**. The app shows **"Error occurred. Please ask your Administrator."**
-3. Adding a product to an **order** in the same visit works.
-4. She goes back to Distribution and adds several FRE POUCHES products. The same error appears.
+## What your test showed
+Your test tonight (about 9:57–10:00 PM IST) logged the same error three times in QA: `undefined is not an object (evaluating 'lookup.text1')`. It was logged on a different iPad (iPad13,18), under the user **Santhosh CGC**, not Alice. Either way, it's now two devices and two users with the same error, so it isn't a problem with one device.
 
-## What the device logs say
-At exactly those times, the app's log records in QA (Mobile App Log) show:
+## The real cause
+The add-product step on the Distribution screen is in `src/Call/BO/BoJobManager/Mv1/MyReplaceBoJobManager.AddProduct.bl.js`. It's a custom copy of the standard step, and at line 97 it loads the product's details in a different way from the standard one:
 
-> `customized method addProduct failed during execution: undefined is not an object (evaluating 'lookup.text1')`
-> Call stack: `BoJobManager.myAddProducts → BoJobManager.replaceAddProduct`
-
-There are 19 of these errors in total, all from Alice, on 21 Oct and 23 Oct. No other user has logged this error.
-
-## Root cause
-- **Where it breaks:** `src/Call/BO/BoJobManager/M
+| | How it loads the product details | Does it add today's date? |
+|---|---|---|
+| Standard step (`BoJobManager.AddProduct.bl.js`, line 96) | `BoFactory.loadObjectByParamsAsync("LuProduct", …)` | **Yes.** This call runs the lookup's `beforeLoadAsync` step, which adds today's date as `commitDate`. |
+| Custom copy (line 97) | `Facade.getObjectAsync("LuProduct", …)` | **No.** This cal
 
 _[summary truncated — see the session record for the full text]_
 <!-- orchestrate:session-state:end -->
