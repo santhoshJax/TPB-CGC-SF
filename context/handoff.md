@@ -41,18 +41,17 @@
 <!-- orchestrate:session-state:start -->
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
-### Engagement state — 2026-10-27
-**Status:** at risk — Add Product crash root cause confirmed: custom code path skips date lookup, returns empty product details. Needs Build session for fix.
+### Engagement state — 2026-10-28
+**Status:** at risk — Add Product crash root cause confirmed as code design flaw (wrong API call), not customer changes. Awaiting Build session for fix.
 
 **Done this session**
-- Retest on second device (iPad13,18) and second user (Santhosh CGC) reproduced same error
-- Identified root cause: MyReplaceBoJobManager.AddProduct.bl.js line 97 uses Facade.getObjectAsync instead of BoFactory.loadObjectByParamsAsync, skipping beforeLoadAsync date step
-- Confirmed product-details query requires commitDate to match price records; without it, query returns empty result
-- Verified this code path unchanged since first commit; Modeller Contracts Build did not cause it
-- Ruled out device-specific or user-specific data issue; affects all products on all devices
+- Confirmed customer page changes (16 files, Oct) did not cause Add Product crash
+- Verified error occurred on pre-change app package (SAL-444, built 18 Sep) and post-change packages
+- Ruled out customer data as factor; Add Product only reads product lookup, not customer fields
+- Identified three likely reasons bug didn't surface in earlier tests (product pre-listed, Order vs Distribution, pre-v260 code)
 
 **Open items**
-- Main fix: replace Facade.getObjectAsync with BoFactory.loadObjectByParamsAsync in line 97, or pass commitDate in query
+- Main fix: replace Facade.getObjectAsync with BoFactory.loadObjectByParamsAsync in MyReplaceBoJobManager.AddProduct.bl.js line 97, or pass commitDate in query
 - Safety check: add null check before reading lookup.text1; show clear error naming the product
 - Optional: make price lookups in DsLuProduct_sf.datasource.xml optional for products with no current price
 - Retest on iPad with STOKERS 31029 and FRE POUCHES products after fix deployed
@@ -60,8 +59,8 @@
 
 **Decisions**
 - Root cause is code design flaw (wrong API call), not missing data or recent build
+- Customer changes (Oct 21–27) are not the cause; error predates them
 - Data reset will not fix this; code fix required
-- Quick test confirmed bug is reproducible and affects multiple devices/users
 
 **Blockers**
 - None
@@ -71,8 +70,8 @@
 - Post this session's findings to SAL-493
 - After Build session deploys fix, retest on iPad with STOKERS 31029 and FRE POUCHES products
 
-**Checked live on 2026-10-27:** the Salesforce org, the repository
-### Last session — 2026-10-27
+**Checked live on 2026-10-28:** the repository, the Salesforce org
+### Last session — 2026-10-28
 | | |
 |---|---|
 | Type | REVIEW |
@@ -81,18 +80,24 @@
 | Name | CGC-Offline-App-SAL-493-Issue |
 | Session | `5a090c4a-9ec9-4eab-8171-ce23094f9673` |
 **In its own words (excerpt):**
-Your retest helped, and it shows my earlier guess was wrong. The problem isn't missing data on Alice's iPad. It's a bug in the add-product code, so a data reset won't fix it.
+Short answer: the customer page changes didn't break Add Product. The evidence shows the error was already happening on an app package built before any of those changes.
 
-## What your test showed
-Your test tonight (about 9:57–10:00 PM IST) logged the same error three times in QA: `undefined is not an object (evaluating 'lookup.text1')`. It was logged on a different iPad (iPad13,18), under the user **Santhosh CGC**, not Alice. Either way, it's now two devices and two users with the same error, so it isn't a problem with one device.
+## 1. The changes don't touch Add Product
+From `main` through the latest customer commit, 16 files changed. All of them are customer, store (POS), Review Capture or label files. None are product, Distribution, job manager or pricing files.
 
-## The real cause
-The add-product step on the Distribution screen is in `src/Call/BO/BoJobManager/Mv1/MyReplaceBoJobManager.AddProduct.bl.js`. It's a custom copy of the standard step, and at line 97 it loads the product's details in a different way from the standard one:
+Add Product also doesn't read any customer data. It only looks up the product by its key, in `DsLuProduct_sf.datasource.xml`.
 
-| | How it loads the product details | Does it add today's date? |
-|---|---|---|
-| Standard step (`BoJobManager.AddProduct.bl.js`, line 96) | `BoFactory.loadObjectByParamsAsync("LuProduct", …)` | **Yes.** This call runs the lookup's `beforeLoadAsync` step, which adds today's date as `commitDate`. |
-| Custom copy (line 97) | `Facade.getObjectAsync("LuProduct", …)` | **No.** This cal
+## 2. The error happened on the old app package
+QA keeps a record of which app package each iPad had installed and when. Alice's iPad (iPad16,4):
+
+| When (EDT) | What happened |
+|---|---|
+| 23 Sep | **SAL-444** package installed (built 18 Sep, before any of the October customer changes) |
+| 21 Oct, 1:58 PM onwards | First Add Product errors. 20+ entries that day, **still on SAL-444** |
+| 22 Oct, 10:34 AM | Same error again, **still on SAL-444** |
+| 22 Oct, 10:38 AM | Only now is the newer package ("Deploy Test SAL-424 & 473") installed |
+
+Your iPad (iPad13,18) got the newest package ("SAL-424 & 473 & Other Customer Fields") at 9:55 PM IST on 27 Oct, and
 
 _[summary truncated — see the session record for the full text]_
 <!-- orchestrate:session-state:end -->
