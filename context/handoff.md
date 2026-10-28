@@ -42,28 +42,27 @@
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-10-28
-**Status:** at risk — Fix committed & pushed; awaiting PR review, merge, build & iPad retest to confirm product lookup works
+**Status:** at risk — Fix 1 committed & pushed (commit 6b57d2a); Fix 2 needed for FRE POUCHES dates; awaiting PR, merge, build & iPad retest
 
 **Done this session**
-- Implemented line 97 API call change: BoFactory.loadObjectByParamsAsync restored
-- Added null check & error message (MyProductNotFoundForDistribution) for missing/unnamed products
-- Committed to branch 0cf1f10 with 3 files (JS + 2 locale files)
+- Implemented Fix 1: restored BoFactory.loadObjectByParamsAsync in GetSurveys.bl.js line 72 to create visit jobs while In Progress
+- Committed to branch 6b57d2a with updated file
 - Pushed to GitHub tpb-cgc-orchestrate branch
 
 **Open items**
 - Open pull request from tpb-cgc-orchestrate to main
 - Review and merge PR to main
 - Build and publish offline app to QA
-- Retest on iPad with STOKERS 31029 and FRE POUCHES products
-- Retest in Modeler: confirm product name, GTIN, Category populate correctly
-- Post findings to SAL-493 Jira ticket (optional per session notes)
+- Retest on iPad: start visit, add STOKERS 31029, go Store Cockpit → User Cockpit → back to Distribution to confirm product persists
+- Decide on Fix 2: fill FRE POUCHES (694306, 694307) Field Valid From/Thru dates in QA if needed for retest
+- Decide on Fix 3: optional—block products with missing dates at add time with error message
 - Discard Santhosh Test2 visit with blank product rows from yesterday
 
 **Decisions**
-- Root cause is code design flaw: custom copy used Facade.getObjectAsync instead of BoFactory.loadObjectByParamsAsync
-- Fix: restore BoFactory.loadObjectByParamsAsync; no manual date passing needed
-- Add defensive null check before reading lookup.text1 with clear error naming the product
-- Standard code does not have null check, but adding one is best practice
+- Root cause: custom code created visit jobs only while Planned; standard creates them while In Progress too
+- Fix 1: restore In Progress condition in GetSurveys.bl.js to match standard behavior
+- Fix 2 (separate): fill missing Field Valid From/Thru dates for FRE POUCHES 694306 & 694307 in QA if they appear in retest
+- Fix 3 (optional): block products with missing dates at add time with error message
 
 **Blockers**
 - None
@@ -72,8 +71,8 @@
 - Open pull request from tpb-cgc-orchestrate to main
 - Review and merge PR
 - Run Deploy session to build and publish offline app to QA
-- Retest on iPad with STOKERS 31029 and FRE POUCHES to confirm product lookup succeeds
-- Verify in Modeler that product details (name, GTIN, Category) populate correctly
+- Retest on iPad with STOKERS 31029; decide whether to include FRE POUCHES and apply Fix 2 if needed
+- Verify in Modeler that added products persist after reopen
 
 **Checked live on 2026-10-28:** the repository
 ### Last session — 2026-10-28
@@ -86,19 +85,18 @@
 | Session | `00cafbd0-9e51-4773-bb9a-0d2ae03c4097` |
 **In its own words (excerpt):**
 ━━ Build status (auto-checked from tool results — deploy = sf CLI exit, not runtime effect) ━━
-• Code committed: yes (branch 0cf1f10)
+• Code committed: yes (branch 6b57d2a)
 • Pushed to GitHub: yes
 • Validated (sf deploy validate): NOT verified
 • Deployed to org: no deploy in this session run — if an earlier run deployed, verify in the target org
 Next: open/refresh the PR → review → merge to main → run a Deploy session to ship. This work is NOT live yet.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-The SAL-493 fix is committed and pushed to `tpb-cgc-orchestrate`, and I confirmed it on GitHub: the branch points at the new commit and the file has the fix. No pull request was opened.
+I pushed Fix 1 to `tpb-cgc-orchestrate`. On GitHub the branch now points at commit `6b57d2a`, and the file there has the new condition. I didn't open a PR or change any org data.
 
-**Commit `0cf1f10`: "[SAL-493] Restore LuProduct load in Distribution add product"** (3 files)
-- **`MyReplaceBoJobManager.AddProduct.bl.js`:**
-  - **The fix:** the product lookup now uses `BoFactory.loadObjectByParamsAsync` again, the same call the standard file uses. That means today's date is added to the lookup automatically, so it should find the product again.
-  - **Safety check:** if the lookup finds no product, or the product has no name, the app shows an error with the product ID and stops. No blank row is added, and the later step
+**What changed:** In `MyReplaceBoJobManager.GetSurveys.bl.js`, line 72 used to create visit jobs only while the visit was **Planned**. It now also creates them while the visit is **In Progress**, which is what the standard file does. Products you add after tapping Start now get visit jobs behind them, so they should be saved and come back when you reopen the visit. I left the custom parts of the file alone: added products are still marked Distributed automatically, and scanner/manual tracking still works.
+
+**Not done yet:** Your team still needs 
 
 _[summary truncated — see the session record for the full text]_
 <!-- orchestrate:session-state:end -->
