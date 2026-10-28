@@ -94,8 +94,25 @@ if (!Utils.isDefined(liProduct)) {
   jsonParams.push({"field" : "pKey","operator" : "EQ","value" : productPKey});
   jsonQuery.params = jsonParams;
 
-  promise = Facade.getObjectAsync("LuProduct", jsonQuery).then(
+  // SAL-493: use BoFactory.loadObjectByParamsAsync (as the standard AddProduct does) so that
+  // LuProduct.BeforeLoadAsync runs and injects commitDate for the Valid_From/Valid_Thru filter.
+  // Facade.getObjectAsync skipped that step, so the lookup returned no product and the
+  // distribution row was added with a blank name, GTIN and category.
+  var isProductFound = true;
+  promise = BoFactory.loadObjectByParamsAsync("LuProduct", jsonQuery).then(
     function (lookup) {
+      // SAL-493: stop cleanly if the product is missing or not valid today, instead of
+      // adding a blank product row or failing on lookup.text1.
+      if (!Utils.isDefined(lookup) || Utils.isEmptyString(lookup.text1)) {
+        isProductFound = false;
+        var buttonValues = {};
+        buttonValues[Localization.resolve("OK")] = "ok";
+        return MessageBox.displayMessage(
+          Localization.resolve("MessageBox_Title_Error"),
+          Localization.resolve("MyProductNotFoundForDistribution") + " (" + productId + ")",
+          buttonValues
+        );
+      }
       liProduct = {
         "pKey" : PKey.next(),
         "prdMainPKey" : productPKey,
@@ -123,6 +140,10 @@ if (!Utils.isDefined(liProduct)) {
       return BoFactory.loadObjectByParamsAsync("LuJobDefinitionList", jDLQuery);
     }).then(
     function (jobDefinitionListLookup) {
+      // SAL-493: product was not found, message already shown - nothing more to do.
+      if (!isProductFound) {
+        return when.resolve();
+      }
       if (Utils.isDefined(jobDefinitionListLookup) && Utils.isDefined(jobDefinitionListLookup.getJDLPKeys())) {
         liProduct.jDLPKeys = jobDefinitionListLookup.getJDLPKeys();
       }

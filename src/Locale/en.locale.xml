@@ -577,6 +577,7 @@
       <Label id="MessageBox_Title_Validation" text="We hit a snag." translationStatus="7"/>
       <Label id="MessageBox_Title_Warning" text="Warning" translationStatus="7"/>
       <Label id="MessageBox_Title_Error" text="Error" translationStatus="7"/>
+      <Label id="MyProductNotFoundForDistribution" text="This product could not be found or is not valid today. Please check the product&apos;s validity dates." translationStatus="1"/>
       <Label id="ImageSelector_StoreLabel" text="Store" translationStatus="7"/>
       <Label id="ImageSelector_HierarchyLabel" text="Hierarchy" translationStatus="7"/>
       <Label id="ClbSurveyHeaderColumnIcon" text="Icon" translationStatus="7"/>

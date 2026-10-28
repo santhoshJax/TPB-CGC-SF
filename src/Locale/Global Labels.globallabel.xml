@@ -362,4 +362,6 @@
   <!-- Quantity Suggestion -->
   <Label id="Quantity_Suggestion_Prefix" text="Suggested Qty" translationStatus="7"/>
   
+  <!-- SAL-493: Distribution add product - product not found / not valid today -->
+  <Label id="MyProductNotFoundForDistribution" text="This product could not be found or is not valid today. Please check the product&apos;s validity dates." translationStatus="1" />
 </Global>
