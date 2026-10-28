@@ -69,7 +69,13 @@ if (loCurrentPOS.length > 0) {
         var liSurveyProduct = loCurrentProduct[0];
         var surveysNotInitialized = (liSurveyProduct.getSurveysInitialized() !== "1" || liSurveyProduct.getIsSurveyInitializedByManualPrdAdd() !== "1");
 
-        if (surveysNotInitialized && me.getClbStatus() === "Planned") {
+        // SAL-493: create visit jobs for Planned AND In Progress visits, as the standard
+        // BoJobManager.GetSurveys does. "Planned" only meant products added after Start
+        // got no survey records, so they were not saved and vanished when the visit reopened.
+        if (surveysNotInitialized &&
+          (me.getClbStatus() === BLConstants.VISIT.STATUS_PLANNED ||
+            me.getClbStatus() === BLConstants.VISIT.STATUS_INPROGRESS)
+        ) {
           var JDLPKeys = liSurveyProduct.getJDLPKeys().split(",").sort();
 
           // Build dictionary of previously answered questions...
