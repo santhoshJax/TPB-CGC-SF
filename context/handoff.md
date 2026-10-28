@@ -42,36 +42,38 @@
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-10-28
-**Status:** at risk — Root cause confirmed: missing commitDate in Add Product query. Code fix needed before retest.
+**Status:** at risk — Root cause confirmed: custom code uses Facade.getObjectAsync (skips commitDate). Fix: restore BoFactory.loadObjectByParamsAsync on line 97.
 
 **Done this session**
-- Confirmed root cause: Facade.getObjectAsync on line 97 skips BeforeLoadAsync, missing commitDate parameter
-- Identified why error manifests differently in Modeler (blank rows) vs iPad (crash on lookup.text1)
-- Verified fix approach: use BoFactory.loadObjectByParamsAsync or add commitDate to query
+- Confirmed standard code adds commitDate via BeforeLoadAsync preparation step
+- Identified exact change in custom copy: line 97 Facade.getObjectAsync instead of BoFactory.loadObjectByParamsAsync
+- Verified one-word fix restores standard behaviour without manual date passing
+- Ruled out need for optional price-join change; safety check still recommended
 
 **Open items**
-- Main fix: replace Facade.getObjectAsync with BoFactory.loadObjectByParamsAsync in MyReplaceBoJobManager.AddProduct.bl.js line 97
+- Main fix: change line 97 in MyReplaceBoJobManager.AddProduct.bl.js to BoFactory.loadObjectByParamsAsync("LuProduct", jsonQuery)
 - Safety check: add null check before reading lookup.text1; show clear error naming the product
-- Optional: make price lookups in DsLuProduct_sf.datasource.xml optional for products with no current price
 - Retest on iPad with STOKERS 31029 and FRE POUCHES products after fix deployed
 - Retest in Modeler to confirm product names, GTIN, Category fill in correctly
 - Post findings to SAL-493 (Jira ticket) as comment or review document
 - Discard Santhosh Test2 visit with blank product rows from yesterday's test
+- Ask team why custom copy switched to Facade.getObjectAsync (may inform whether to keep fallback)
 
 **Decisions**
-- Root cause is code design flaw (wrong API call missing commitDate), not customer changes or data
+- Root cause is code design flaw: custom copy replaced standard API call with one that skips commitDate injection
 - Customer changes (Oct 21–27) are not the cause; error predates them
 - Data reset will not fix this; code fix required
-- Latest contracts turned crash into silent blank rows, which is worse UX
+- Fix is one-word change: restore BoFactory.loadObjectByParamsAsync; no manual date passing needed
+- Standard code does not have null check either, but adding one is defensive best practice
 
 **Blockers**
 - None
 
 **Next**
-- Schedule Build session to implement main fix (line 97 API call) and safety check (null check before lookup.text1)
+- Schedule Build session to implement line 97 API call change and safety check (null before lookup.text1)
 - Post this session's findings to SAL-493
-- After Build session deploys fix, retest on iPad with STOKERS 31029 and FRE POUCHES products
-- After Build session deploys fix, retest in Modeler to confirm product details populate
+- After Build deploys fix, retest on iPad with STOKERS 31029 and FRE POUCHES products
+- After Build deploys fix, retest in Modeler to confirm product details populate
 
 **Checked live on 2026-10-28:** the repository
 ### Last session — 2026-10-28
@@ -83,22 +85,29 @@
 | Name | CGC-Offline-App-SAL-493-Issue |
 | Session | `5a090c4a-9ec9-4eab-8171-ce23094f9673` |
 **In its own words (excerpt):**
-This is the same bug as on the iPad. The Offline Modeler's newer contracts just show it differently, and your log line tells us exactly where it fails.
+You're right: the standard code does work, and it already passes today's date. You don't need to add anything new. The custom copy dropped the line that gets the date passed, and the fix is to put the standard way back.
 
-## What the error means
-The product-details query in `src/Product/DS/DsLuProduct_sf.datasource.xml` looks up the product's current price with:
+## How the standard code does it
 
-```
-#compareAsDate('Product_Condition__c.Valid_From__c', 'Date', '<=', #commitDate#, 'Date')#
-#compareAsDate('Product_Condition__c.Valid_Thru__c', 'Date', '>=', #commitDate#, 'Date')#
-```
+When you pick a product on Distribution, two pieces of code are involved.
 
-It needs a `commitDate` value (today's date). The custom add-product step (`MyReplaceBoJobManager.AddProduct.bl.js`, line 97) calls `Facade.getObjectAsync("LuProduct", …)` and passes only `pKey`. That call skips `LuProduct.BeforeLoadAsync.bl.js`, which is the code that adds `commitDate` when it's missing (line 49).
+1. **The standard add-product step**, `BoJobManager.AddProduct.bl.js` (`@namespace CORE`), line 96:
+   ```js
+   promise = BoFactory.loadObjectByParamsAsync("LuProduct", jsonQuery)
+   ```
+   It sends only the product key, the same as the custom copy.
 
-Without that value the date comparison is built wrongly. The SQL that reaches SQLite ends up treating the word `Date` as a column name, so you get **"no such column: Date"**. This is the same missing date I found last time. Your log now shows it directly.
+2. **The standard product lookup's preparation step**, `LuProduct.BeforeLoadAsync.bl.js` (`@namespace CORE`), lines 49–55:
+   ```js
+   // If commitDate parameter is not present, add it.
+   if (jsonParams && jsonParams.length === 1) {
+     jsonParams.push({ field: "commitDate", operator: "EQ",
+                       value: Utils.createAnsiDateToday() });
+   }
+   ```
+   `BoFactory.loadObjectByParamsAsync` runs this step before the query, so today's date is added automatically. The product query (`DsLuProduct_sf.datasource.xml`, lines 42–43 and 76) then gets the date it needs to find the current price record.
 
-## Why the screenshot looks different from the iPad
-- **iPad:** the failed query comes back empty, the code then reads `lookup.text1`, and 
+So i
 
 _[summary truncated — see the session record for the full text]_
 <!-- orchestrate:session-state:end -->
