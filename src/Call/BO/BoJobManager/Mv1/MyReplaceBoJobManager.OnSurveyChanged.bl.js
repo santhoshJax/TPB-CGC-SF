@@ -335,6 +335,8 @@ for (var i = 0; i < handlerParams.modified.length; i++) {
         for (var idxSurvey = 0; idxSurvey < loSurveyItems.length; idxSurvey++) {
           var survey = loSurveyItems[idxSurvey];
           var isSurveyFromLastCall = (survey.getClbMainPKey() !== me.getClbMainPKey());
+          // Captured before the value is set, which changes the status.
+          var isStoredSurveyOfThisVisit = !isSurveyFromLastCall && (survey.getObjectStatus() & STATE.NEW) !== STATE.NEW;
 
           //Assimilate Survey for LastValue
           if (isSurveyFromLastCall && productList.length > 0 && posList.length > 0) {
@@ -355,7 +357,13 @@ for (var i = 0; i < handlerParams.modified.length; i++) {
           }
           //Check if Survey is MatrixSurvey and set to unmodified, to not save it
           var isManualSurvey = loSurveyItems[idxSurvey].getManual() === "0" || productList[0].getIsProductAddedManually() == "1";
-          if (Utils.isEmptyString(loSurveyItems[idxSurvey].getJobDefinitionPKey())) {
+          // Keep the change (do not mark as unmodified) when the survey is one TPB stores: it
+          // belongs to this visit and is either already stored or belongs to a manually added
+          // product. Resetting it threw away answers such as OutOfStock on manually added
+          // products, so the old value came back after the visit was reopened.
+          var isAddedManually = productList.length > 0 && productList[0].getIsProductAddedManually() == "1";
+          var keepTpbSurveyChange = !isSurveyFromLastCall && (isStoredSurveyOfThisVisit || isAddedManually);
+          if (Utils.isEmptyString(loSurveyItems[idxSurvey].getJobDefinitionPKey()) && !keepTpbSurveyChange) {
             loSurveyItems[idxSurvey].setObjectStatus(STATE.PERSISTED);
           }
         }

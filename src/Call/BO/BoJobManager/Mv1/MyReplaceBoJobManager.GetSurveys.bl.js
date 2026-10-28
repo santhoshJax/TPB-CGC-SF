@@ -268,7 +268,12 @@ if (loCurrentPOS.length > 0) {
                 newLiColumnSurvey.value = "0";
               }
 
-              newLiColumnSurvey.objectStatus = STATE.NEW;
+              // A manually added product is auto-Distributed without any user input, so mark its
+              // column survey dirty, as the job-definition surveys below already are. Otherwise it
+              // stays NEW only, the save skips it, and a product added to a store with no activity
+              // is lost when the visit is reopened. Other column surveys keep standard behaviour.
+              newLiColumnSurvey.objectStatus = (liSurveyProduct.getIsProductAddedManually() == "1") ?
+                (STATE.NEW | STATE.DIRTY) : STATE.NEW;
               surveylist.push(newLiColumnSurvey);
             }
           }
