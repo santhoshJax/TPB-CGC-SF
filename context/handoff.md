@@ -42,62 +42,63 @@
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-10-28
-**Status:** at risk — Root cause confirmed & fix specified; awaiting Build session to implement line 97 API call change
+**Status:** at risk — Fix committed & pushed; awaiting PR review, merge, build & iPad retest to confirm product lookup works
 
 **Done this session**
-- Line-by-line comparison of standard vs custom AddProduct files confirmed single cause
-- Verified Facade.getObjectAsync skips BeforeLoadAsync preparation (no commitDate injection)
-- Confirmed all other LuProduct callers use BoFactory.loadObjectByParamsAsync; custom Distribution copy is unique outlier
-- Ruled out all other differences in custom copy as unrelated to the issue
+- Implemented line 97 API call change: BoFactory.loadObjectByParamsAsync restored
+- Added null check & error message (MyProductNotFoundForDistribution) for missing/unnamed products
+- Committed to branch 0cf1f10 with 3 files (JS + 2 locale files)
+- Pushed to GitHub tpb-cgc-orchestrate branch
 
 **Open items**
-- Implement fix: change line 97 in MyReplaceBoJobManager.AddProduct.bl.js to BoFactory.loadObjectByParamsAsync("LuProduct", jsonQuery)
-- Add null check before reading lookup.text1 with clear error naming the product (defensive best practice)
-- Post findings to SAL-493 (Jira ticket) as comment or review document
-- After Build deploys fix, retest on iPad with STOKERS 31029 and FRE POUCHES products
-- After Build deploys fix, retest in Modeler to confirm product names, GTIN, Category fill in correctly
-- Discard Santhosh Test2 visit with blank product rows from yesterday's test
-- Ask team why custom copy switched to Facade.getObjectAsync (may inform whether to keep fallback)
+- Open pull request from tpb-cgc-orchestrate to main
+- Review and merge PR to main
+- Build and publish offline app to QA
+- Retest on iPad with STOKERS 31029 and FRE POUCHES products
+- Retest in Modeler: confirm product name, GTIN, Category populate correctly
+- Post findings to SAL-493 Jira ticket (optional per session notes)
+- Discard Santhosh Test2 visit with blank product rows from yesterday
 
 **Decisions**
-- Root cause is code design flaw: custom copy replaced standard API call with one that skips commitDate injection
-- Customer changes (Oct 21–27) are not the cause; error predates them
-- Data reset will not fix this; code fix required
-- Fix is one-word change: restore BoFactory.loadObjectByParamsAsync; no manual date passing needed
-- Standard code does not have null check either, but adding one is defensive best practice
+- Root cause is code design flaw: custom copy used Facade.getObjectAsync instead of BoFactory.loadObjectByParamsAsync
+- Fix: restore BoFactory.loadObjectByParamsAsync; no manual date passing needed
+- Add defensive null check before reading lookup.text1 with clear error naming the product
+- Standard code does not have null check, but adding one is best practice
 
 **Blockers**
 - None
 
 **Next**
-- Schedule Build session to implement line 97 API call change and safety check (null before lookup.text1)
-- Post this session's findings to SAL-493
-- After Build deploys fix, retest on iPad with STOKERS 31029 and FRE POUCHES products
-- After Build deploys fix, retest in Modeler to confirm product details populate
+- Open pull request from tpb-cgc-orchestrate to main
+- Review and merge PR
+- Run Deploy session to build and publish offline app to QA
+- Retest on iPad with STOKERS 31029 and FRE POUCHES to confirm product lookup succeeds
+- Verify in Modeler that product details (name, GTIN, Category) populate correctly
 
-**Checked live on 2026-10-28:** nothing — the status above is as recorded, not re-checked
+**Checked live on 2026-10-28:** the repository
 ### Last session — 2026-10-28
 | | |
 |---|---|
-| Type | REVIEW |
+| Type | BUILD |
 | Outcome | COMPLETED |
 | Branch | `tpb-cgc-orchestrate` |
-| Name | CGC-Offline-App-SAL-493-Issue |
-| Session | `5a090c4a-9ec9-4eab-8171-ce23094f9673` |
+| Name | CGC-Offline-App-SAL-493-Issue-Build |
+| Session | `00cafbd0-9e51-4773-bb9a-0d2ae03c4097` |
 **In its own words (excerpt):**
-Yes. I compared the standard file (`BoJobManager.AddProduct.bl.js`) with the custom copy (`MyReplaceBoJobManager.AddProduct.bl.js`) line by line again on the `tpb-cgc-orchestrate` branch. Exactly one difference causes this issue. All the others are unrelated.
+━━ Build status (auto-checked from tool results — deploy = sf CLI exit, not runtime effect) ━━
+• Code committed: yes (branch 0cf1f10)
+• Pushed to GitHub: yes
+• Validated (sf deploy validate): NOT verified
+• Deployed to org: no deploy in this session run — if an earlier run deployed, verify in the target org
+Next: open/refresh the PR → review → merge to main → run a Deploy session to ship. This work is NOT live yet.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-## The change that causes the issue
+The SAL-493 fix is committed and pushed to `tpb-cgc-orchestrate`, and I confirmed it on GitHub: the branch points at the new commit and the file has the fix. No pull request was opened.
 
-| | Standard copy (line 96) | Custom copy (line 97) |
-|---|---|---|
-| Product lookup call | `BoFactory.loadObjectByParamsAsync("LuProduct", jsonQuery)` | `Facade.getObjectAsync("LuProduct", jsonQuery)` |
-| Runs the lookup's preparation step? | Yes | No |
-| Today's date (`commitDate`) added? | Yes, by `LuProduct.BeforeLoadAsync.bl.js` lines 49–55 | No, so the SQL says `Valid_From__c <= Date` |
-
-Both copies send the same query: only the product key. The only thing that differs is which call sends it.
-
-**More evidence:** I checked every other place in the repository that loads `LuProduct`: Contract add product, Truck Load add item, and the two Inventory Document add-product steps. All four use `BoFactory.loadObjectByParamsAsync`. The custom Distribution copy is the only one that uses `Facade.getObjectAsync`. There's also no custom version of the product lookup, its preparation step or its que
+**Commit `0cf1f10`: "[SAL-493] Restore LuProduct load in Distribution add product"** (3 files)
+- **`MyReplaceBoJobManager.AddProduct.bl.js`:**
+  - **The fix:** the product lookup now uses `BoFactory.loadObjectByParamsAsync` again, the same call the standard file uses. That means today's date is added to the lookup automatically, so it should find the product again.
+  - **Safety check:** if the lookup finds no product, or the product has no name, the app shows an error with the product ID and stops. No blank row is added, and the later step
 
 _[summary truncated — see the session record for the full text]_
 <!-- orchestrate:session-state:end -->
