@@ -537,8 +537,11 @@
           <Input name="value" value="1" type="Literal" />
         </Parameters>
       </Action>
+      <!-- Always load HeadquarterDetail, as the original and production app do. Skipping it for a
+           store without a parent left HeadquarterDetail undefined, so Show Details crashed the
+           module ("Exception in current Module") on Independent stores. -->
       <Action name="CardHeadquarterLoadData" actionType="DECISION" parameter="ProcessContext::CustomerDetail.headquarterId">
-        <CaseEmpty action="HQSetCardHeader_DataLoaded" />
+        <CaseEmpty action="CardHeadquarterLoadData_Actual" />
         <CaseElse action="CardHeadquarterLoadData_Actual" />
       </Action>
       <Action actionType="LOAD" name="CardHeadquarterLoadData_Actual" type="BoCustomer">

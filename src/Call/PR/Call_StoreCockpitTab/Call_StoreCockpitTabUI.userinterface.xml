@@ -446,10 +446,10 @@
           <CockpitSections name="ChainStore">
             <CockpitSection name="ChainStoreSection" sectionPattern="3columns" showSeparator="true">
               <Bindings>
-                <Binding target="col1row1" type="Blob" binding="ProcessContext::CustomerContactInfo.customerProfilePicture" roundedEdge="true" fileTypeBinding="ProcessContext::CustomerContactInfo.customerPictureFileType" defaultImage="StoreCockpit" verticalAlignment="Top" defaultImageType=".svg" />
-                <Binding target="col2row1" type="ItemIdentifier" binding="ProcessContext::CustomerDisplayName" />
-                <Binding target="col2row3" type="ItemSecondary" binding="ProcessContext::CustomerDetail.ownerName" />
-                <Binding target="col2row4" type="ItemSecondary" binding="ProcessContext::CustomerDetail.ownerEmail" />
+                <Binding target="col1row1" type="Blob" binding="ProcessContext::HeadquarterContactInfo.customerProfilePicture" roundedEdge="true" fileTypeBinding="ProcessContext::CustomerContactInfo.customerPictureFileType" defaultImage="StoreCockpit" verticalAlignment="Top" defaultImageType=".svg" />
+                <Binding target="col2row1" type="ItemIdentifier" binding="ProcessContext::HeadquarterDetail.name" />
+                <Binding target="col2row3" type="ItemSecondary" binding="ProcessContext::HeadquarterDetail.ownerName" />
+                <Binding target="col2row4" type="ItemSecondary" binding="ProcessContext::HeadquarterDetail.ownerEmail" />
               </Bindings>
             </CockpitSection>
           </CockpitSections>
@@ -467,7 +467,7 @@
               <Bindings>
                 <Resource target="Text" type="Label" id="ShowEmailLink" defaultLabel="Send Email" bindingMode="ONE_WAY" />
                 <Resource target="Image" type="Image" id="Envelope" />
-                <Binding type="Visible" target="Visible" binding="ProcessContext::CustomerContactInfo.visible" />
+                <Binding type="Visible" target="Visible" binding="ProcessContext::HeadquarterContactInfo.visible" />
               </Bindings>
               <Events>
                 <ButtonPressedEvent event="headquarterMailPressed" />
