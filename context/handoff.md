@@ -41,13 +41,11 @@
 <!-- orchestrate:session-state:start -->
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
-### Engagement state — 2026-10-28
-**Status:** at risk — Fix 1 committed & pushed (commit 6b57d2a); Fix 2 needed for FRE POUCHES dates; awaiting PR, merge, build & iPad retest
+### Engagement state — 2026-11-02
+**Status:** on track — QA's CG Cloud is on **260.2**, the repo's offline contracts are built for **260.0**, and the next upgrade target is **264.2** (from subtask…
 
 **Done this session**
-- Implemented Fix 1: restored BoFactory.loadObjectByParamsAsync in GetSurveys.bl.js line 72 to create visit jobs while In Progress
-- Committed to branch 6b57d2a with updated file
-- Pushed to GitHub tpb-cgc-orchestrate branch
+- QA's CG Cloud is on **260.2**, the repo's offline contracts are built for **260.0**, and the next upgrade target is **264.2** (from subtask SAL-491, still To Do). This was a read-only review: I changed nothing in the org, Jira or the repo.…
 
 **Open items**
 - Open pull request from tpb-cgc-orchestrate to main
@@ -74,29 +72,32 @@
 - Retest on iPad with STOKERS 31029; decide whether to include FRE POUCHES and apply Fix 2 if needed
 - Verify in Modeler that added products persist after reopen
 
-**Checked live on 2026-10-28:** the repository
-### Last session — 2026-10-28
+**Checked live on 2026-11-02:** Jira, the Salesforce org, the repository, the web
+### Last session — 2026-11-02
 | | |
 |---|---|
-| Type | BUILD |
+| Type | REVIEW |
 | Outcome | COMPLETED |
 | Branch | `tpb-cgc-orchestrate` |
-| Name | CGC-Offline-App-SAL-493-Issue-Build |
-| Session | `00cafbd0-9e51-4773-bb9a-0d2ae03c4097` |
+| Name | SAL-462 |
+| Session | `8b8a2119-ba2d-4b40-ae5b-983c27b60f3d` |
 **In its own words (excerpt):**
-━━ Build status (auto-checked from tool results — deploy = sf CLI exit, not runtime effect) ━━
-• Code committed: yes (branch 6b57d2a)
-• Pushed to GitHub: yes
-• Validated (sf deploy validate): NOT verified
-• Deployed to org: no deploy in this session run — if an earlier run deployed, verify in the target org
-Next: open/refresh the PR → review → merge to main → run a Deploy session to ship. This work is NOT live yet.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+QA's CG Cloud is on **260.2**, the repo's offline contracts are built for **260.0**, and the next upgrade target is **264.2** (from subtask SAL-491, still To Do). This was a read-only review: I changed nothing in the org, Jira or the repo.
 
-I pushed Fix 1 to `tpb-cgc-orchestrate`. On GitHub the branch now points at commit `6b57d2a`, and the file there has the new condition. I didn't open a PR or change any org data.
+| | Status |
+|---|---|
+| QA `cgcloud` (Consumer Goods Cloud) | Ver 260.2 |
+| QA `cgc_sync` (Mobile Sync) | Ver 260.2 |
+| Modeler contracts (`src/package.xml`) | Built for 260.0 (both the mobile app and the managed package) |
+| Target (SAL-491) | v264.2, installer link `04tg8000000Gb6rAAC` |
+| Production | The ticket says v248.3. Only QA is connected, so I couldn't check this |
+| SAL-461 (Apex compile blocker) | Done |
+| SAL-493 (Distribution defect) | In UAT; the fixes are on `tpb-cgc-orchestrate` but not merged into `main` |
+| SAL-462 subtasks (463–468, 491) | All To Do |
 
-**What changed:** In `MyReplaceBoJobManager.GetSurveys.bl.js`, line 72 used to create visit jobs only while the visit was **Planned**. It now also creates them while the visit is **In Progress**, which is what the standard file does. Products you add after tapping Start now get visit jobs behind them, so they should be saved and come back when you reopen the visit. I left the custom parts of the file alone: added products are still marked Distributed automatically, and scanner/manual tracking still works.
-
-**Not done yet:** Your team still needs 
+**What stands out**
+1. **SAL-462 is out of date.** Its Labor Day window (5–7 Sep) has passed, it still lists the current version as v248.3, and the target is still marked [confirm].
+2. **Production may need a big jump.** If production really is on 248.3, going to 264.2 means checking whether Salesforce requires upgrading in steps. You'd also need to work through the post-inst
 
 _[summary truncated — see the session record for the full text]_
 <!-- orchestrate:session-state:end -->
