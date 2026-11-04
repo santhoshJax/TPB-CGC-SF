@@ -41,63 +41,60 @@
 <!-- orchestrate:session-state:start -->
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
-### Engagement state — 2026-11-02
-**Status:** on track — Ready to upgrade QA to CG Cloud 264.2 + Mobile Sync 264.x + app 264.0005.00; SAL-493 UAT complete, awaiting closure
+### Engagement state — 2026-11-04
+**Status:** at risk — 7 error patterns found in SYNC.log (27 Oct–3 Nov); null guards and config mismatches need fixes before 264 upgrade
 
 **Done this session**
-- Confirmed CG Cloud 264.2 install ID (04tg8000000Gb6rAAC) is valid in QA
-- Verified app version 264.0005.00 on App Store (14 Oct)
-- Confirmed cgcloud and cgc_sync must stay on same major version
-- Checked related packages: Salesforce Maps 264.1, Mobile Apps 1.26, Field Service 1.60
+- Reviewed SYNC.log (23.7 MB, 27 Oct–3 Nov); identified 7 error patterns with root causes
+- Confirmed 2 errors also appear in Application.log sample; sync health looks normal on 2 Nov 21:07
 
 **Open items**
+- Add null guard for lookup.text1 in BoJobManager.myAddProducts (error #1, ~10 stack traces)
+- Add null check for mainAddress.getLatitude in BoCustomer.navigateToCustomer (error #6)
+- Review Order::ItemListTab screen config; HeaderTab variable undefined (error #2, 17 occurrences)
+- Check customization registrations for replaceGetSurveys, replaceSetEARight, myInitializeItemWholesaler (errors #4–5)
+- Verify customerDetail toggle field bindings and data for reasonNotVisited, prohibitVisit, acceptsMobileCoupons, type (error #3, ~40 occurrences)
+- Check product picklist/lookup data for missing values causing addProductsLogic failures
+- Send filtered Application.log (grep ';ERROR;') to check for sync/HTTP failures not in SYNC.log
 - Merge SAL-493 branch (tpb-cgc-orchestrate) into main and tag 260 baseline
-- Move SAL-493 ticket from UAT to Done in Jira
-- Install CG Cloud 264.2 in QA (link 04tg8000000Gb6rAAC)
-- Install Mobile Sync matching 264 version in QA (version/ID not yet confirmed)
-- Rebuild Modeler contracts for 264 and update package.xml (SAL-464)
-- Move iPad devices to mobile app 264.0005.00
-- Retest on iPad: start visit, add STOKERS 31029, verify product persists
-- Verify SAL-417 field-service workaround before upgrading
 
 **Decisions**
 - Root cause of SAL-462: custom code created visit jobs only while Planned; standard creates them while In Progress
 - Fix 1: restore In Progress condition in GetSurveys.bl.js
 - Fix 2: fill missing Field Valid From/Thru dates for FRE POUCHES 694306 & 694307 if they appear in retest
-- Fix 3 (optional): block products with missing dates at add time with error message
 - SAL-493 treated as finished; closing steps are merge and tag
+- Errors #1, #2, #4, #5, #6 are blocking issues; must fix before 264 upgrade
 
 **Blockers**
-- Mobile Sync 264 version and install ID not confirmed (Salesforce page wouldn't load)
+- 7 error patterns in SYNC.log prevent safe upgrade to 264 until fixed (null guards, config mismatches, registration issues)
+- Application.log contains live OAuth token and device ID; must redact before wider sharing
 
 **Next**
-- Confirm Mobile Sync 264 version and ID from Salesforce Mobile Sync install page
-- Check CG Cloud 264.2 against Salesforce compatibility table before installing
-- Merge SAL-493 branch into main and tag 260 baseline
-- Install 264.2 in QA (cgcloud, then cgc_sync in same window)
-- Rebuild Modeler contracts for 264 (SAL-464)
-- Move devices to app 264.0005.00 and retest with STOKERS 31029
+- Fix null guards in addProductsLogic (lookup.text1) and navigateToCustomer (mainAddress.getLatitude)
+- Review Order::ItemListTab screen config for HeaderTab variable definition
+- Audit customization registrations for replaceGetSurveys, replaceSetEARight, myInitializeItemWholesaler
+- Verify customerDetail toggle bindings and customer record data
+- Send filtered Application.log extract to confirm no additional sync/HTTP failures
+- Retest on current version with fixes applied before proceeding to 264 upgrade
 
-**Checked live on 2026-11-02:** Jira, the web, the Salesforce org
-### Last session — 2026-11-02
+**Checked live on 2026-11-04:** nothing — the status above is as recorded, not re-checked
+### Last session — 2026-11-04
 | | |
 |---|---|
-| Type | REVIEW |
+| Type | GENERAL |
 | Outcome | COMPLETED |
 | Branch | `tpb-cgc-orchestrate` |
-| Name | SAL-462 |
-| Session | `8b8a2119-ba2d-4b40-ae5b-983c27b60f3d` |
+| Name | TPB-CGC-Trace-Logs-Review-4-Nov-2026 |
+| Session | `ead177c5-3ce5-4384-8ba1-751a676e63f3` |
 **In its own words (excerpt):**
-**Short answer:** in QA, install **Consumer Goods Cloud `cgcloud` 264.2**, which is exactly what the SAL-491 link installs. Upgrade **Mobile Sync `cgc_sync` to its matching 264 version** at the same time, and move devices to **mobile app 264.x** (264.0005.00 is the current App Store build). Then rebuild the Modeler contracts for 264.
+I could review the SYNC.log in full, but only the first 20 KB (about 0.1%) of the 23.7 MB Application.log. There is no local copy of that file, so reading all of it through the file tool would take around 24 paged reads of about 250k tokens each. If you can send a filtered extract, I can cover the rest. For example, `grep ";ERROR;" Application.log` should cut it to a small file.
 
-**About SAL-493:** Jira still shows it as **UAT** (last updated 31 Oct), not Done. If it has passed UAT, the ticket just needs moving to Done. I haven't changed it because this session is read-only. I'll treat it as finished from here on, so step 1 of the earlier plan is just the closing steps: merge the branch into `main` and tag the 260 baseline.
+## SYNC.log: errors found (all `Error` level, 27 Oct – 3 Nov 2026)
 
-### What to install
-
-| Component | QA today | Install | Status of the target |
-|---|---|---|---|
-| **Consumer Goods Cloud** (`cgcloud`) | Ver 260.2 (`04tKj000000Sba3IAC`) | **Ver 264.2**, link `04tg8000000Gb6rAAC` | **Confirmed:** I looked up that ID in QA. It is the Consumer Goods Cloud package, "Ver 264.2", Released, not beta. |
-| **Mobile Sync** (`cgc_sync`) | Ver 260.2 (`04tKb000000tB8VIAU`) | **The matching 264 version** from Salesforce's Mobile Sync install page ([sf-industries.my.salesforce-sites.co
+| # | Error | Code | Count | When (UTC) | Likely cause |
+|---|---|---|---|---|---|
+| 1 | `action addProductsLogic failed … undefined is not an object (evaluating 'lookup.text1')` in `BoJobManager.myAddProducts` → `replaceAddProduct` (recursive), followed by `customized method addProduct failed` | 00000351 / 00000003 | about 10 stack traces plus 7 follow-on entries | 27 Oct, 19:07–19:10 and 20:39–20:43. The repeat suppression kicked in at 19:08 and again 30 Oct 17:33. | A product lookup returned no record when the add-products customization read `.text1` from it. This is probably a picklist or lookup value missing from the synced data or the mobile app picklist repo. The code needs a null guard. |
+| 2 | `Can't find variable: HeaderTab … in 
 
 _[summary truncated — see the session record for the full text]_
 <!-- orchestrate:session-state:end -->
