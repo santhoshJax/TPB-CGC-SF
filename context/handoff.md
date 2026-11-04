@@ -42,19 +42,20 @@
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-11-04
-**Status:** at risk — 7 error patterns found in SYNC.log (27 Oct–3 Nov); null guards and config mismatches need fixes before 264 upgrade
+**Status:** at risk — 7 log errors + tester found store-details bug blocking sales; null guards & config fixes needed before 264 upgrade
 
 **Done this session**
-- Reviewed SYNC.log (23.7 MB, 27 Oct–3 Nov); identified 7 error patterns with root causes
-- Confirmed 2 errors also appear in Application.log sample; sync health looks normal on 2 Nov 21:07
+- Reviewed offline app testing notes (3 Nov); matched 5 tester-found issues to 7 SYNC.log error patterns
+- Confirmed store-details-disappearing and license-validation failures are root cause of sales block
+- Linked navigateToCustomer crash to missing mainAddress data in offline store creation
 
 **Open items**
 - Add null guard for lookup.text1 in BoJobManager.myAddProducts (error #1, ~10 stack traces)
-- Add null check for mainAddress.getLatitude in BoCustomer.navigateToCustomer (error #6)
+- Add null check for mainAddress.getLatitude in BoCustomer.navigateToCustomer (error #6, confirmed by tester)
 - Review Order::ItemListTab screen config; HeaderTab variable undefined (error #2, 17 occurrences)
 - Check customization registrations for replaceGetSurveys, replaceSetEARight, myInitializeItemWholesaler (errors #4–5)
 - Verify customerDetail toggle field bindings and data for reasonNotVisited, prohibitVisit, acceptsMobileCoupons, type (error #3, ~40 occurrences)
-- Check product picklist/lookup data for missing values causing addProductsLogic failures
+- Investigate offline app store creation: how address, license, resale number, FEIN are saved to offline database
 - Send filtered Application.log (grep ';ERROR;') to check for sync/HTTP failures not in SYNC.log
 - Merge SAL-493 branch (tpb-cgc-orchestrate) into main and tag 260 baseline
 
@@ -64,20 +65,22 @@
 - Fix 2: fill missing Field Valid From/Thru dates for FRE POUCHES 694306 & 694307 if they appear in retest
 - SAL-493 treated as finished; closing steps are merge and tag
 - Errors #1, #2, #4, #5, #6 are blocking issues; must fix before 264 upgrade
+- Store-details-disappearing issue is business-blocking (prevents sales); raise/update defect with 3 Nov 16:41–16:59 UTC timestamps
 
 **Blockers**
 - 7 error patterns in SYNC.log prevent safe upgrade to 264 until fixed (null guards, config mismatches, registration issues)
+- Offline store creation does not persist address and license fields; causes cascading failures on every screen that reads them
 - Application.log contains live OAuth token and device ID; must redact before wider sharing
 
 **Next**
 - Fix null guards in addProductsLogic (lookup.text1) and navigateToCustomer (mainAddress.getLatitude)
 - Review Order::ItemListTab screen config for HeaderTab variable definition
 - Audit customization registrations for replaceGetSurveys, replaceSetEARight, myInitializeItemWholesaler
-- Verify customerDetail toggle bindings and customer record data
-- Send filtered Application.log extract to confirm no additional sync/HTTP failures
-- Retest on current version with fixes applied before proceeding to 264 upgrade
+- Debug offline store creation flow: trace address, license, resale, FEIN from UI entry to offline database
+- Send filtered Application.log extract (grep ';ERROR;') to confirm no additional sync/HTTP failures
+- Retest with fixes applied; tester will verify 200 items sync as in stock and out-of-stock test clears distribution
 
-**Checked live on 2026-11-04:** nothing — the status above is as recorded, not re-checked
+**Checked live on 2026-11-04:** the Salesforce org, the repository
 ### Last session — 2026-11-04
 | | |
 |---|---|
@@ -87,14 +90,24 @@
 | Name | TPB-CGC-Trace-Logs-Review-4-Nov-2026 |
 | Session | `ead177c5-3ce5-4384-8ba1-751a676e63f3` |
 **In its own words (excerpt):**
-I could review the SYNC.log in full, but only the first 20 KB (about 0.1%) of the 23.7 MB Application.log. There is no local copy of that file, so reading all of it through the file tool would take around 24 paged reads of about 250k tokens each. If you can send a filtered extract, I can cover the rest. For example, `grep ";ERROR;" Application.log` should cut it to a small file.
+# Issues in the Offline App Testing notes (3 Nov 2026)
 
-## SYNC.log: errors found (all `Error` level, 27 Oct – 3 Nov 2026)
+The document is a transcript of a tester's voice memo (about 18 minutes, starting 11:41 AM). The tester created new test stores and ran visits and orders in the offline app. The tester found one thing that works now and five things that don't.
 
-| # | Error | Code | Count | When (UTC) | Likely cause |
-|---|---|---|---|---|---|
-| 1 | `action addProductsLogic failed … undefined is not an object (evaluating 'lookup.text1')` in `BoJobManager.myAddProducts` → `replaceAddProduct` (recursive), followed by `customized method addProduct failed` | 00000351 / 00000003 | about 10 stack traces plus 7 follow-on entries | 27 Oct, 19:07–19:10 and 20:39–20:43. The repeat suppression kicked in at 19:08 and again 30 Oct 17:33. | A product lookup returned no record when the add-products customization read `.text1` from it. This is probably a picklist or lookup value missing from the synced data or the mobile app picklist repo. The code needs a null guard. |
-| 2 | `Can't find variable: HeaderTab … in 
+## What now works
+- Creating a new store offline used to fail and now succeeds.
+- Adding about 200 items to distribution worked. The tester will check overnight that all 200 sync as "in stock".
+- Promotions (for example $5 off and $2 off per roll) calculated correctly in the order preview.
+- Creating and completing tasks worked.
+
+## What's broken, in simple words
+
+**1. Store details disappear (the biggest problem).**
+- The tester enters the address, tobacco license, resale number and FEIN when creating the store. On the Store Cockpit screen, all of that is blank.
+- The same details still show under "My Day".
+- In the Customers list, tapping a store makes its name and all its info vanish. Going back and reopening the list brings the names back.
+- This happened with several test stores (Birdie, Millie, Kelly, and others).
+- In plain terms, the app has the data but the customer screen can'
 
 _[summary truncated — see the session record for the full text]_
 <!-- orchestrate:session-state:end -->
