@@ -42,11 +42,10 @@
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-11-04
-**Status:** at risk — App version still unknown; 7 blocking errors + store-details bug remain unfixed. Session answered log question only.
+**Status:** blocked — I reviewed the 3 Nov 2026 part of Application.log and found six distinct errors, all of which also appear in SYNC.log, plus some warnings a…
 
 **Done this session**
-- Confirmed SYNC.log contains no app version or build info
-- Identified that Application.log version line may be rotated out; provided 3 methods to retrieve it
+- I reviewed the 3 Nov 2026 part of Application.log and found six distinct errors, all of which also appear in SYNC.log, plus some warnings and a lot of unresolved-path noise. There are two small gaps in coverage (see Coverage). About your l…
 
 **Open items**
 - Add null guard for lookup.text1 in BoJobManager.myAddProducts (error #1, ~10 stack traces)
@@ -89,24 +88,17 @@
 | Name | TPB-CGC-Trace-Logs-Review-4-Nov-2026 |
 | Session | `ead177c5-3ce5-4384-8ba1-751a676e63f3` |
 **In its own words (excerpt):**
-I couldn't find an app version in the parts of the logs I can read.
+I reviewed the 3 Nov 2026 part of Application.log and found six distinct errors, all of which also appear in SYNC.log, plus some warnings and a lot of unresolved-path noise. There are two small gaps in coverage (see Coverage).
 
-**SYNC.log (all 28 KB read):** it has no version or build information. Each entry has only the timestamp, level, event code, namespace, message and sync ID.
+About your loop notice: none of my reads failed. Every `read_session_file` call returned data, so I didn't change approach. The file is 23.7 MB and 3 Nov starts at about 9.4 MB, so I split the 3 Nov part across parallel scans instead of reading it myself.
 
-**Application.log (first 30 KB of 23.7 MB read):** there is no app version or build number there either. The lines that look like versions are not the app version:
+## Errors on 3 Nov (all times UTC)
 
-| Value in the log | What it is |
-|---|---|
-| `salesforce-toolkit-rest-javascript/v65.0` | The Salesforce REST toolkit version, sent as the `X-User-Agent` header |
-| `/services/data/v65.0/composite` | The Salesforce API version, which is Winter '26 |
-| `/services/apexrest/cgc_sync/v1/...` | The version of the custom `cgc_sync` sync API |
-| `client-app-id: TquilaONE` | The app identifier, not a version |
-| `device-id: b397ff8f-0b16-482d-b15a-f05990152bc4` | The test device |
-| `sync-id: f367c960-7b33-4657-99df-b5b046231241` | The 2 Nov 21:07 UTC sync |
-
-The log shows the app starting at 2026-11-02 16:54:59 UTC ("App has started"). Even so, that line carries no version.
-
-The other 99.9% of Application.log might still hold one. Apps usually log the version once at launch, in a device or app info bloc
+| # | Error | Count | When | What it means |
+|---|---|---|---|---|
+| 1 | `navigateToCustomer failed … undefined is not an object (evaluating 'mainAddress.getLatitude')` | 2 | 16:55:06, 16:57:40 | The customer has no main address loaded, so the Navigate to Customer action fails. This is the tester's "please ask your admin" error. |
+| 2 | `Can't find variable: HeaderTab … in UI screen Order::ItemListTab` | 5 here (7 in SYNC.log) | 16:45:33, 16:51:36, 16:52:39, 16:53:58, 16:56:08 | The order item screen references a `HeaderTab` variable that isn't defined. It recurs every time the order screen opens. |
+| 3 | `CallStack.remove - Function name 'BoJobManager.replaceGetSurveys'
 
 _[summary truncated — see the session record for the full text]_
 <!-- orchestrate:session-state:end -->
