@@ -42,22 +42,21 @@
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-11-04
-**Status:** at risk — 7 log errors + tester found store-details bug blocking sales; null guards & config fixes needed before 264 upgrade
+**Status:** at risk — App version still unknown; 7 blocking errors + store-details bug remain unfixed. Session answered log question only.
 
 **Done this session**
-- Reviewed offline app testing notes (3 Nov); matched 5 tester-found issues to 7 SYNC.log error patterns
-- Confirmed store-details-disappearing and license-validation failures are root cause of sales block
-- Linked navigateToCustomer crash to missing mainAddress data in offline store creation
+- Confirmed SYNC.log contains no app version or build info
+- Identified that Application.log version line may be rotated out; provided 3 methods to retrieve it
 
 **Open items**
 - Add null guard for lookup.text1 in BoJobManager.myAddProducts (error #1, ~10 stack traces)
-- Add null check for mainAddress.getLatitude in BoCustomer.navigateToCustomer (error #6, confirmed by tester)
+- Add null check for mainAddress.getLatitude in BoCustomer.navigateToCustomer (error #6)
 - Review Order::ItemListTab screen config; HeaderTab variable undefined (error #2, 17 occurrences)
 - Check customization registrations for replaceGetSurveys, replaceSetEARight, myInitializeItemWholesaler (errors #4–5)
-- Verify customerDetail toggle field bindings and data for reasonNotVisited, prohibitVisit, acceptsMobileCoupons, type (error #3, ~40 occurrences)
+- Verify customerDetail toggle field bindings for reasonNotVisited, prohibitVisit, acceptsMobileCoupons, type (error #3, ~40 occurrences)
 - Investigate offline app store creation: how address, license, resale number, FEIN are saved to offline database
 - Send filtered Application.log (grep ';ERROR;') to check for sync/HTTP failures not in SYNC.log
-- Merge SAL-493 branch (tpb-cgc-orchestrate) into main and tag 260 baseline
+- Retrieve app version via grep, device Settings, or tester/admin; redact OAuth token before sharing
 
 **Decisions**
 - Root cause of SAL-462: custom code created visit jobs only while Planned; standard creates them while In Progress
@@ -65,7 +64,7 @@
 - Fix 2: fill missing Field Valid From/Thru dates for FRE POUCHES 694306 & 694307 if they appear in retest
 - SAL-493 treated as finished; closing steps are merge and tag
 - Errors #1, #2, #4, #5, #6 are blocking issues; must fix before 264 upgrade
-- Store-details-disappearing issue is business-blocking (prevents sales); raise/update defect with 3 Nov 16:41–16:59 UTC timestamps
+- Store-details-disappearing issue is business-blocking; raise/update defect with 3 Nov 16:41–16:59 UTC timestamps
 
 **Blockers**
 - 7 error patterns in SYNC.log prevent safe upgrade to 264 until fixed (null guards, config mismatches, registration issues)
@@ -73,14 +72,14 @@
 - Application.log contains live OAuth token and device ID; must redact before wider sharing
 
 **Next**
+- Retrieve app version using grep filter, device Settings, or tester/admin; share filtered result
 - Fix null guards in addProductsLogic (lookup.text1) and navigateToCustomer (mainAddress.getLatitude)
 - Review Order::ItemListTab screen config for HeaderTab variable definition
 - Audit customization registrations for replaceGetSurveys, replaceSetEARight, myInitializeItemWholesaler
 - Debug offline store creation flow: trace address, license, resale, FEIN from UI entry to offline database
-- Send filtered Application.log extract (grep ';ERROR;') to confirm no additional sync/HTTP failures
 - Retest with fixes applied; tester will verify 200 items sync as in stock and out-of-stock test clears distribution
 
-**Checked live on 2026-11-04:** the Salesforce org, the repository
+**Checked live on 2026-11-04:** nothing — the status above is as recorded, not re-checked
 ### Last session — 2026-11-04
 | | |
 |---|---|
@@ -90,24 +89,24 @@
 | Name | TPB-CGC-Trace-Logs-Review-4-Nov-2026 |
 | Session | `ead177c5-3ce5-4384-8ba1-751a676e63f3` |
 **In its own words (excerpt):**
-# Issues in the Offline App Testing notes (3 Nov 2026)
+I couldn't find an app version in the parts of the logs I can read.
 
-The document is a transcript of a tester's voice memo (about 18 minutes, starting 11:41 AM). The tester created new test stores and ran visits and orders in the offline app. The tester found one thing that works now and five things that don't.
+**SYNC.log (all 28 KB read):** it has no version or build information. Each entry has only the timestamp, level, event code, namespace, message and sync ID.
 
-## What now works
-- Creating a new store offline used to fail and now succeeds.
-- Adding about 200 items to distribution worked. The tester will check overnight that all 200 sync as "in stock".
-- Promotions (for example $5 off and $2 off per roll) calculated correctly in the order preview.
-- Creating and completing tasks worked.
+**Application.log (first 30 KB of 23.7 MB read):** there is no app version or build number there either. The lines that look like versions are not the app version:
 
-## What's broken, in simple words
+| Value in the log | What it is |
+|---|---|
+| `salesforce-toolkit-rest-javascript/v65.0` | The Salesforce REST toolkit version, sent as the `X-User-Agent` header |
+| `/services/data/v65.0/composite` | The Salesforce API version, which is Winter '26 |
+| `/services/apexrest/cgc_sync/v1/...` | The version of the custom `cgc_sync` sync API |
+| `client-app-id: TquilaONE` | The app identifier, not a version |
+| `device-id: b397ff8f-0b16-482d-b15a-f05990152bc4` | The test device |
+| `sync-id: f367c960-7b33-4657-99df-b5b046231241` | The 2 Nov 21:07 UTC sync |
 
-**1. Store details disappear (the biggest problem).**
-- The tester enters the address, tobacco license, resale number and FEIN when creating the store. On the Store Cockpit screen, all of that is blank.
-- The same details still show under "My Day".
-- In the Customers list, tapping a store makes its name and all its info vanish. Going back and reopening the list brings the names back.
-- This happened with several test stores (Birdie, Millie, Kelly, and others).
-- In plain terms, the app has the data but the customer screen can'
+The log shows the app starting at 2026-11-02 16:54:59 UTC ("App has started"). Even so, that line carries no version.
+
+The other 99.9% of Application.log might still hold one. Apps usually log the version once at launch, in a device or app info bloc
 
 _[summary truncated — see the session record for the full text]_
 <!-- orchestrate:session-state:end -->
