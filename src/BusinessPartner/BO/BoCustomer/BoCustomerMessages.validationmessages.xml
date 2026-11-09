@@ -27,4 +27,5 @@
   <ValidationMessage name="CasBpaClassOfTradeDependencyMsg" defaultMessage="Class of trade and subclass of trade field dependency errors.#newLine# Available options for #className#:#newLine# #subClassName#" comment="Class of Trade Dependcy" />
   <ValidationMessage name="CasBpaClosureReasonDependencyMsg" defaultMessage="Status and Closure Reason field dependency errors.#newLine# Available options for #statusName#:#newLine# #closureReasonName#" comment="Status Dependcy" />
   <ValidationMessage name="CasBpaMainCustomerNotParentOwnerClose" defaultMessage="You are not the account owner. Only the owner can close the account." comment="A chain retailer can only be closed by the owner of its parent (Headquarter) account." />
+  <ValidationMessage name="CasBpaMainCustomerFeinInvalid" defaultMessage="FEIN must be exactly 10 characters and contain only numbers and dashes (-), for example 12-3456789." comment="FEIN must be exactly 10 characters, digits and dashes only." />
 </ValidationMessages>

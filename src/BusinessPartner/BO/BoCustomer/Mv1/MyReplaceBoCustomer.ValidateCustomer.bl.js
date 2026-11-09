@@ -108,6 +108,21 @@ if(!Utils.isEmptyString(me.pKey)){
     }
   }
 
+  // FEIN is optional, but an edited value must be exactly 10 characters of digits and
+  // dashes (e.g. 12-3456789). Only checked when edited so existing values still save.
+  var isFeinEdited = Utils.isDefined(me.__reviewCaptureEditedFields) &&
+    me.__reviewCaptureEditedFields !== null &&
+    me.__reviewCaptureEditedFields.fein === true;
+  var fein = (me.getFein() || "").toString();
+  if (isFeinEdited && !Utils.isEmptyString(fein.trim()) && !/^[0-9-]{10}$/.test(fein)) {
+    messageCollector.add({
+      "level": "error",
+      "objectClass": "BoCustomer",
+      "messageID": "CasBpaMainCustomerFeinInvalid",
+      "messageParams": {},
+    });
+  }
+
   var status = me.getStatus();
   if (pageLocation === "Customer::ReviewCaptureProcess") {
     if (Utils.isEmptyString(status)) {

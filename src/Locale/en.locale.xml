@@ -4318,6 +4318,7 @@
         <Label id="CasBpaClassOfTradeDependencyMsg" text="Class of trade and subclass of trade field dependency errors.#newLine# Available options for #className#:#newLine# #subClassName#" translationStatus="7"/>
         <Label id="CasBpaClosureReasonDependencyMsg" text="Status and Closure Reason field dependency errors.#newLine# Available options for #statusName#:#newLine# #closureReasonName#" translationStatus="7"/>
         <Label id="CasBpaMainCustomerNotParentOwnerClose" text="You are not the account owner. Only the owner can close the account." translationStatus="1"/>
+        <Label id="CasBpaMainCustomerFeinInvalid" text="FEIN must be exactly 10 characters and contain only numbers and dashes (-), for example 12-3456789." translationStatus="1"/>
       </BusinessObject>
       <BusinessObject id="BoCall">
         <Label id="CasClbRemainingOpenOrders" text="There are still open orders." translationStatus="7"/>
