@@ -477,7 +477,10 @@
       <Action name="ClearCreateContactPartnerDetail" actionType="LOGIC" call="ProcessContext::ContactPartnerDetail.resetObjectStatus">
         <TransitionTo action="CustomerListMasterDetail.create" />
       </Action>
-      <Action name="UnModifyAndDisplayCustomerList" actionType="LOGIC" call="ProcessContext::CustomerDetail.resetObjectStatus">
+      <Action name="UnModifyAndDisplayCustomerList" actionType="LOGIC" call="ProcessContext::CustomerDetail.myDiscardCustomerEdits">
+        <TransitionTo action="ResetCustomerStatusAfterDiscard" />
+      </Action>
+      <Action name="ResetCustomerStatusAfterDiscard" actionType="LOGIC" call="ProcessContext::CustomerDetail.resetObjectStatus">
         <TransitionTo action="UnModifyContactPartner" />
       </Action>
       <Action name="UnModifyContactPartner" actionType="LOGIC" call="ProcessContext::ContactPartnerDetail.resetObjectStatus">

@@ -575,6 +575,165 @@ function _copyIfDefined(value, setterFn, targetObj, propertyName) {
   }
 }
 
+// Back, store switch and close save without running ValidateCustomer, so its rules are
+// checked here too. Invalid values the user edited are put back and not sent, the user's
+// other edits are still saved, and one popup lists them. Stored values the user did not
+// edit are left alone, so an old bad value never blocks or nags. Name is not listed:
+// the blank-name fallbacks below already recover it.
+var HELD_BACK_GROUP_BY_MESSAGE = {
+  "CasBpaMainCustomerEmailInvalid": "email",
+  "CasBpaMainCustomerFeinInvalid": "fein",
+  "CasBpaMainCustomerStatusMustNotBeEmpty": "status",
+  "CasBpaMainCustomerNotParentOwnerClose": "status",
+  "CasBpaMainCustomerClosureReasonMustNotBeEmpty": "status",
+  "CasBpaMainCustomerClosureReasonMustBeCorrect": "status",
+  "CasBpaClosureReasonDependencyMsg": "status",
+  "CasBpaMainCustomerAddressMustNotBeEmpty": "address",
+  "CasBpaMainCustomerZipCodeMustNotBeEmpty": "address",
+  "CasConfirmErrorZipCodeMsg": "address",
+  "CasConfirmClassOfTradeMsg": "classOfTrade",
+  "CasConfirmSubClassOfTradeMsg": "classOfTrade",
+  "CasBpaClassOfTradeDependencyMsg": "classOfTrade"
+};
+var heldBackMessages = new MessageCollector();
+var heldBackGroups = {};
+
+function _isHeldBackGroupEdited(group) {
+  var fields = me.__reviewCaptureEditedFields || {};
+  // A customer that is not on the server yet has no stored value to go back to.
+  if (group !== "fein" && _isUnpersistedCustomer(me)) {
+    return false;
+  }
+  switch (group) {
+    case "email":
+      return fields.email1 === true;
+    case "fein":
+      return fields.fein === true;
+    case "classOfTrade":
+      return fields.accClassOfTrade === true || fields.accSubClassOfTrade === true;
+    case "status":
+      return fields.closureReason === true ||
+        (me.isStatusChanged === 1 && _trimmed(me.getStatus()) !== _trimmed(me.__statusBeforeEdit));
+    case "address":
+      return me.getIsAddressChange() === "1" || _hasAddressObjectEdits(me);
+    default:
+      return false;
+  }
+}
+
+function _valueBeforeEdit(property) {
+  var valuesBeforeEdit = me.__reviewCaptureValuesBeforeEdit || {};
+  return Utils.isDefined(valuesBeforeEdit[property]) ? valuesBeforeEdit[property] : "";
+}
+
+// Stops the address being sent: SaveAsync only writes it while one of these is set.
+function _clearAddressEdits() {
+  me.setIsAddressChange("0");
+  var loAddress = me.getLoCustomerAddress();
+  if (Utils.isDefined(loAddress)) {
+    loAddress.getAllItems().forEach(function (item) {
+      item.setObjectStatus(STATE.PERSISTED);
+    });
+    loAddress.setObjectStatus(STATE.PERSISTED);
+  }
+}
+
+// The setters below mark each field edited again, so the flags are cleared after them.
+function _putBackHeldBackFields() {
+  var fields = me.__reviewCaptureEditedFields || {};
+  if (heldBackGroups.fein === true) {
+    me.setFein(_valueBeforeEdit("fein"));
+    delete fields.fein;
+  }
+  if (heldBackGroups.email === true) {
+    me.setEmail1(_valueBeforeEdit("email1"));
+    me.isEmail1Changed = 0;
+    delete fields.email1;
+  }
+  if (heldBackGroups.classOfTrade === true) {
+    if (fields.accClassOfTrade === true) {
+      me.setAccClassOfTrade(_valueBeforeEdit("accClassOfTrade"));
+    }
+    if (fields.accSubClassOfTrade === true) {
+      me.setAccSubClassOfTrade(_valueBeforeEdit("accSubClassOfTrade"));
+    }
+    me.isClassOfTradeChanged = 0;
+    me.isSubclassOfTradeChanged = 0;
+    delete fields.accClassOfTrade;
+    delete fields.accSubClassOfTrade;
+  }
+  if (heldBackGroups.status === true) {
+    if (me.isStatusChanged === 1) {
+      me.setStatus(me.__statusBeforeEdit);
+      me.setWorkloadStatus(me.__workloadStatusBeforeEdit);
+      me.setClosureReason(me.__closureReasonBeforeEdit);
+      me.isStatusChanged = 0;
+    } else if (fields.closureReason === true) {
+      me.setClosureReason(_valueBeforeEdit("closureReason"));
+    }
+    delete fields.closureReason;
+    delete fields.workloadStatus;
+  }
+  if (heldBackGroups.address === true) {
+    _clearAddressEdits();
+  }
+}
+
+// Reads the stored address back so the screen and object no longer hold the invalid one.
+function _restoreHeldBackAddress() {
+  if (heldBackGroups.address !== true) {
+    return when.resolve();
+  }
+  return BoFactory.loadObjectByParamsAsync(BO_CUSTOMER, me.getQueryBy("pKey", me.getPKey())).then(function (dbCustomer) {
+    var storedAddress = dbCustomer.getLoCustomerAddress().getMainAddress();
+    var mainAddress = me.getLoCustomerAddress().getMainAddress();
+    if (Utils.isDefined(storedAddress) && Utils.isDefined(mainAddress)) {
+      mainAddress.setStreet(storedAddress.getStreet());
+      mainAddress.setZipCode(storedAddress.getZipCode());
+      mainAddress.setCity(storedAddress.getCity());
+      mainAddress.setCountryState(storedAddress.getCountryState());
+      _clearAddressEdits();
+    }
+  }).catch(function (error) {
+    console.log("[MyReplaceBoCustomer.SaveAsync] stored address not restored", error);
+  });
+}
+
+// Returned from SaveAsync so navigation waits until the user has pressed OK.
+function _finishHeldBackFields() {
+  if (Object.keys(heldBackGroups).length === 0) {
+    return when.resolve();
+  }
+  return _restoreHeldBackAddress().then(function () {
+    var heldBackButtonValues = {};
+    heldBackButtonValues[Localization.resolve("OK")] = "ok";
+    return MessageBox.displayMessage(
+      Localization.resolve("MessageBox_Title_Error"),
+      heldBackMessages.getMessages().join("<br>"),
+      heldBackButtonValues
+    );
+  });
+}
+
+try {
+  me.replaceValidateCustomer({
+    add: function (message) {
+      var group = HELD_BACK_GROUP_BY_MESSAGE[message.messageID];
+      if (Utils.isDefined(group) && _isHeldBackGroupEdited(group)) {
+        heldBackGroups[group] = true;
+        heldBackMessages.add(message);
+      }
+    }
+  });
+} catch (validationError) {
+  // Half-loaded data must not stop the save; anything collected so far still applies.
+  console.log("[MyReplaceBoCustomer.SaveAsync] validation before save stopped", validationError);
+}
+if (Object.keys(heldBackGroups).length > 0) {
+  console.log("[MyReplaceBoCustomer.SaveAsync] invalid edits held back", heldBackGroups);
+  _putBackHeldBackFields();
+}
+
 //Flag used to decide if  roles must be saved or not
 //For records already saved on DB no need to save the roles because roles are read only
 var isCustomerPersistedDirty = me.getObjectStatus() === (STATE.PERSISTED | STATE.DIRTY);
@@ -645,7 +804,9 @@ if (me.__hostProcess === "Customer::ReviewCaptureProcess" &&
     (!Utils.isEmptyString(effectiveCurrentName) && effectiveCurrentName !== previousPersistedName) ||
     (!Utils.isEmptyString(effectiveTypedName) && effectiveTypedName !== previousPersistedName);
   if (!hasEffectiveNameEdit && !hadUserEditsAtSaveStart) {
-    return when.resolve(me);
+    return _finishHeldBackFields().then(function () {
+      return me;
+    });
   }
   // Use name-only save in ReviewCapture persisted-record edits to avoid
   // unrelated unstable fields blocking the transaction.
@@ -957,6 +1118,7 @@ promise = promise.then(
     me.__lastPersistedName = _trimmed(me.getName());
     // Edits are now queued for sync; clear them so later implicit saves do not resend.
     me.__reviewCaptureEditedFields = {};
+    me.__reviewCaptureValuesBeforeEdit = {};
     if (isReviewCaptureNameOnlySave) {
       // Open-hours edits on an existing store are saved here too (the core save skipped them).
       _queueOpenHoursSave(me, deferreds);
@@ -1079,6 +1241,12 @@ Account Harmonization: obsolete */
 
     return when.all(deferreds);
   });
+
+promise = promise.then(function (saveResult) {
+  return _finishHeldBackFields().then(function () {
+    return saveResult;
+  });
+});
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                           //

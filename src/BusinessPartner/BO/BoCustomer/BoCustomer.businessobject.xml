@@ -238,6 +238,7 @@
     <Method name="getContactPartner" />
     <Method name="resetObjectStatus" />
     <Method name="myResetStatusIfPersisted" />
+    <Method name="myDiscardCustomerEdits" />
     <Method name="myShouldSaveBeforeSelection" />
     <Method name="loadLoListingClassificationAsync" />
     <Method name="loadLoListingModulesAsync" />

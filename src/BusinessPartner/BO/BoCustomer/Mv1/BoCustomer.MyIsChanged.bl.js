@@ -74,6 +74,16 @@ if(newValue !== oldValue){
         me.__reviewCaptureEditedFields[simpleProperty] = true;
         me.setObjectStatus(me.getObjectStatus() | STATE.DIRTY);
     }
+    // Keep each value from before its first edit so SaveAsync can put it back when the
+    // new value is invalid and the save skipped ValidateCustomer (Back / store switch).
+    if (reviewCaptureTrackedFields.indexOf(simpleProperty) !== -1) {
+        if (!Utils.isDefined(me.__reviewCaptureValuesBeforeEdit) || me.__reviewCaptureValuesBeforeEdit === null) {
+            me.__reviewCaptureValuesBeforeEdit = {};
+        }
+        if (me.__reviewCaptureValuesBeforeEdit[simpleProperty] === undefined) {
+            me.__reviewCaptureValuesBeforeEdit[simpleProperty] = (oldValue === undefined || oldValue === null) ? "" : oldValue;
+        }
+    }
     if(simpleProperty === "accClassOfTrade"){
         me.isClassOfTradeChanged = 1;
     }else if(simpleProperty === "accSubClassOfTrade"){
